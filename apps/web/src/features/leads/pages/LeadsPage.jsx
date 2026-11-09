@@ -12,6 +12,7 @@ import {
 import { PageHeader } from '../../../components/ui/PageHeader.jsx';
 import { Button } from '../../../components/ui/Button.jsx';
 import { LeadTable } from '../components/LeadTable.jsx';
+import { LeadKanbanBoard } from '../components/LeadKanbanBoard.jsx';
 import { LeadFilters } from '../components/LeadFilters.jsx';
 import { LeadForm } from '../components/LeadForm.jsx';
 import { ConfirmationDialog } from '../../../components/ui/ConfirmationDialog.jsx';
@@ -30,11 +31,14 @@ export function LeadsPage() {
   const canArchive = userRole === 'ADMIN';
   const canViewAll = userRole === 'ADMIN' || userRole === 'MANAGER' || isDemo;
 
+  const viewMode = searchParams.get('view') === 'kanban' ? 'kanban' : 'table';
+
   // Parse filters from URL search params
   const filters = useMemo(() => {
     return {
+      view: searchParams.get('view') || 'table',
       page: parseInt(searchParams.get('page') || '1', 10),
-      limit: parseInt(searchParams.get('limit') || '10', 10),
+      limit: searchParams.get('view') === 'kanban' ? 100 : parseInt(searchParams.get('limit') || '10', 10),
       search: searchParams.get('search') || '',
       status: searchParams.get('status') || '',
       source: searchParams.get('source') || '',
@@ -45,7 +49,10 @@ export function LeadsPage() {
 
   // Clean params for backend API call (remove empty strings)
   const apiParams = useMemo(() => {
-    const params = { page: filters.page, limit: filters.limit };
+    const params = {
+      page: filters.view === 'kanban' ? 1 : filters.page,
+      limit: filters.view === 'kanban' ? 100 : filters.limit,
+    };
     if (filters.search) params.search = filters.search;
     if (filters.status) params.status = filters.status;
     if (filters.source) params.source = filters.source;
@@ -61,6 +68,17 @@ export function LeadsPage() {
   const updateLeadMutation = useUpdateLead();
   const archiveLeadMutation = useArchiveLead();
   const restoreLeadMutation = useRestoreLead();
+
+  const handleStatusChange = async (leadId, newStatus) => {
+    if (filters.isArchived) {
+      toast.warning('Stage updates are disabled on archived leads. Restore the lead first to make changes.');
+      return;
+    }
+    await updateLeadMutation.mutateAsync({
+      id: leadId,
+      data: { status: newStatus },
+    });
+  };
 
   // Modals state
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -214,19 +232,20 @@ export function LeadsPage() {
           <div className="flex items-center space-x-2">
             <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80">
               <Button
-                variant="primary"
+                variant={viewMode === 'table' ? 'primary' : 'ghost'}
                 size="xs"
                 leftIcon={Table}
-                className="shadow-xs"
+                onClick={() => updateFilter('view', 'table')}
+                className={viewMode === 'table' ? 'shadow-xs' : 'text-slate-600 hover:text-slate-900'}
               >
                 Table View
               </Button>
               <Button
-                variant="ghost"
+                variant={viewMode === 'kanban' ? 'primary' : 'ghost'}
                 size="xs"
                 leftIcon={LayoutGrid}
-                onClick={() => navigate(isDemo ? '/demo/leads/kanban' : '/leads/kanban')}
-                className="text-slate-600 hover:text-slate-900"
+                onClick={() => updateFilter('view', 'kanban')}
+                className={viewMode === 'kanban' ? 'shadow-xs' : 'text-slate-600 hover:text-slate-900'}
               >
                 Kanban
               </Button>
@@ -265,6 +284,14 @@ export function LeadsPage() {
             onRetry={refetch}
           />
         </div>
+      ) : viewMode === 'kanban' ? (
+        <LeadKanbanBoard
+          leads={leads}
+          onStatusChange={handleStatusChange}
+          isUpdating={updateLeadMutation.isPending}
+          isArchived={filters.isArchived}
+          onRestoreLead={handleRestore}
+        />
       ) : (
         /* Leads Table */
         <LeadTable

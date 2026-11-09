@@ -20,6 +20,8 @@ import {
   UserCheck,
   ChevronLeft,
   ChevronRight,
+  RotateCcw,
+  X,
 } from 'lucide-react';
 
 export function EmployeesPage() {
@@ -30,6 +32,15 @@ export function EmployeesPage() {
   const [roleFilter, setRoleFilter] = useState('');
   const [isActiveFilter, setIsActiveFilter] = useState('');
   const [page, setPage] = useState(1);
+
+  const hasActiveFilters = Boolean(searchTerm || roleFilter || isActiveFilter !== '');
+
+  const handleResetFilters = () => {
+    setSearchTerm('');
+    setRoleFilter('');
+    setIsActiveFilter('');
+    setPage(1);
+  };
 
   // Modals state
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -157,37 +168,83 @@ export function EmployeesPage() {
       </div>
 
       {/* Filter Bar */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex flex-col sm:flex-row items-center gap-3 justify-between">
-        <div className="w-full sm:w-80">
-          <Input
-            placeholder="Search by name, email..."
-            leftIcon={Search}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+          {/* Left: Search input */}
+          <div className="flex-1 max-w-md">
+            <Input
+              placeholder="Search by name, email..."
+              leftIcon={Search}
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(1);
+              }}
+              rightIcon={
+                searchTerm
+                  ? () => (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSearchTerm('');
+                          setPage(1);
+                        }}
+                        className="text-slate-400 hover:text-slate-600 pointer-events-auto"
+                        title="Clear search"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )
+                  : null
+              }
+            />
+          </div>
 
-        <div className="w-full sm:w-auto flex flex-wrap items-center gap-2">
-          <Select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            className="w-full sm:w-40"
-          >
-            <option value="">All Roles</option>
-            <option value="ADMIN">Administrator</option>
-            <option value="MANAGER">Manager</option>
-            <option value="EMPLOYEE">Employee</option>
-          </Select>
+          {/* Right: Role & Status filters + Reset */}
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+            <div className="w-full sm:w-44">
+              <Select
+                value={roleFilter}
+                onChange={(e) => {
+                  setRoleFilter(e.target.value);
+                  setPage(1);
+                }}
+                containerClassName="w-full"
+              >
+                <option value="">All Roles</option>
+                <option value="ADMIN">Administrator</option>
+                <option value="MANAGER">Manager</option>
+                <option value="EMPLOYEE">Employee</option>
+              </Select>
+            </div>
 
-          <Select
-            value={isActiveFilter}
-            onChange={(e) => setIsActiveFilter(e.target.value)}
-            className="w-full sm:w-36"
-          >
-            <option value="">All Statuses</option>
-            <option value="true">Active</option>
-            <option value="false">Deactivated</option>
-          </Select>
+            <div className="w-full sm:w-40">
+              <Select
+                value={isActiveFilter}
+                onChange={(e) => {
+                  setIsActiveFilter(e.target.value);
+                  setPage(1);
+                }}
+                containerClassName="w-full"
+              >
+                <option value="">All Statuses</option>
+                <option value="true">Active Only</option>
+                <option value="false">Deactivated</option>
+              </Select>
+            </div>
+
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                leftIcon={RotateCcw}
+                onClick={handleResetFilters}
+                className="text-slate-500 hover:text-slate-900 shrink-0"
+              >
+                Reset
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 

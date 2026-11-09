@@ -8,6 +8,7 @@ export const Select = forwardRef(function Select(
     options = [],
     children,
     className = '',
+    containerClassName = '',
     id,
     disabled = false,
     required = false,
@@ -18,7 +19,7 @@ export const Select = forwardRef(function Select(
   const selectId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
 
   return (
-    <div className="w-full space-y-1.5">
+    <div className={`space-y-1.5 ${containerClassName || 'w-full'}`}>
       {label && (
         <label htmlFor={selectId} className="block text-xs font-semibold text-slate-700">
           {label}

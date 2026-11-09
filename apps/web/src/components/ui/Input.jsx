@@ -8,6 +8,7 @@ export const Input = forwardRef(function Input(
     leftIcon: LeftIcon,
     rightIcon: RightIcon,
     className = '',
+    containerClassName = '',
     id,
     disabled = false,
     required = false,
@@ -19,7 +20,7 @@ export const Input = forwardRef(function Input(
   const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
 
   return (
-    <div className="w-full space-y-1.5">
+    <div className={`space-y-1.5 ${containerClassName || 'w-full'}`}>
       {label && (
         <label htmlFor={inputId} className="block text-xs font-semibold text-slate-700">
           {label}

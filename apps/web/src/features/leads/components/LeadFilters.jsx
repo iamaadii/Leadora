@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Input } from '../../../components/ui/Input.jsx';
 import { Select } from '../../../components/ui/Select.jsx';
 import { Button } from '../../../components/ui/Button.jsx';
-import { Search, X, RotateCcw } from 'lucide-react';
+import { Search, X, RotateCcw, Archive } from 'lucide-react';
 
 export function LeadFilters({
   filters,
@@ -115,14 +115,14 @@ export function LeadFilters({
       {/* Filter status row & Clear action */}
       <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-xs">
         {/* Archive toggle */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200/80">
           <button
             type="button"
             onClick={() => onFilterChange('isArchived', false)}
-            className={`px-3 py-1 rounded-lg font-medium transition ${
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
               !filters.isArchived
-                ? 'bg-blue-50 text-blue-700 font-semibold'
-                : 'text-slate-500 hover:text-slate-800'
+                ? 'bg-white text-blue-700 shadow-2xs font-bold'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             Active Leads
@@ -130,13 +130,14 @@ export function LeadFilters({
           <button
             type="button"
             onClick={() => onFilterChange('isArchived', true)}
-            className={`px-3 py-1 rounded-lg font-medium transition ${
+            className={`inline-flex items-center space-x-1 px-3 py-1 rounded-lg text-xs font-semibold transition ${
               filters.isArchived
-                ? 'bg-blue-50 text-blue-700 font-semibold'
-                : 'text-slate-500 hover:text-slate-800'
+                ? 'bg-amber-500 text-slate-950 font-bold shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Archived Leads
+            <Archive className="w-3.5 h-3.5" />
+            <span>Archived Leads</span>
           </button>
         </div>
 

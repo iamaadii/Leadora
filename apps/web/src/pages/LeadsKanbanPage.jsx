@@ -1,10 +1,11 @@
-import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useMemo } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../features/auth/hooks/useAuth.js';
 import {
   useLeads,
   useCreateLead,
   useUpdateLead,
+  useRestoreLead,
   useAssignees,
 } from '../features/leads/hooks/useLeads.js';
 import { PageHeader } from '../components/ui/PageHeader.jsx';
@@ -17,6 +18,7 @@ import { LayoutGrid, Table, Plus } from 'lucide-react';
 
 export function LeadsKanbanPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const { toast } = useToast();
   const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
@@ -24,18 +26,26 @@ export function LeadsKanbanPage() {
   const userRole = isDemo ? 'DEMO' : user?.role || 'EMPLOYEE';
   const canViewAll = userRole === 'ADMIN' || userRole === 'MANAGER' || isDemo;
 
-  const [filters, setFilters] = useState({
-    search: '',
-    source: '',
-    assigned_to_id: '',
-    limit: 100, // Show larger batch for Kanban board
-  });
+  // Sync filters from URL search params
+  const filters = useMemo(() => {
+    return {
+      search: searchParams.get('search') || '',
+      status: searchParams.get('status') || '',
+      source: searchParams.get('source') || '',
+      assigned_to_id: searchParams.get('assigned_to_id') || '',
+      isArchived: searchParams.get('isArchived') === 'true',
+      limit: 100, // Load comprehensive batch for Kanban board
+    };
+  }, [searchParams]);
 
+  // Clean params for backend API call
   const apiParams = useMemo(() => {
     const params = { page: 1, limit: filters.limit };
     if (filters.search) params.search = filters.search;
+    if (filters.status) params.status = filters.status;
     if (filters.source) params.source = filters.source;
     if (filters.assigned_to_id) params.assigned_to_id = filters.assigned_to_id;
+    if (filters.isArchived) params.isArchived = 'true';
     return params;
   }, [filters]);
 
@@ -44,25 +54,62 @@ export function LeadsKanbanPage() {
 
   const createLeadMutation = useCreateLead();
   const updateLeadMutation = useUpdateLead();
+  const restoreLeadMutation = useRestoreLead();
 
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
 
   const updateFilter = (key, value) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (value === '' || value === null || value === undefined || value === false) {
+        next.delete(key);
+      } else {
+        next.set(key, String(value));
+      }
+      return next;
+    });
   };
 
   const resetFilters = () => {
-    setFilters({ search: '', source: '', assigned_to_id: '', limit: 100 });
+    setSearchParams(new URLSearchParams());
   };
 
   const handleStatusChange = async (leadId, newStatus) => {
+    if (filters.isArchived) {
+      toast.warning('Stage updates are disabled on archived leads. Restore the lead first to make changes.');
+      return;
+    }
     await updateLeadMutation.mutateAsync({
       id: leadId,
       data: { status: newStatus },
     });
   };
 
+  const handleRestore = async (lead) => {
+    if (isDemo) {
+      toast.warning(
+        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
+        'Demo Mode (Read-Only)',
+      );
+      return;
+    }
+    try {
+      await restoreLeadMutation.mutateAsync(lead.id);
+      toast.success(`Lead "${lead.name}" restored to active status.`);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to restore lead', 'Restore Error');
+    }
+  };
+
   const handleCreateSubmit = async (payload) => {
+    if (isDemo) {
+      toast.warning(
+        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
+        'Demo Mode (Read-Only)',
+      );
+      setIsCreateModalOpen(false);
+      return;
+    }
     try {
       const res = await createLeadMutation.mutateAsync(payload);
       toast.success(`Lead "${res.data.name}" created successfully`);
@@ -96,7 +143,7 @@ export function LeadsKanbanPage() {
                 variant="ghost"
                 size="xs"
                 leftIcon={Table}
-                onClick={() => navigate(isDemo ? '/demo/leads' : '/leads')}
+                onClick={() => navigate(isDemo ? `/demo/leads?${searchParams.toString()}` : `/leads?${searchParams.toString()}`)}
                 className="text-slate-600 hover:text-slate-900"
               >
                 Table View
@@ -133,7 +180,7 @@ export function LeadsKanbanPage() {
 
       {/* Kanban Board */}
       {isLoading ? (
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-12 text-center text-slate-400 text-sm">
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-16 text-center text-slate-400 text-sm">
           Loading pipeline board...
         </div>
       ) : (
@@ -141,6 +188,8 @@ export function LeadsKanbanPage() {
           leads={leads}
           onStatusChange={handleStatusChange}
           isUpdating={updateLeadMutation.isPending}
+          isArchived={filters.isArchived}
+          onRestoreLead={handleRestore}
         />
       )}
 
