@@ -16,33 +16,40 @@ export function LeadoraIcon({ className = 'w-9 h-9' }) {
       viewBox="0 0 48 48"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={`${className} shrink-0`}
+      className={`${className} shrink-0 drop-shadow-xs`}
       aria-hidden="true"
     >
       <defs>
-        <linearGradient id="leadora-icon-grad-cmp" x1="8" y1="8" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#6366F1" />
-          <stop offset="100%" stopColor="#3B82F6" />
+        <linearGradient id="leadora-vibrant-bg" x1="2" y1="2" x2="46" y2="46" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#2563EB" />
+          <stop offset="50%" stopColor="#3B82F6" />
+          <stop offset="100%" stopColor="#4F46E5" />
         </linearGradient>
-        <linearGradient id="leadora-accent-grad-cmp" x1="28" y1="8" x2="40" y2="20" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#34D399" />
-          <stop offset="100%" stopColor="#10B981" />
+        <linearGradient id="leadora-accent-mint" x1="26" y1="18" x2="38" y2="6" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#A7F3D0" />
+          <stop offset="100%" stopColor="#34D399" />
         </linearGradient>
       </defs>
-      <rect x="2" y="2" width="44" height="44" rx="12" fill="#0F172A" />
-      <rect x="2" y="2" width="44" height="44" rx="12" stroke="#4F46E5" strokeWidth="1.5" strokeOpacity="0.5" />
+
+      {/* High-visibility vibrant blue/indigo squircle badge */}
+      <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#leadora-vibrant-bg)" />
+      <rect x="2.5" y="2.5" width="43" height="43" rx="11.5" stroke="#FFFFFF" strokeWidth="1" strokeOpacity="0.3" />
+
+      {/* Razor-sharp Pure White L Monogram */}
       <path
         d="M14 12C14 10.8954 14.8954 10 16 10H20C21.1046 10 22 10.8954 22 12V28C22 29.1046 22.8954 30 24 30H34C35.1046 30 36 30.8954 36 32V36C36 37.1046 35.1046 38 34 38H18C15.7909 38 14 36.2091 14 34V12Z"
-        fill="url(#leadora-icon-grad-cmp)"
+        fill="#FFFFFF"
       />
+
+      {/* High-luminance Mint Emerald Growth Arrow */}
       <path
-        d="M26 18L36 8M36 8H29M36 8V15"
-        stroke="url(#leadora-accent-grad-cmp)"
-        strokeWidth="3"
+        d="M26 18L37 7M37 7H29M37 7V15"
+        stroke="url(#leadora-accent-mint)"
+        strokeWidth="3.2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="36" cy="8" r="2.5" fill="#34D399" />
+      <circle cx="37" cy="7" r="2.75" fill="#34D399" />
     </svg>
   );
 }
@@ -71,16 +78,16 @@ export function BrandLogo({
       <LeadoraIcon className={conf.icon} />
       <div className="flex flex-col min-w-0 select-none">
         <span
-          className={`font-extrabold tracking-tight leading-none ${conf.text} ${
+          className={`font-black tracking-tight leading-none ${conf.text} ${
             isDark ? 'text-white' : 'text-slate-900'
           }`}
         >
-          Lead<span className="text-indigo-600">ora</span>
+          Lead<span className={isDark ? 'text-blue-400' : 'text-blue-600'}>ora</span>
         </span>
         {showSubtitle && (
           <span
-            className={`font-semibold tracking-wider uppercase truncate mt-0.5 ${conf.sub} ${
-              isDark ? 'text-slate-400' : 'text-slate-500'
+            className={`font-bold tracking-wider uppercase truncate mt-0.5 ${conf.sub} ${
+              isDark ? 'text-slate-300' : 'text-slate-600'
             }`}
           >
             {subtitleText}
@@ -90,4 +97,3 @@ export function BrandLogo({
     </div>
   );
 }
-
