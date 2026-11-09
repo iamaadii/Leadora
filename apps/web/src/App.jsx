@@ -10,6 +10,7 @@ import { RoleRoute } from './features/auth/components/RoleRoute.jsx';
 import { DashboardLayout } from './layouts/DashboardLayout.jsx';
 
 // Pages
+import { LandingPage } from './pages/LandingPage.jsx';
 import { LoginPage } from './features/auth/pages/LoginPage.jsx';
 import { DashboardPage } from './pages/DashboardPage.jsx';
 import { LeadsPage } from './pages/LeadsPage.jsx';
@@ -43,7 +44,8 @@ export function App() {
         <ToastProvider>
           <BrowserRouter>
             <Routes>
-              {/* Public Route: Login */}
+              {/* Public Routes */}
+              <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
 
               {/* Protected Routes inside DashboardLayout */}
@@ -54,8 +56,6 @@ export function App() {
                   </ProtectedRoute>
                 }
               >
-                {/* Default Index Route redirects to Dashboard */}
-                <Route index element={<Navigate to="/dashboard" replace />} />
                 <Route path="dashboard" element={<DashboardPage />} />
                 <Route path="leads" element={<LeadsPage />} />
                 <Route path="leads/kanban" element={<LeadsKanbanPage />} />

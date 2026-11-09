@@ -142,9 +142,21 @@ business-crm/
 │       │   │       └── services/
 │       │   │           └── teams.service.js
 │       │   ├── layouts/
-│       │   │   └── AppLayout.jsx        # Top navbar & authenticated user status
+│       │   │   ├── DashboardLayout.jsx  # Main authenticated CRM shell with Sidebar & Topbar
+│       │   │   └── Topbar.jsx           # Top header with dynamic notification bell & profile menu
 │       │   ├── pages/
-│       │   │   └── HomePage.jsx         # Home dashboard with session card & connectivity test
+│       │   │   ├── LandingPage.jsx      # Public B2B SaaS landing page (/)
+│       │   │   ├── DashboardPage.jsx    # Analytics KPI dashboard
+│       │   │   ├── LeadsPage.jsx        # Leads list & view switcher
+│       │   │   ├── LeadsKanbanPage.jsx  # 7-stage drag-and-drop Kanban pipeline
+│       │   │   ├── EmployeesPage.jsx    # Employee directory administration
+│       │   │   ├── FollowupsPage.jsx    # Follow-ups & task scheduling
+│       │   │   ├── ActivitiesPage.jsx   # Standalone chronological activity feed
+│       │   │   ├── NotificationsPage.jsx# In-app notifications feed
+│       │   │   ├── ReportsPage.jsx      # Sales analytics & export hub
+│       │   │   ├── SettingsPage.jsx     # Tenant organization settings
+│       │   │   ├── PlatformOrganizationsPage.jsx # Super Admin platform governance
+│       │   │   └── ProfilePage.jsx      # User profile details & password security
 │       │   ├── services/
 │       │   │   └── api.js               # Axios client with token & refresh interceptors
 │       │   ├── App.jsx                  # React Router & AuthProvider

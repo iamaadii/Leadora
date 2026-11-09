@@ -11,22 +11,38 @@ It connects to the Express backend via REST endpoints under `/api/v1`.
 ## 2. Navigation Tree and Route Map
 
 ```
-/login                                  [Public Route]
-/app                                    [Protected: Any Logged-in User]
-  |-- /dashboard                        [Dashboard & Overview]
+/                                       [Public Route: Modern B2B SaaS Landing Page]
+/login                                  [Public Route: Authentication Sign In]
+/app (DashboardLayout)                  [Protected: Authenticated Tenant & Platform Users]
+  |-- /dashboard                        [Role-Scored Dashboard & Analytics]
   |-- /leads                            [Leads Table View]
   |-- /leads/kanban                     [Leads Pipeline Kanban Board]
   |-- /leads/:id                        [Lead 360 Detail View]
   |-- /follow-ups                       [Follow-up Tasks & Reminders]
+  |-- /activities                       [Standalone Activity Audit Stream]
+  |-- /notifications                    [In-App Notifications Feed]
+  |-- /employees                        [Employee Directory - Admin Only]
   |-- /teams                            [Teams Management - Admin & Manager]
-  |-- /users                            [User Management - Admin Only]
-  |-- /reports                          [Sales Performance - Admin & Manager]
-  |-- /settings                         [Settings Page - Organization & Profile]
+  |-- /reports                          [Analytics & Exports - All Roles Scoped]
+  |-- /settings                         [Organization Settings - Admin Only]
+  |-- /platform/organizations           [Platform Tenant Governance - Super Admin Only]
+  |-- /profile                          [Personal Profile & Security - All Roles]
 ```
 
 ---
 
 ## 3. Detailed Screen Descriptions
+
+### 3.0 Public Landing Page (`/`)
+- **Purpose:** Public presentation layer for prospective organizations, marketing features, workflow explanation, and portal sign-in navigation.
+- **Header:** Brand identity (`BusinessCRM`), anchor navigation (`#features`, `#how-it-works`, `#benefits`, `#preview`, `#faq`), and "Sign In" / "Get Started" buttons linking to `/login`.
+- **Hero Section:** High-impact value proposition (*"Manage Your Leads. Empower Your Sales Team."*), feature pills, and realistic UI preview of pipeline kanban and sales KPIs.
+- **Features Grid:** Showcases 8 actual platform capabilities: Lead Lifecycle Management, 7-Stage Pipeline & Kanban, Employee & Team Management, Follow-ups & Task Scheduling, Real-Time Sales Analytics, Reports & Data Export, Chronological Activity Feed, and Multi-Tenant Role Access.
+- **How It Works:** 5-step operational progression from workspace setup to executive reporting.
+- **Benefits:** Focuses on centralizing customer information, coordinating sales teams, tracking pipeline velocity, zero task neglect, and enterprise isolation.
+- **Interactive Preview:** Authentic preview tab switcher between Pipeline Kanban, Executive Analytics, and Multi-Format Exports.
+- **FAQ:** Accessible accordion addressing platform capabilities, tenant isolation, and role models.
+- **Routing Invariants:** Unauthenticated visitors view the landing page. Authenticated users opening `/` are automatically redirected to `/dashboard`.
 
 ### 3.1 Login Page (`/login`)
 - **Layout:** Centered card on a clean slate background.
