@@ -281,6 +281,8 @@ export async function seedDatabase() {
         createdById: aliceId,
         title: 'Initial Discovery Call',
         description: 'Call David to review their team size, current pain points, and schedule demo.',
+        type: 'CALL',
+        priority: 'HIGH',
         dueAt: twoDaysFromNow,
         status: 'PENDING',
         completedAt: null,
@@ -291,6 +293,8 @@ export async function seedDatabase() {
         createdById: aliceId,
         title: 'Send Custom Demo Recording',
         description: 'Overdue task: Record and email workflow walkthrough video for Elena.',
+        type: 'EMAIL',
+        priority: 'HIGH',
         dueAt: yesterday,
         status: 'PENDING',
         completedAt: null,
@@ -301,6 +305,8 @@ export async function seedDatabase() {
         createdById: bobId,
         title: 'Live Product Demo with Technical Team',
         description: 'Demonstrate custom reporting and pipeline stage management via Zoom.',
+        type: 'MEETING',
+        priority: 'MEDIUM',
         dueAt: now,
         status: 'PENDING',
         completedAt: null,
@@ -311,9 +317,13 @@ export async function seedDatabase() {
         createdById: bobId,
         title: 'Send Enterprise Price Quote',
         description: 'Delivered standard quote with 30-seat tier discount.',
+        type: 'EMAIL',
+        priority: 'MEDIUM',
         dueAt: threeDaysAgo,
         status: 'COMPLETED',
         completedAt: threeDaysAgo,
+        completedById: bobId,
+        completionNotes: 'Quotation delivered and acknowledged by Dr. Green.',
       },
       {
         company: 'Vanguard Retail Chain',
@@ -321,6 +331,8 @@ export async function seedDatabase() {
         createdById: aliceId,
         title: 'Contract Review Call with Legal',
         description: 'Follow up on MSA redlines sent by Vanguard procurement.',
+        type: 'CALL',
+        priority: 'HIGH',
         dueAt: fiveDaysFromNow,
         status: 'PENDING',
         completedAt: null,
@@ -331,6 +343,8 @@ export async function seedDatabase() {
         createdById: aliceId,
         title: 'Check in on Q4 Budget Reallocation',
         description: 'Customer canceled follow-up due to internal leadership restructuring.',
+        type: 'TASK',
+        priority: 'LOW',
         dueAt: yesterday,
         status: 'CANCELLED',
         completedAt: null,
@@ -350,19 +364,36 @@ export async function seedDatabase() {
         await client.query(
           `INSERT INTO followups (
              organization_id, lead_id, assigned_to_id, title, description,
-             due_at, status, completed_at, created_by_id
+             type, priority, due_at, status, completed_at, completed_by_id, completion_notes, created_by_id
            )
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);`,
           [
             orgId,
             leadId,
             item.assignedToId,
             item.title,
             item.description,
+            item.type || 'CALL',
+            item.priority || 'MEDIUM',
             item.dueAt,
             item.status,
             item.completedAt,
+            item.completedById || null,
+            item.completionNotes || null,
             item.createdById,
+          ],
+        );
+      } else {
+        await client.query(
+          `UPDATE followups
+           SET type = $1, priority = $2, completed_by_id = $3, completion_notes = $4
+           WHERE id = $5;`,
+          [
+            item.type || 'CALL',
+            item.priority || 'MEDIUM',
+            item.completedById || null,
+            item.completionNotes || null,
+            existingFollowup.rows[0].id,
           ],
         );
       }

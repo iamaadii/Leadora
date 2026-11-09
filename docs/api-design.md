@@ -200,6 +200,20 @@ Every API endpoint returns a predictable JSON structure:
 | `GET` | `/teams/:id/roster` | Admin, Manager | Get active team roster |
 | `GET` | `/teams/:id/workload` | Admin, Manager | Get team member workload breakdown and pipeline stage counts |
 
+### 4.5 Follow-ups & Task Scheduling Endpoints (Phase 7)
+
+| Method | Endpoint | Allowed Roles | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/followups/summary` | Admin, Manager, Employee | Get role-scoped metric counts (total, pending, overdue, due_today, completed, cancelled) |
+| `GET` | `/followups` | Admin, Manager, Employee | List paginated follow-ups with role scoping, status, type, priority, and date filters |
+| `POST` | `/followups` | Admin, Manager, Employee | Schedule new follow-up (Admin: any org user; Manager: team members; Employee: self only) |
+| `GET` | `/followups/:id` | Admin, Manager, Employee | Get single follow-up details (role-scoped, returns 404 if inaccessible) |
+| `PATCH` | `/followups/:id` | Admin, Manager, Employee | Update follow-up details, priority, or reschedule due date |
+| `PATCH` | `/followups/:id/complete`| Admin, Manager, Employee | Mark task COMPLETED and record completion notes |
+| `PATCH` | `/followups/:id/cancel` | Admin, Manager, Employee | Cancel task |
+| `GET` | `/followups/lead/:leadId`| Admin, Manager, Employee | Get all follow-ups linked to a lead |
+| `GET` | `/leads/:id/followups` | Admin, Manager, Employee | Alternate REST resource endpoint for lead follow-ups |
+
 ---
 
 ## 5. Request Validation Using Zod

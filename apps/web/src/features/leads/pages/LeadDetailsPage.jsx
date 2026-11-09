@@ -14,6 +14,17 @@ import { ErrorState } from '../../../components/ui/ErrorState.jsx';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import { LEAD_STATUSES } from '../leads.constants.js';
 import {
+  useLeadFollowups,
+  useCreateFollowup,
+  useCompleteFollowup,
+  useCancelFollowup,
+} from '../../followups/hooks/useFollowups.js';
+import { CreateFollowupModal } from '../../followups/components/CreateFollowupModal.jsx';
+import { CompleteFollowupModal } from '../../followups/components/CompleteFollowupModal.jsx';
+import { FollowupTypeIcon } from '../../followups/components/FollowupTypeIcon.jsx';
+import { FollowupStatusBadge } from '../../followups/components/FollowupStatusBadge.jsx';
+import { FollowupPriorityBadge } from '../../followups/components/FollowupPriorityBadge.jsx';
+import {
   Mail,
   Phone,
   Building,
@@ -25,6 +36,10 @@ import {
   Activity,
   ArrowLeft,
   ChevronDown,
+  CalendarClock,
+  CheckCircle2,
+  Plus,
+  XCircle,
 } from 'lucide-react';
 import { Dropdown, DropdownItem } from '../../../components/ui/Dropdown.jsx';
 
@@ -41,13 +56,65 @@ export function LeadDetailsPage() {
   const archiveLeadMutation = useArchiveLead();
   const restoreLeadMutation = useRestoreLead();
 
+  // Follow-ups (Phase 7)
+  const { data: followupsData, isLoading: isFollowupsLoading } = useLeadFollowups(id);
+  const createFollowupMutation = useCreateFollowup();
+  const completeFollowupMutation = useCompleteFollowup();
+  const cancelFollowupMutation = useCancelFollowup();
+
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isArchiveConfirmOpen, setIsArchiveConfirmOpen] = useState(false);
+  const [isScheduleFollowupOpen, setIsScheduleFollowupOpen] = useState(false);
+  const [completingFollowup, setCompletingFollowup] = useState(null);
+  const [cancellingFollowup, setCancellingFollowup] = useState(null);
 
   const lead = leadData?.data;
+  const leadFollowups = followupsData?.data || [];
   const assignees = assigneesData?.data || [];
   const userRole = user?.role || 'EMPLOYEE';
   const canArchive = userRole === 'ADMIN';
+
+  const handleCreateFollowup = async (payload) => {
+    try {
+      await createFollowupMutation.mutateAsync(payload);
+      toast.success('Follow-up task scheduled successfully');
+      setIsScheduleFollowupOpen(false);
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || err.message || 'Failed to schedule follow-up',
+        'Scheduling Error',
+      );
+    }
+  };
+
+  const handleCompleteFollowup = async (notes) => {
+    try {
+      await completeFollowupMutation.mutateAsync({
+        id: completingFollowup.id,
+        completionNotes: notes,
+      });
+      toast.success('Follow-up task marked as completed');
+      setCompletingFollowup(null);
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || err.message || 'Failed to complete follow-up',
+        'Completion Error',
+      );
+    }
+  };
+
+  const handleCancelFollowup = async () => {
+    try {
+      await cancelFollowupMutation.mutateAsync(cancellingFollowup.id);
+      toast.success('Follow-up task was cancelled');
+      setCancellingFollowup(null);
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || err.message || 'Failed to cancel follow-up',
+        'Cancellation Error',
+      );
+    }
+  };
 
   const handleStatusChange = async (newStatus) => {
     if (!lead || lead.status === newStatus) return;
@@ -358,8 +425,122 @@ export function LeadDetailsPage() {
           </div>
         </div>
 
-        {/* Right Column: Activity History Timeline */}
+        {/* Right Column: Activity History Timeline & Follow-ups */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Follow-ups Panel */}
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center space-x-2">
+                <CalendarClock className="w-4 h-4 text-blue-600" />
+                <h3 className="text-sm font-bold text-slate-900">Scheduled Follow-ups</h3>
+                <span className="text-[10px] font-semibold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-100">
+                  {leadFollowups.filter((f) => f.status === 'PENDING').length} pending
+                </span>
+              </div>
+              <Button
+                size="xs"
+                variant="outline"
+                leftIcon={Plus}
+                onClick={() => setIsScheduleFollowupOpen(true)}
+              >
+                Schedule Follow-up
+              </Button>
+            </div>
+
+            {isFollowupsLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-10 w-full rounded-xl" />
+                <Skeleton className="h-10 w-full rounded-xl" />
+              </div>
+            ) : leadFollowups.length === 0 ? (
+              <div className="p-4 bg-slate-50 border border-dashed border-slate-200 rounded-xl text-center space-y-2">
+                <p className="text-xs text-slate-500">No follow-ups scheduled for this lead.</p>
+                <Button
+                  size="xs"
+                  variant="primary"
+                  leftIcon={Plus}
+                  onClick={() => setIsScheduleFollowupOpen(true)}
+                >
+                  Schedule Initial Follow-up
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                {leadFollowups.map((f) => {
+                  const isPending = f.status === 'PENDING';
+                  const isOverdue =
+                    isPending && f.due_at && new Date(f.due_at).getTime() < Date.now();
+
+                  return (
+                    <div
+                      key={f.id}
+                      className={`p-3 rounded-xl border transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                        isOverdue
+                          ? 'bg-rose-50/30 border-rose-200'
+                          : f.status === 'COMPLETED'
+                          ? 'bg-slate-50/60 border-slate-200/60 opacity-80'
+                          : 'bg-white border-slate-200/80 shadow-xs'
+                      }`}
+                    >
+                      <div className="flex items-start space-x-3">
+                        <div className="p-2 rounded-lg bg-slate-100 shrink-0 mt-0.5">
+                          <FollowupTypeIcon type={f.type} />
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-xs font-semibold text-slate-900">{f.title}</span>
+                            <FollowupPriorityBadge priority={f.priority} />
+                            <FollowupStatusBadge
+                              status={f.status}
+                              dueAt={f.due_at}
+                              isOverdue={f.is_overdue}
+                            />
+                          </div>
+                          {f.description && (
+                            <p className="text-[11px] text-slate-500 line-clamp-1">{f.description}</p>
+                          )}
+                          <div className="flex items-center space-x-3 text-[11px] text-slate-400">
+                            <span>Due: {new Date(f.due_at).toLocaleString()}</span>
+                            <span>·</span>
+                            <span>Assigned: {f.assigned_to_first_name ? `${f.assigned_to_first_name} ${f.assigned_to_last_name}` : 'Unassigned'}</span>
+                          </div>
+                          {f.completion_notes && (
+                            <p className="text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
+                              Outcome: {f.completion_notes}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {isPending && (
+                        <div className="flex items-center space-x-2 self-end sm:self-center">
+                          <Button
+                            size="xs"
+                            variant="outline"
+                            leftIcon={CheckCircle2}
+                            onClick={() => setCompletingFollowup(f)}
+                            className="text-emerald-600 border-emerald-200 hover:bg-emerald-50"
+                          >
+                            Complete
+                          </Button>
+                          <button
+                            type="button"
+                            title="Cancel Follow-up"
+                            onClick={() => setCancellingFollowup(f)}
+                            className="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-rose-50 transition"
+                          >
+                            <XCircle className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Activity History Timeline */}
           <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center space-x-2">
@@ -389,6 +570,41 @@ export function LeadDetailsPage() {
         assignees={assignees}
         userRole={userRole}
         currentUserId={user?.id}
+      />
+
+      {/* Schedule Follow-up Modal */}
+      <CreateFollowupModal
+        isOpen={isScheduleFollowupOpen}
+        onClose={() => setIsScheduleFollowupOpen(false)}
+        defaultLeadId={lead.id}
+        defaultLeadName={lead.name}
+        leads={[]}
+        assignees={assignees}
+        userRole={userRole}
+        currentUserId={user?.id}
+        onSubmit={handleCreateFollowup}
+        isLoading={createFollowupMutation.isPending}
+      />
+
+      {/* Complete Follow-up Modal */}
+      <CompleteFollowupModal
+        isOpen={Boolean(completingFollowup)}
+        onClose={() => setCompletingFollowup(null)}
+        followup={completingFollowup}
+        onComplete={handleCompleteFollowup}
+        isLoading={completeFollowupMutation.isPending}
+      />
+
+      {/* Cancel Follow-up Dialog */}
+      <ConfirmationDialog
+        isOpen={Boolean(cancellingFollowup)}
+        onClose={() => setCancellingFollowup(null)}
+        onConfirm={handleCancelFollowup}
+        title="Cancel Follow-up"
+        message={`Are you sure you want to cancel the scheduled task "${cancellingFollowup?.title}"?`}
+        confirmText="Cancel Task"
+        isDestructive
+        isLoading={cancelFollowupMutation.isPending}
       />
 
       {/* Archive Confirmation Dialog */}

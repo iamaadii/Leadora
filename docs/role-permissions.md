@@ -164,3 +164,24 @@ This guarantees that no user can ever see data from another company.
 3. **What if an Employee guesses another lead's ID in the URL?**
    - The SQL query checks both `id = $1` AND `assigned_user_id = $2`. If the lead belongs to someone else, the database returns 0 rows, and the API returns `404 Not Found`.
 
+---
+
+## 5. Follow-ups & Task Scheduling Permissions (Phase 7)
+
+### Permission Matrix
+
+| Operation | Super Admin | Admin | Manager | Employee |
+| :--- | :--- | :--- | :--- | :--- |
+| **List Follow-ups** | 403 Forbidden | Org-wide | Managed Teams + Self | Assigned to Self only |
+| **Schedule Follow-up** | 403 Forbidden | Any org lead/user | Team leads/members | Own leads / Self only |
+| **View Follow-up Details** | 403 Forbidden | Full access | Team scope (404 otherwise) | Own scope (404 otherwise) |
+| **Reschedule / Edit** | 403 Forbidden | Any pending task | Pending team tasks | Own pending tasks |
+| **Reassign Follow-up** | 403 Forbidden | Any active org user | Active team members | 403 Forbidden |
+| **Complete Follow-up** | 403 Forbidden | Any pending task | Pending team tasks | Own pending tasks |
+| **Cancel Follow-up** | 403 Forbidden | Any pending task | Pending team tasks | Own pending tasks |
+| **KPI Summary Aggregates**| 403 Forbidden | Org-wide counts | Team-scoped counts | Personal counts |
+
+### Terminal Status Invariance
+Follow-ups in terminal status (`COMPLETED` or `CANCELLED`) cannot be modified, completed, or cancelled by any role (returns HTTP 400).
+
+

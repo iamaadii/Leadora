@@ -178,3 +178,53 @@ When an employee departs the company or needs to be deactivated:
    - Managers can only assign leads to themselves or active members of their managed teams.
    - If a Manager attempts to assign or view leads outside their teams, the API returns `403 Forbidden` / `404 Not Found`.
 
+---
+
+### 2.8 Journey 8: Follow-up Scheduling, Rescheduling & Completion (Phase 7)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Sales Rep / Manager / Admin
+    participant Frontend as React Web App
+    participant API as Express API
+    participant DB as PostgreSQL Database
+
+    User->>Frontend: Fills "Schedule Follow-up" Modal
+    Frontend->>API: POST /api/v1/followups { leadId, title, type, priority, dueAt, assignedToId }
+    API->>API: Verify role boundaries & assignee validity
+    API->>DB: BEGIN Transaction
+    API->>DB: INSERT INTO followups (...)
+    API->>DB: INSERT INTO activities (activity_type = 'FOLLOWUP_CREATED')
+    API->>DB: INSERT INTO notifications (if assigned to other user)
+    API->>DB: COMMIT Transaction
+    API-->>Frontend: 201 Created (Followup object)
+    Frontend->>User: Displays scheduled task in Follow-ups table and Lead timeline
+
+    Note over User,DB: When task is executed...
+    User->>Frontend: Clicks "Complete" and inputs call notes
+    Frontend->>API: PATCH /api/v1/followups/:id/complete { completionNotes }
+    API->>API: Verify task is still PENDING
+    API->>DB: BEGIN Transaction
+    API->>DB: UPDATE followups SET status = 'COMPLETED', completed_at = NOW(), completed_by_id = user.id, completion_notes = $1
+    API->>DB: INSERT INTO activities (activity_type = 'FOLLOWUP_COMPLETED')
+    API->>DB: COMMIT Transaction
+    API-->>Frontend: 200 OK
+    Frontend->>User: Updates status to Completed and displays outcome badge
+```
+
+**Step-by-step Execution:**
+1. **Scheduling**: User fills the schedule modal from either the global Follow-ups workspace or the Lead details page.
+2. **Access Control**:
+   - Admins can assign to any user.
+   - Managers can assign to themselves or members of their managed teams.
+   - Employees can only schedule tasks assigned to themselves.
+3. **Rescheduling / Reassignment**:
+   - If the due date is altered, an activity log entry `FOLLOWUP_RESCHEDULED` is created.
+   - If reassigned, `FOLLOWUP_REASSIGNED` is logged and the new assignee receives an in-app notification.
+4. **Completion**:
+   - Rep logs notes and clicks Complete.
+   - Record transitions to `COMPLETED` and becomes immutable.
+   - Activity entry `FOLLOWUP_COMPLETED` appends notes into the lead's chronological audit trail.
+
+

@@ -324,16 +324,43 @@ The frontend is built with React + Vite, Tailwind CSS, and Lucide React icons fo
 - **Safe Dynamic Filtering & Sorting:** Safe parameterization with strict allowlists (`created_at`, `updated_at`, `name`, `company`, `status`), preventing SQL injection.
 
 ### Running Backend Tests
-Execute both Phase 3 Auth and Phase 5 Lead Management automated test suites (35 tests total):
+Execute all 5 automated test suites (Auth, Leads, Employees, Teams, Follow-ups - 82 tests total):
 ```bash
 npm run test:api
-# Or run lead suite specifically:
+# Or run individual test suites:
+node --test apps/api/tests/auth.test.js
 node --test apps/api/tests/leads.test.js
+node --test apps/api/tests/employees.test.js
+node --test apps/api/tests/teams.test.js
+node --test apps/api/tests/followups.test.js
 ```
 
 ---
 
-## 9. Starting Frontend and Backend
+## 9. Employee & Team Management (Phase 6)
+
+- **Employee Directory:** Secure account provisioning, Argon2 hashed temporary passwords, mandatory first-login password changes, role promotions, and safe deactivations.
+- **Team Management:** Admin team creation, assignment of managers, single-active-membership invariant, and team-scoped workload distribution dashboards.
+- **Role Boundary Scoping:** Managers are strictly bounded to their assigned teams. Leads cannot be assigned to employees outside managed teams.
+
+---
+
+## 10. Follow-ups & Task Scheduling (Phase 7)
+
+- **Task Scheduling:** Schedule calls, emails, meetings, and general tasks with `due_at` timestamps and priority flags (`HIGH`, `MEDIUM`, `LOW`).
+- **Dynamic Overdue Tracking:** Overdue tasks are dynamically calculated (`status = 'PENDING' AND due_at < NOW()`) and highlighted in red without stale cron dependencies.
+- **Task Lifecycle:** Strict transitions from `PENDING` to terminal states `COMPLETED` or `CANCELLED`.
+- **Outcome Logging:** Mandatory outcome capture with notes appended to lead audit histories.
+- **In-App Notifications:** Automatic notifications created whenever tasks are assigned or reassigned to other team members.
+- **Role Permissions:**
+  - `ADMIN`: Full organization scheduling, reassignment, and KPI visibility.
+  - `MANAGER`: Team-scoped scheduling, team member reassignment, and workload metrics.
+  - `EMPLOYEE`: Self-assigned tasks only; cannot reassign to others.
+  - `SUPER_ADMIN`: Forbidden from accessing organization follow-ups (HTTP 403).
+
+---
+
+## 11. Starting Frontend and Backend
 
 Start both applications with one command:
 

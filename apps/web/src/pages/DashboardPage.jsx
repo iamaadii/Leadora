@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuth } from '../features/auth/hooks/useAuth.js';
+import { useFollowupSummary } from '../features/followups/hooks/useFollowups.js';
 import { PageHeader } from '../components/ui/PageHeader.jsx';
 import { StatCard } from './dashboard/components/StatCard.jsx';
 import { EmptyState } from '../components/ui/EmptyState.jsx';
@@ -21,6 +22,14 @@ import {
 
 export function DashboardPage() {
   const { user } = useAuth();
+  const isTenantUser = user?.role !== 'SUPER_ADMIN';
+  const { data: followupSummaryData, isLoading: isFollowupsLoading } = useFollowupSummary({
+    enabled: isTenantUser,
+  });
+
+  const followupSummary = followupSummaryData?.data;
+  const pendingTasksCount = followupSummary ? followupSummary.pending : null;
+  const overdueCount = followupSummary ? followupSummary.overdue : 0;
 
   return (
     <div className="space-y-6">
@@ -74,10 +83,16 @@ export function DashboardPage() {
         />
         <StatCard
           title="Pending Tasks"
-          empty
+          value={pendingTasksCount !== null ? pendingTasksCount : '--'}
+          empty={pendingTasksCount === null && !isFollowupsLoading}
+          isLoading={isFollowupsLoading}
           icon={Clock}
-          color="amber"
-          description="Scheduled follow-ups"
+          color={overdueCount > 0 ? 'rose' : 'amber'}
+          description={
+            overdueCount > 0
+              ? `${overdueCount} overdue task(s)`
+              : 'Scheduled follow-ups'
+          }
         />
       </div>
 

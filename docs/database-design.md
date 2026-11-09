@@ -99,16 +99,20 @@ Prospects and sales pipeline opportunities.
   - `idx_leads_email`: Fast duplicate search by email.
 
 ### 3.4 `followups`
-Scheduled customer interactions (calls, meetings, emails).
+Scheduled customer interactions (calls, meetings, emails, tasks). Enhanced in Phase 7 via Migration `011`.
 - `id`: `UUID PRIMARY KEY DEFAULT gen_random_uuid()`
 - `organization_id`: `UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE`
 - `lead_id`: `UUID NOT NULL` (FK to `leads(organization_id, id)`)
 - `assigned_to_id`: `UUID NOT NULL` (FK to `users(organization_id, id)`)
 - `title`: `VARCHAR(255) NOT NULL`
 - `description`: `TEXT NULL`
+- `type`: `VARCHAR(50) DEFAULT 'CALL' NOT NULL` (`CALL`, `EMAIL`, `MEETING`, `TASK`)
+- `priority`: `VARCHAR(50) DEFAULT 'MEDIUM' NOT NULL` (`LOW`, `MEDIUM`, `HIGH`)
 - `due_at`: `TIMESTAMPTZ NOT NULL`
 - `status`: `VARCHAR(50) DEFAULT 'PENDING' NOT NULL` (`PENDING`, `COMPLETED`, `CANCELLED`)
 - `completed_at`: `TIMESTAMPTZ NULL`
+- `completed_by_id`: `UUID NULL` (FK to `users(organization_id, id) ON DELETE SET NULL`)
+- `completion_notes`: `TEXT NULL`
 - `created_by_id`: `UUID NOT NULL` (FK to `users(organization_id, id)`)
 - `created_at`: `TIMESTAMPTZ DEFAULT NOW() NOT NULL`
 - `updated_at`: `TIMESTAMPTZ DEFAULT NOW() NOT NULL`
@@ -116,6 +120,8 @@ Scheduled customer interactions (calls, meetings, emails).
   - `idx_followups_org_due_at`: Calendar and scheduling range filters.
   - `idx_followups_pending_due`: Partial index for rapid overdue calculation (`WHERE status = 'PENDING'`).
   - `idx_followups_lead_id`: Foreign key lookup.
+  - `idx_followups_priority`: Fast priority filtering.
+  - `idx_followups_type`: Fast activity type filtering.
 
 ### 3.5 `activities`
 Append-only chronological timeline of events on each lead.
@@ -123,7 +129,7 @@ Append-only chronological timeline of events on each lead.
 - `organization_id`: `UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE`
 - `lead_id`: `UUID NOT NULL` (FK to `leads(organization_id, id)`)
 - `actor_user_id`: `UUID NULL` (FK to `users(organization_id, id)`)
-- `activity_type`: `VARCHAR(50) NOT NULL` (`CALL`, `MEETING`, `EMAIL`, `NOTE`, `STATUS_CHANGE`, `ASSIGNMENT_CHANGE`, `FOLLOWUP_CREATED`, `FOLLOWUP_COMPLETED`, `LEAD_CREATED`, `LEAD_UPDATED`, `LEAD_ASSIGNED`, `LEAD_STATUS_CHANGED`, `LEAD_ARCHIVED`, `LEAD_RESTORED`)
+- `activity_type`: `VARCHAR(50) NOT NULL` (`CALL`, `MEETING`, `EMAIL`, `NOTE`, `STATUS_CHANGE`, `ASSIGNMENT_CHANGE`, `FOLLOWUP_CREATED`, `FOLLOWUP_UPDATED`, `FOLLOWUP_RESCHEDULED`, `FOLLOWUP_REASSIGNED`, `FOLLOWUP_COMPLETED`, `FOLLOWUP_CANCELLED`, `LEAD_CREATED`, `LEAD_UPDATED`, `LEAD_ASSIGNED`, `LEAD_STATUS_CHANGED`, `LEAD_ARCHIVED`, `LEAD_RESTORED`)
 - `description`: `TEXT NOT NULL`
 - `metadata`: `JSONB DEFAULT '{}'::jsonb NOT NULL`
 - `created_at`: `TIMESTAMPTZ DEFAULT NOW() NOT NULL`

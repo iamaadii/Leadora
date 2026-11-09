@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { leadsController } from './leads.controller.js';
+import { followupsController } from '../followups/followups.controller.js';
 import {
   validateBody,
   validateQuery,
@@ -30,8 +31,9 @@ router.patch('/:id', validateBody(updateLeadSchema), leadsController.updateLead)
 router.patch('/:id/archive', authorizeRoles('ADMIN'), leadsController.archiveLead);
 router.patch('/:id/restore', authorizeRoles('ADMIN'), leadsController.restoreLead);
 
-// 5. Lead activity history
+// 5. Lead activity history & follow-ups
 router.get('/:id/activities', leadsController.getLeadActivities);
+router.get('/:id/followups', followupsController.getLeadFollowups);
 
 export const leadsRouter = router;
 

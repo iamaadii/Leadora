@@ -1,0 +1,29 @@
+export const FOLLOWUP_STATUS = {
+  PENDING: 'PENDING',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+};
+
+export const FOLLOWUP_TYPES = ['CALL', 'EMAIL', 'MEETING', 'TASK'];
+
+export const FOLLOWUP_PRIORITIES = ['LOW', 'MEDIUM', 'HIGH'];
+
+export const ALLOWED_FOLLOWUP_SORT_FIELDS = [
+  'due_at',
+  'created_at',
+  'updated_at',
+  'priority',
+  'status',
+  'title',
+];
+
+export const ALLOWED_FOLLOWUP_SORT_ORDERS = ['ASC', 'DESC'];
+
+export const FOLLOWUP_ACTIVITY_TYPES = {
+  CREATED: 'FOLLOWUP_CREATED',
+  UPDATED: 'FOLLOWUP_UPDATED',
+  REASSIGNED: 'FOLLOWUP_REASSIGNED',
+  COMPLETED: 'FOLLOWUP_COMPLETED',
+  CANCELLED: 'FOLLOWUP_CANCELLED',
+  RESCHEDULED: 'FOLLOWUP_RESCHEDULED',
+};
