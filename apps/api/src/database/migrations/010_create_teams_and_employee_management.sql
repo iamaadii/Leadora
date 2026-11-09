@@ -71,3 +71,4 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_team_members_active_employee
 -- Query indexes
 CREATE INDEX IF NOT EXISTS idx_team_members_team ON team_members (team_id) WHERE removed_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_team_members_org ON team_members (organization_id);
+

@@ -89,3 +89,4 @@ export function EditEmployeeModal({ isOpen, onClose, employee, onSubmit, isSubmi
     </Modal>
   );
 }
+

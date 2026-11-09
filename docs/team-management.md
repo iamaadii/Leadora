@@ -87,3 +87,4 @@ If a Manager attempts to assign a lead to an employee belonging to another team 
 - `DELETE /api/v1/teams/:id/members/:employeeId`: Remove member from team (Admin only).
 - `GET /api/v1/teams/:id/roster`: View active team roster (Admin, or team's Manager).
 - `GET /api/v1/teams/:id/workload`: View member lead counts and stage distribution (Admin, or team's Manager).
+

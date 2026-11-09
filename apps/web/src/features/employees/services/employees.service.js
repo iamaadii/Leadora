@@ -66,3 +66,4 @@ export const employeesService = {
     return res.data;
   },
 };
+

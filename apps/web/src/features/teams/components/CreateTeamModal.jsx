@@ -106,3 +106,4 @@ export function CreateTeamModal({ isOpen, onClose, onSubmit, isSubmitting }) {
     </Modal>
   );
 }
+

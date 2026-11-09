@@ -113,3 +113,4 @@ export function EditTeamModal({ isOpen, onClose, team, onSubmit, isSubmitting })
     </Modal>
   );
 }
+

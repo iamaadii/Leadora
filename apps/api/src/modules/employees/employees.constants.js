@@ -10,3 +10,4 @@ export const ALLOWED_EMPLOYEE_SORT_FIELDS = [
 ];
 
 export const ALLOWED_EMPLOYEE_SORT_ORDERS = ['ASC', 'DESC'];
+

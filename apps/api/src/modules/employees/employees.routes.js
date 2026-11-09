@@ -29,3 +29,4 @@ router.patch('/:id/deactivate', employeesController.deactivateEmployee);
 router.patch('/:id/activate', employeesController.activateEmployee);
 
 export default router;
+
