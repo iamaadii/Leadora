@@ -36,3 +36,4 @@ export const REPORT_TITLES = {
 
 export const DEFAULT_PAGE_LIMIT = 50;
 export const MAX_EXPORT_LIMIT = 10000;
+

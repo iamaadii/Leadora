@@ -13,6 +13,7 @@ import { DashboardLayout } from './layouts/DashboardLayout.jsx';
 import { LoginPage } from './features/auth/pages/LoginPage.jsx';
 import { DashboardPage } from './pages/DashboardPage.jsx';
 import { LeadsPage } from './pages/LeadsPage.jsx';
+import { LeadsKanbanPage } from './pages/LeadsKanbanPage.jsx';
 import { LeadDetailsPage } from './features/leads/pages/LeadDetailsPage.jsx';
 import { EmployeesPage } from './pages/EmployeesPage.jsx';
 import { TeamsPage } from './features/teams/pages/TeamsPage.jsx';
@@ -22,6 +23,7 @@ import { ActivitiesPage } from './pages/ActivitiesPage.jsx';
 import { NotificationsPage } from './pages/NotificationsPage.jsx';
 import { ReportsPage } from './pages/ReportsPage.jsx';
 import { SettingsPage } from './pages/SettingsPage.jsx';
+import { PlatformOrganizationsPage } from './pages/PlatformOrganizationsPage.jsx';
 import { ProfilePage } from './pages/ProfilePage.jsx';
 import { HomePage } from './pages/HomePage.jsx';
 
@@ -56,6 +58,7 @@ export function App() {
                 <Route index element={<Navigate to="/dashboard" replace />} />
                 <Route path="dashboard" element={<DashboardPage />} />
                 <Route path="leads" element={<LeadsPage />} />
+                <Route path="leads/kanban" element={<LeadsKanbanPage />} />
                 <Route path="leads/:id" element={<LeadDetailsPage />} />
 
                 {/* Role-Guarded: Employees (Admin only) */}
@@ -108,22 +111,32 @@ export function App() {
 
                 <Route path="notifications" element={<NotificationsPage />} />
 
-                {/* Role-Guarded: Reports (Admin, Manager, SuperAdmin) */}
+                {/* Role-Guarded: Reports (SuperAdmin, Admin, Manager, Employee) */}
                 <Route
                   path="reports"
                   element={
-                    <RoleRoute allowedRoles={['SUPER_ADMIN', 'ADMIN', 'MANAGER']}>
+                    <RoleRoute allowedRoles={['SUPER_ADMIN', 'ADMIN', 'MANAGER', 'EMPLOYEE']}>
                       <ReportsPage />
                     </RoleRoute>
                   }
                 />
 
-                {/* Role-Guarded: Settings (SuperAdmin, Admin) */}
+                {/* Role-Guarded: Tenant Settings (Admin only) */}
                 <Route
                   path="settings"
                   element={
-                    <RoleRoute allowedRoles={['SUPER_ADMIN', 'ADMIN']}>
+                    <RoleRoute allowedRoles={['ADMIN']}>
                       <SettingsPage />
+                    </RoleRoute>
+                  }
+                />
+
+                {/* Role-Guarded: Platform Organizations (Super Admin only) */}
+                <Route
+                  path="platform/organizations"
+                  element={
+                    <RoleRoute allowedRoles={['SUPER_ADMIN']}>
+                      <PlatformOrganizationsPage />
                     </RoleRoute>
                   }
                 />

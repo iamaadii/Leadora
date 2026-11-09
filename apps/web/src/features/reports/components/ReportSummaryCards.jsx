@@ -112,3 +112,4 @@ export function ReportSummaryCards({ category, summary = {} }) {
     </div>
   );
 }
+

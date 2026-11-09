@@ -61,17 +61,12 @@ business-crm/
 │   │   │   │   │   └── leads.validation.js
 │   │   │   │   ├── followups/           # Follow-ups & Task Scheduling (Phase 7)
 │   │   │   │   ├── dashboard/           # Dashboard & Analytics module (Phase 8)
-│   │   │   │   └── reports/             # Reports & Data Export module (Phase 9)
-│   │   │   │       ├── exporters/       # Multi-format export engines (CSV, Excel, PDF)
-│   │   │   │       │   ├── csv.exporter.js
-│   │   │   │       │   ├── excel.exporter.js
-│   │   │   │       │   └── pdf.exporter.js
-│   │   │   │       ├── reports.constants.js
-│   │   │   │       ├── reports.controller.js
-│   │   │   │       ├── reports.repository.js
-│   │   │   │       ├── reports.routes.js
-│   │   │   │       ├── reports.service.js
-│   │   │   │       └── reports.validation.js
+│   │   │   │   ├── reports/             # Reports & Data Export module (Phase 9)
+│   │   │   │   ├── notifications/       # In-App Notifications module (Phase 10A)
+│   │   │   │   ├── organization/        # Tenant Organization Settings module (Phase 10A)
+│   │   │   │   ├── users/               # User Profile Management module (Phase 10A)
+│   │   │   │   ├── platform/            # Platform Org Management module (Phase 10A)
+│   │   │   │   └── activities/          # Standalone Activities Feed module (Phase 10A)
 │   │   │   ├── repositories/            # Raw SQL repository layer
 │   │   │   │   ├── auth.repository.js
 │   │   │   │   ├── refresh-token.repository.js
@@ -86,7 +81,11 @@ business-crm/
 │   │   │   ├── teams.test.js            # 10-point automated team & manager boundary test suite
 │   │   │   ├── followups.test.js        # 24-point automated follow-up & task scheduling test suite
 │   │   │   ├── dashboard.test.js        # 21-point automated dashboard & analytics test suite
-│   │   │   └── reports.test.js          # 19-point automated reports & data export test suite
+│   │   │   ├── reports.test.js          # 19-point automated reports & data export test suite
+│   │   │   ├── notifications.test.js    # 7-point automated notification test suite (Phase 10A)
+│   │   │   ├── settings-and-profile.test.js # 8-point automated settings & profile test suite (Phase 10A)
+│   │   │   ├── platform-organizations.test.js # 6-point automated platform org test suite (Phase 10A)
+│   │   │   └── activities-feed.test.js  # 4-point automated activities feed test suite (Phase 10A)
 │   │   └── package.json
 │   │
 │   └── web/                              # Frontend React + Vite Application

@@ -219,5 +219,7 @@ Migrations are organized as versioned files under `apps/api/src/database/migrati
 8. `008_create_audit_logs.sql`
 9. `009_expand_activity_types.sql`
 10. `010_create_teams_and_employee_management.sql`
+11. `011_enhance_followups.sql`
+12. `012_add_settings_and_enhance_notifications.sql` - Adds currency and timezone columns to organizations, adds entity_type, entity_id, and metadata to notifications, and adds unique index uq_notifications_daily_reminder for idempotent daily reminders.
 
 A dedicated tracking table `schema_migrations` prevents re-execution.

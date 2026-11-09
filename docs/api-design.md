@@ -238,6 +238,44 @@ Every API endpoint returns a predictable JSON structure:
 | `GET` | `/platform/reports/:reportType/export` | Super Admin | Direct file download for platform governance reports |
 | `POST` | `/platform/reports/:reportType/export` | Super Admin | Alternate POST export for platform reports |
 
+### 4.9 In-App Notifications API
+
+| Method | Endpoint | Allowed Roles | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/notifications` | Admin, Manager, Employee | Paginated notification feed with unread/read filters |
+| `GET` | `/notifications/unread-count` | Admin, Manager, Employee | Active count of unread notifications |
+| `PATCH` | `/notifications/:id/read` | Admin, Manager, Employee | Mark individual notification as read |
+| `PATCH` | `/notifications/read-all` | Admin, Manager, Employee | Mark all user notifications as read |
+
+### 4.10 Organization Settings API
+
+| Method | Endpoint | Allowed Roles | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/organization/settings` | Admin, Manager, Employee | Retrieve tenant organization profile, currency, and timezone |
+| `PATCH` | `/organization/settings` | Admin | Update tenant organization name, currency, and timezone |
+
+### 4.11 User Profile API
+
+| Method | Endpoint | Allowed Roles | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/users/profile` | All authenticated roles | Retrieve personal user profile and organization info |
+| `PATCH` | `/users/profile` | All authenticated roles | Update own first name, last name, and phone |
+
+### 4.12 Platform Organizations API
+
+| Method | Endpoint | Allowed Roles | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/platform/organizations` | Super Admin | Paginated tenant organizations list with search & status filters |
+| `POST` | `/platform/organizations` | Super Admin | Provision new tenant organization and initial Admin account |
+| `GET` | `/platform/organizations/:id` | Super Admin | Retrieve single organization details |
+| `PATCH` | `/platform/organizations/:id/status` | Super Admin | Suspend or reactivate organization (revokes sessions on suspend) |
+
+### 4.13 Standalone Activities API
+
+| Method | Endpoint | Allowed Roles | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/activities` | Admin, Manager, Employee | Paginated chronological interactions feed with type & lead filters |
+
 ---
 
 ## 5. Request Validation Using Zod

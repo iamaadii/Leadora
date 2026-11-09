@@ -220,6 +220,29 @@ Follow-ups in terminal status (`COMPLETED` or `CANCELLED`) cannot be modified, c
 | **GET /platform/reports/users**| Full Access | **403 Forbidden** | **403 Forbidden** | **403 Forbidden** |
 | **Platform Exports (CSV/Excel/PDF)**| Full Access | **403 Forbidden** | **403 Forbidden** | **403 Forbidden** |
 
+---
+
+## 8. CRM Feature Completion & Missing Modules Permissions (Phase 10A)
+
+### Permission Matrix
+
+| Operation | Super Admin | Admin | Manager | Employee |
+| :--- | :--- | :--- | :--- | :--- |
+| **GET /notifications** | 403 Forbidden | Personal notifications | Personal notifications | Personal notifications |
+| **GET /notifications/unread-count** | 403 Forbidden | Personal count | Personal count | Personal count |
+| **PATCH /notifications/:id/read** | 403 Forbidden | Own notifications | Own notifications | Own notifications |
+| **PATCH /notifications/read-all** | 403 Forbidden | Own notifications | Own notifications | Own notifications |
+| **GET /organization/settings** | 403 Forbidden | Org settings | Org settings | Org settings |
+| **PATCH /organization/settings** | 403 Forbidden | **Allowed** | **403 Forbidden** | **403 Forbidden** |
+| **GET /users/profile** | Own Profile | Own Profile | Own Profile | Own Profile |
+| **PATCH /users/profile** | Own Profile | Own Profile | Own Profile | Own Profile |
+| **GET /platform/organizations** | **Full Access** | **403 Forbidden** | **403 Forbidden** | **403 Forbidden** |
+| **POST /platform/organizations** | **Full Access** | **403 Forbidden** | **403 Forbidden** | **403 Forbidden** |
+| **PATCH /platform/organizations/:id/status** | **Full Access** | **403 Forbidden** | **403 Forbidden** | **403 Forbidden** |
+| **GET /activities** | 403 Forbidden | Org-wide Feed | Team Feed | Personal Feed |
+| **Leads Kanban Board (/leads/kanban)** | 403 Forbidden | Org-wide Leads | Team Leads | Own Assigned Leads |
+
+
 
 
 

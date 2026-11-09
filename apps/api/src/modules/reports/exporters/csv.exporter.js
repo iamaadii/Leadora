@@ -83,3 +83,4 @@ export function generateCsv({ columns, data, title, summary }) {
   const csvContent = '\uFEFF' + lines.join('\r\n');
   return Buffer.from(csvContent, 'utf-8');
 }
+

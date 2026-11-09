@@ -122,7 +122,7 @@ export function DashboardPage() {
             </p>
           </div>
           <div className="pt-2">
-            <Link to="/settings">
+            <Link to="/platform/organizations">
               <Button size="sm" variant="outline" leftIcon={Building2}>
                 View System Organizations
               </Button>

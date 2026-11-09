@@ -12,6 +12,11 @@ import teamsRouter from './modules/teams/teams.routes.js';
 import { followupsRouter } from './modules/followups/followups.routes.js';
 import { dashboardRouter } from './modules/dashboard/dashboard.routes.js';
 import { reportsRouter, platformReportsRouter } from './modules/reports/reports.routes.js';
+import { notificationsRouter } from './modules/notifications/notifications.routes.js';
+import { organizationRouter } from './modules/organization/organization.routes.js';
+import { usersRouter } from './modules/users/users.routes.js';
+import { platformRouter } from './modules/platform/platform.routes.js';
+import { activitiesRouter } from './modules/activities/activities.routes.js';
 import { errorMiddleware } from './middleware/error.middleware.js';
 import { notFoundMiddleware } from './middleware/not-found.middleware.js';
 
@@ -107,6 +112,13 @@ export function createApp() {
   // Reports & Data Export Routes (Phase 9)
   app.use('/api/v1/reports', reportsRouter);
   app.use('/api/v1/platform/reports', platformReportsRouter);
+
+  // Phase 10 Modules: Notifications, Organization Settings, Users, Platform, Activities
+  app.use('/api/v1/notifications', notificationsRouter);
+  app.use('/api/v1/organization', organizationRouter);
+  app.use('/api/v1/users', usersRouter);
+  app.use('/api/v1/platform', platformRouter);
+  app.use('/api/v1/activities', activitiesRouter);
 
   // 404 Handler
   app.use(notFoundMiddleware);

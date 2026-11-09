@@ -28,6 +28,12 @@ export const NAVIGATION_ITEMS = [
     roles: ['SUPER_ADMIN', 'ADMIN', 'MANAGER', 'EMPLOYEE'],
   },
   {
+    name: 'Organizations',
+    href: '/platform/organizations',
+    icon: Building2,
+    roles: ['SUPER_ADMIN'],
+  },
+  {
     name: 'Leads',
     href: '/leads',
     icon: Target,
@@ -62,19 +68,18 @@ export const NAVIGATION_ITEMS = [
     href: '/notifications',
     icon: Bell,
     roles: ['SUPER_ADMIN', 'ADMIN', 'MANAGER', 'EMPLOYEE'],
-    badge: '3', // Initial indicator
   },
   {
     name: 'Reports',
     href: '/reports',
     icon: BarChart3,
-    roles: ['SUPER_ADMIN', 'ADMIN', 'MANAGER'],
+    roles: ['SUPER_ADMIN', 'ADMIN', 'MANAGER', 'EMPLOYEE'],
   },
   {
     name: 'Settings',
     href: '/settings',
     icon: Settings,
-    roles: ['SUPER_ADMIN', 'ADMIN'],
+    roles: ['ADMIN'],
   },
 ];
 

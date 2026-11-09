@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../features/auth/hooks/useAuth.js';
 import { PageHeader } from '../components/ui/PageHeader.jsx';
 import { Button } from '../components/ui/Button.jsx';
@@ -6,17 +6,80 @@ import { Input } from '../components/ui/Input.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
 import { useToast } from '../components/ui/Toast.jsx';
 import { authService } from '../features/auth/services/auth.service.js';
-import { User, Lock, KeyRound, ShieldCheck, Mail, Building } from 'lucide-react';
+import { User, Lock, KeyRound, ShieldCheck, Mail, Building, Phone, Save } from 'lucide-react';
 
 export function ProfilePage() {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const { toast } = useToast();
 
+  // Profile form state
+  const [firstName, setFirstName] = useState(user?.firstName || '');
+  const [lastName, setLastName] = useState(user?.lastName || '');
+  const [phone, setPhone] = useState(user?.phone || '');
+  const [profileLoading, setProfileLoading] = useState(false);
+
+  // Password change state
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordError, setPasswordError] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadFullProfile() {
+      try {
+        const res = await authService.getProfile();
+        if (isMounted && res?.data?.user) {
+          const u = res.data.user;
+          setFirstName(u.firstName || u.first_name || '');
+          setLastName(u.lastName || u.last_name || '');
+          setPhone(u.phone || '');
+        }
+      } catch (_err) {
+        // Fall back to context user
+        if (isMounted && user) {
+          setFirstName(user.firstName || '');
+          setLastName(user.lastName || '');
+          setPhone(user.phone || '');
+        }
+      }
+    }
+    loadFullProfile();
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    if (!firstName.trim()) {
+      toast.error('First name is required.');
+      return;
+    }
+
+    setProfileLoading(true);
+    try {
+      await authService.updateProfile({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        phone: phone.trim() || null,
+      });
+
+      toast.success('Profile details updated successfully.');
+      if (refreshUser) {
+        await refreshUser();
+      }
+    } catch (err) {
+      const msg =
+        err.response?.data?.message ||
+        err.response?.data?.error?.message ||
+        'Failed to update profile details.';
+      toast.error(msg, 'Update Failed');
+    } finally {
+      setProfileLoading(false);
+    }
+  };
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
@@ -45,7 +108,7 @@ export function ProfilePage() {
       setNewPassword('');
       setConfirmPassword('');
 
-      // Per Phase 3 security spec, changing password revokes all refresh tokens and logs out
+      // Per security spec, changing password revokes all refresh tokens and logs out
       setTimeout(async () => {
         await logout();
       }, 1500);
@@ -125,38 +188,66 @@ export function ProfilePage() {
 
         {/* Profile Details & Password Card */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Personal Information */}
+          {/* Editable Personal Information */}
           <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
             <div className="flex items-center space-x-2.5 pb-3 border-b border-slate-100">
               <User className="w-4 h-4 text-slate-500" />
               <h3 className="text-sm font-bold text-slate-900">Personal Details</h3>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
-                label="First Name"
-                value={user?.firstName || ''}
-                disabled
-                helperText="Name registered with your organization."
-              />
-              <Input
-                label="Last Name"
-                value={user?.lastName || ''}
-                disabled
-              />
-              <Input
-                label="Email Address"
-                value={user?.email || ''}
-                disabled
-                helperText="Primary email used for system sign in."
-              />
-              <Input
-                label="Assigned Role"
-                value={user?.role || ''}
-                disabled
-                helperText="Role assigned by organization administrator."
-              />
-            </div>
+            <form onSubmit={handleUpdateProfile} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                  label="First Name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="First name"
+                  required
+                />
+                <Input
+                  label="Last Name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Last name"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                  label="Phone Number"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+1 (555) 000-0000"
+                  leftIcon={Phone}
+                />
+                <Input
+                  label="Email Address"
+                  value={user?.email || ''}
+                  disabled
+                  helperText="Email is managed by organization admin."
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                  label="Assigned Role"
+                  value={user?.role || ''}
+                  disabled
+                  helperText="Role assigned by organization administrator."
+                />
+              </div>
+
+              <div className="pt-2 flex justify-end">
+                <Button
+                  type="submit"
+                  size="sm"
+                  leftIcon={Save}
+                  isLoading={profileLoading}
+                >
+                  Save Profile
+                </Button>
+              </div>
+            </form>
           </div>
 
           {/* Change Password */}
@@ -187,7 +278,7 @@ export function ProfilePage() {
                 <Input
                   label="New Password"
                   type="password"
-                  placeholder="At least 8 chars with 1 number and uppercase"
+                  placeholder="At least 8 chars"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   leftIcon={Lock}
@@ -221,4 +312,3 @@ export function ProfilePage() {
     </div>
   );
 }
-

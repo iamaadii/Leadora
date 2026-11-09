@@ -135,5 +135,52 @@ export const userRepository = {
     `;
     await db.query(query, [userId]);
   },
+
+  /**
+   * Updates user personal profile fields (first_name, last_name, phone)
+   */
+  async updateProfile(userId, { firstName, lastName, phone }, db = pool) {
+    const fields = [];
+    const values = [userId];
+    let idx = 2;
+
+    if (firstName !== undefined) {
+      fields.push(`first_name = $${idx}`);
+      values.push(firstName);
+      idx++;
+    }
+    if (lastName !== undefined) {
+      fields.push(`last_name = $${idx}`);
+      values.push(lastName);
+      idx++;
+    }
+    if (phone !== undefined) {
+      fields.push(`phone = $${idx}`);
+      values.push(phone);
+      idx++;
+    }
+
+    if (fields.length === 0) {
+      return await this.findById(userId, db);
+    }
+
+    const query = `
+      UPDATE users
+      SET ${fields.join(', ')}, updated_at = NOW()
+      WHERE id = $1
+      RETURNING 
+        id, 
+        organization_id, 
+        first_name, 
+        last_name, 
+        email, 
+        phone, 
+        role, 
+        is_active, 
+        updated_at;
+    `;
+    const res = await db.query(query, values);
+    return res.rows[0];
+  },
 };
 

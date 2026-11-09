@@ -17,7 +17,7 @@ import { LeadForm } from '../components/LeadForm.jsx';
 import { ConfirmationDialog } from '../../../components/ui/ConfirmationDialog.jsx';
 import { ErrorState } from '../../../components/ui/ErrorState.jsx';
 import { useToast } from '../../../components/ui/Toast.jsx';
-import { Plus } from 'lucide-react';
+import { Plus, LayoutGrid, Table } from 'lucide-react';
 
 export function LeadsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -179,13 +179,35 @@ export function LeadsPage() {
           { label: 'Leads' },
         ]}
         actions={
-          <Button
-            size="sm"
-            leftIcon={Plus}
-            onClick={() => setIsCreateModalOpen(true)}
-          >
-            Create Lead
-          </Button>
+          <div className="flex items-center space-x-2">
+            <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80">
+              <Button
+                variant="primary"
+                size="xs"
+                leftIcon={Table}
+                className="shadow-xs"
+              >
+                Table View
+              </Button>
+              <Button
+                variant="ghost"
+                size="xs"
+                leftIcon={LayoutGrid}
+                onClick={() => navigate('/leads/kanban')}
+                className="text-slate-600 hover:text-slate-900"
+              >
+                Kanban
+              </Button>
+            </div>
+
+            <Button
+              size="sm"
+              leftIcon={Plus}
+              onClick={() => setIsCreateModalOpen(true)}
+            >
+              Create Lead
+            </Button>
+          </div>
         }
       />
 

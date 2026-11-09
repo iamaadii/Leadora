@@ -110,3 +110,4 @@ The **Reports & Data Export Module** (Phase 9) provides robust operational intel
 | **Admin** | ✅ Full Access | ✅ Full Access | ❌ 403 Forbidden | Full organization dataset. |
 | **Manager** | ✅ Scoped Access | ✅ Scoped Access | ❌ 403 Forbidden | Scoped to self + active members of managed teams. |
 | **Employee** | ✅ Scoped Access | ✅ Scoped Access | ❌ 403 Forbidden | Scoped strictly to assigned or created leads/tasks. |
+

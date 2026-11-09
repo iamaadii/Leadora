@@ -46,6 +46,26 @@ export const authService = {
   },
 
   /**
+   * Get authenticated user profile details
+   */
+  async getProfile() {
+    const res = await apiClient.get('/v1/users/profile');
+    return res.data;
+  },
+
+  /**
+   * Update authenticated user's own profile
+   * @param {object} payload
+   * @param {string} [payload.firstName]
+   * @param {string} [payload.lastName]
+   * @param {string} [payload.phone]
+   */
+  async updateProfile(payload) {
+    const res = await apiClient.patch('/v1/users/profile', payload);
+    return res.data;
+  },
+
+  /**
    * Change current user's password
    * @param {object} payload
    * @param {string} payload.currentPassword

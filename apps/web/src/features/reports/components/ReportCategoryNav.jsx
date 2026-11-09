@@ -58,3 +58,4 @@ export function ReportCategoryNav({ activeCategory, onSelectCategory, isSuperAdm
     </div>
   );
 }
+

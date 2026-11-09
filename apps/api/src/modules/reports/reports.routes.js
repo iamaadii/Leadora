@@ -35,3 +35,4 @@ platformReportsRouter.get('/:reportType/export', reportsController.exportPlatfor
 platformReportsRouter.post('/:reportType/export', reportsController.exportPlatformReport);
 
 export { reportsRouter, platformReportsRouter };
+

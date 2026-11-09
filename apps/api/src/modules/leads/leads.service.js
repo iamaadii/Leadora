@@ -2,6 +2,7 @@ import { leadsRepository } from './leads.repository.js';
 import { withTransaction } from '../../config/database.js';
 import { AppError } from '../../errors/app-error.js';
 import { LEAD_ACTIVITY_TYPES } from './leads.constants.js';
+import { notificationsService } from '../notifications/notifications.service.js';
 
 export const leadsService = {
   /**
@@ -103,6 +104,19 @@ export const leadsService = {
         },
         client,
       );
+
+      // 3. Create in-app notification if assigned to another user
+      if (createdLead.assigned_to_id && createdLead.assigned_to_id !== user.id) {
+        await notificationsService.notifyLeadAssignment(
+          {
+            lead: createdLead,
+            newAssigneeId: createdLead.assigned_to_id,
+            actorUser: user,
+            isReassignment: false,
+          },
+          client,
+        );
+      }
 
       return createdLead;
     });
@@ -337,6 +351,18 @@ export const leadsService = {
           },
           client,
         );
+
+        if (fieldsToUpdate.assigned_to_id && fieldsToUpdate.assigned_to_id !== user.id) {
+          await notificationsService.notifyLeadAssignment(
+            {
+              lead: updatedLead,
+              newAssigneeId: fieldsToUpdate.assigned_to_id,
+              actorUser: user,
+              isReassignment: true,
+            },
+            client,
+          );
+        }
       }
 
       // 4. Record general update activity for other fields

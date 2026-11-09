@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth/hooks/useAuth.js';
 import {
@@ -9,19 +9,34 @@ import {
   Settings,
   ChevronDown,
   Building,
+  Check,
+  CheckCheck,
+  Target,
+  Clock,
+  AlertCircle,
+  CalendarClock,
 } from 'lucide-react';
 import { Dropdown, DropdownItem, DropdownDivider } from '../components/ui/Dropdown.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
+import {
+  useUnreadNotificationCount,
+  useNotifications,
+  useMarkNotificationAsRead,
+  useMarkAllNotificationsAsRead,
+} from '../features/notifications/hooks/useNotifications.js';
 
 const ROUTE_TITLES = {
   '/dashboard': 'Dashboard',
   '/leads': 'Leads Pipeline',
+  '/leads/kanban': 'Leads Kanban',
   '/employees': 'Employees & Teams',
+  '/teams': 'Team Management',
   '/follow-ups': 'Follow-ups & Tasks',
   '/activities': 'Activity Feed',
   '/notifications': 'Notifications',
   '/reports': 'Analytics & Reports',
   '/settings': 'Organization Settings',
+  '/platform/organizations': 'Platform Organizations',
   '/profile': 'User Profile',
 };
 
@@ -30,11 +45,67 @@ export function Topbar({ onToggleMobileSidebar }) {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const notifRef = useRef(null);
+
+  const { data: countData } = useUnreadNotificationCount();
+  const unreadCount = countData?.data?.unreadCount || 0;
+
+  const { data: notifData } = useNotifications(
+    { limit: 5, status: 'ALL' },
+    { enabled: isNotifOpen },
+  );
+  const recentNotifications = notifData?.data || [];
+
+  const markReadMutation = useMarkNotificationAsRead();
+  const markAllReadMutation = useMarkAllNotificationsAsRead();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
+        setIsNotifOpen(false);
+      }
+    };
+    if (isNotifOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isNotifOpen]);
+
   const currentTitle = ROUTE_TITLES[location.pathname] || 'CRM';
 
   const handleLogout = async () => {
     await logout();
     navigate('/login', { replace: true });
+  };
+
+  const handleNotificationItemClick = async (notif) => {
+    if (!notif.is_read) {
+      await markReadMutation.mutateAsync(notif.id);
+    }
+    setIsNotifOpen(false);
+    if (notif.entity_type === 'LEAD' && notif.entity_id) {
+      navigate(`/leads/${notif.entity_id}`);
+    } else if (notif.entity_type === 'FOLLOW_UP') {
+      navigate('/follow-ups');
+    } else {
+      navigate('/notifications');
+    }
+  };
+
+  const getNotificationIcon = (type) => {
+    switch (type) {
+      case 'LEAD_ASSIGNED':
+        return <Target className="w-4 h-4 text-blue-600" />;
+      case 'FOLLOWUP_DUE_TODAY':
+        return <Clock className="w-4 h-4 text-amber-600" />;
+      case 'FOLLOWUP_OVERDUE':
+        return <AlertCircle className="w-4 h-4 text-rose-600" />;
+      default:
+        return <CalendarClock className="w-4 h-4 text-indigo-600" />;
+    }
   };
 
   const userRole = user?.role || 'EMPLOYEE';
@@ -68,15 +139,102 @@ export function Topbar({ onToggleMobileSidebar }) {
 
       {/* Right: Notification Icon & User Profile Dropdown */}
       <div className="flex items-center space-x-2 sm:space-x-3">
-        {/* Notification Bell Button */}
-        <Link
-          to="/notifications"
-          className="relative p-2 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition"
-          aria-label="View notifications"
-        >
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-blue-600 ring-2 ring-white" />
-        </Link>
+        {/* Dynamic Notification Bell with Dropdown */}
+        <div className="relative" ref={notifRef}>
+          <button
+            type="button"
+            onClick={() => setIsNotifOpen((prev) => !prev)}
+            className="relative p-2 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition"
+            aria-label="View notifications"
+          >
+            <Bell className="w-5 h-5" />
+            {unreadCount > 0 && (
+              <span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-blue-600 text-[10px] font-bold text-white flex items-center justify-center ring-2 ring-white">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+          </button>
+
+          {isNotifOpen && (
+            <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white shadow-2xl ring-1 ring-black/5 border border-slate-200 py-2 z-40 animate-in fade-in zoom-in-95 duration-100 overflow-hidden">
+              <div className="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs font-bold text-slate-900">Notifications</span>
+                  {unreadCount > 0 && (
+                    <span className="px-1.5 py-0.5 text-[10px] font-bold bg-blue-50 text-blue-600 rounded-md">
+                      {unreadCount} unread
+                    </span>
+                  )}
+                </div>
+                {unreadCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => markAllReadMutation.mutate()}
+                    className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center space-x-1"
+                  >
+                    <CheckCheck className="w-3 h-3" />
+                    <span>Mark all read</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="max-h-72 overflow-y-auto divide-y divide-slate-50">
+                {recentNotifications.length === 0 ? (
+                  <div className="py-8 text-center text-xs text-slate-400">
+                    No recent notifications
+                  </div>
+                ) : (
+                  recentNotifications.map((n) => (
+                    <div
+                      key={n.id}
+                      onClick={() => handleNotificationItemClick(n)}
+                      className={`p-3 text-left hover:bg-slate-50 transition cursor-pointer flex items-start space-x-2.5 ${
+                        !n.is_read ? 'bg-blue-50/30' : ''
+                      }`}
+                    >
+                      <div className="p-1.5 rounded-lg bg-slate-100 shrink-0 mt-0.5">
+                        {getNotificationIcon(n.notification_type || n.type)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs font-bold text-slate-900 truncate">
+                            {n.title}
+                          </p>
+                          {!n.is_read && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                markReadMutation.mutate(n.id);
+                              }}
+                              className="text-slate-400 hover:text-blue-600 p-0.5"
+                              title="Mark read"
+                            >
+                              <Check className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-slate-600 line-clamp-2 mt-0.5 leading-snug">
+                          {n.message}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="border-t border-slate-100 p-2 text-center bg-slate-50/50">
+                <Link
+                  to="/notifications"
+                  onClick={() => setIsNotifOpen(false)}
+                  className="text-xs font-semibold text-blue-600 hover:text-blue-700 block py-1"
+                >
+                  View all notifications
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* User Profile Menu */}
         <Dropdown
@@ -158,4 +316,3 @@ export function Topbar({ onToggleMobileSidebar }) {
     </header>
   );
 }
-

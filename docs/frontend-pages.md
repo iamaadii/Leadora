@@ -98,6 +98,21 @@ It connects to the Express backend via REST endpoints under `/api/v1`.
 - **Lead Source Breakdown:** Table showing Source channel (Website, Referral, Cold Call, Event), Total Leads, Deals Won, Revenue Generated.
 
 ### 3.9 Settings Page (`/settings`)
-- **Profile Tab (All Users):** Update first name, last name, phone, and change password form.
-- **Organization Tab (Admin Only):** Update company name, default currency symbol, and business timezone.
+- **Organization Tab (Admin Only):** Update company name, default currency code (USD, EUR, GBP, CAD, etc.), and business timezone.
+
+### 3.10 User Profile Page (`/profile`)
+- **Profile Details (All Users):** View organization, role, and email; edit first name, last name, and phone.
+- **Security:** Change password form with current password validation.
+
+### 3.11 Standalone Activity Feed (`/activities`)
+- **Audit Timeline (Admin, Manager, Employee):** Chronological log of sales actions, calls, emails, notes, stage transitions, and tasks.
+- **Filters:** By activity type (`STATUS_CHANGED`, `NOTE_ADDED`, `CALL_LOGGED`, `EMAIL_SENT`, `FOLLOWUP_CREATED`, etc.).
+
+### 3.12 Notifications Page (`/notifications`)
+- **Alerts Feed (Admin, Manager, Employee):** Real-time notifications for lead assignments, due-today tasks, and overdue items.
+- **Tabs & Actions:** Filter by All vs Unread, Mark All Read, and individual mark read.
+
+### 3.13 Platform Organizations Page (`/platform/organizations`)
+- **Tenant Governance (Super Admin Only):** Searchable list of all multi-tenant organizations with currency, timezone, and active status.
+- **Actions:** Provision New Organization modal (creates tenant and initial Admin) and Suspend / Reactivate action dialogs (session revocation).
 

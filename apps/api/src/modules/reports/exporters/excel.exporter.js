@@ -153,3 +153,4 @@ export async function generateExcel({
   const arrayBuffer = await workbook.xlsx.writeBuffer();
   return Buffer.from(arrayBuffer);
 }
+
