@@ -19,7 +19,9 @@
     "format:check": "prettier --check \"**/*.{js,jsx,json,md,yml,yaml}\"",
     "db:up": "docker compose -f infrastructure/docker/docker-compose.yml up -d",
     "db:down": "docker compose -f infrastructure/docker/docker-compose.yml down",
-    "db:logs": "docker compose -f infrastructure/docker/docker-compose.yml logs -f postgres"
+    "db:logs": "docker compose -f infrastructure/docker/docker-compose.yml logs -f postgres",
+    "db:migrate": "npm run db:migrate --workspace=apps/api",
+    "db:seed": "npm run db:seed --workspace=apps/api"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

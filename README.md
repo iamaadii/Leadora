@@ -25,6 +25,20 @@ business-crm/
 │   │   │   ├── config/
 │   │   │   │   ├── database.js          # pg.Pool connection & withTransaction helper
 │   │   │   │   └── env.js               # Zod environment variable validation
+│   │   │   ├── database/                # Database migrations & seeds
+│   │   │   │   ├── migrations/          # Versioned raw SQL migration files
+│   │   │   │   │   ├── 001_create_organizations.sql
+│   │   │   │   │   ├── 002_create_users.sql
+│   │   │   │   │   ├── 003_create_leads.sql
+│   │   │   │   │   ├── 004_create_followups.sql
+│   │   │   │   │   ├── 005_create_activities.sql
+│   │   │   │   │   ├── 006_create_notifications.sql
+│   │   │   │   │   ├── 007_create_refresh_tokens.sql
+│   │   │   │   │   └── 008_create_audit_logs.sql
+│   │   │   │   ├── seeds/
+│   │   │   │   │   └── seed.js          # Argon2 idempotent demo seed script
+│   │   │   │   ├── migrate.js           # Database migration runner
+│   │   │   │   └── verify.js            # Automated 36-point DB architecture test suite
 │   │   │   ├── middleware/
 │   │   │   │   ├── error.middleware.js  # Centralized error handling
 │   │   │   │   └── not-found.middleware.js # 404 handler
@@ -55,6 +69,7 @@ business-crm/
 │   ├── role-permissions.md
 │   ├── application-workflows.md
 │   ├── database-design.md
+│   ├── database-erd.md                  # Mermaid Entity-Relationship Diagram
 │   ├── api-design.md
 │   ├── architecture.md
 │   └── frontend-pages.md
@@ -105,117 +120,86 @@ VITE_API_BASE_URL=/api
 
 ---
 
-## 4. Step-by-Step Local Development Workflow
+## 4. Database Setup & Migrations (Phase 2)
 
 ### Step 1: Start PostgreSQL via Docker Compose
-Run the following command from the project root:
-
 ```bash
-docker compose -f infrastructure/docker/docker-compose.yml up -d
+npm run db:up
 ```
-*(Or use the npm script: `npm run db:up`)*
+*(Or: `docker compose -f infrastructure/docker/docker-compose.yml up -d`)*
 
-To check container status:
+### Step 2: Run Database Migrations
+Executes all pending raw SQL migrations in `apps/api/src/database/migrations/`:
 ```bash
-docker compose -f infrastructure/docker/docker-compose.yml ps
+npm run db:migrate
 ```
+*(Tracks applied migrations in `schema_migrations` and runs them safely inside transactions)*
 
-### Step 2: Install Dependencies
-Install all workspace dependencies from the project root:
-
+### Step 3: Seed Demo Data
+Populates the database with demo organization, users across all 4 roles, sample leads, follow-ups, and activities:
 ```bash
-npm install
+npm run db:seed
 ```
 
-### Step 3: Start Frontend and Backend Together
-Run the root development command:
+### Step 4: Run Database Architecture Verification
+Runs the 36-point automated verification suite testing constraints, foreign keys, and multi-tenant isolation:
+```bash
+node apps/api/src/database/verify.js
+```
+
+---
+
+## 5. Local Demo Accounts & Credentials
+
+The seed script creates the following demo accounts for local testing (all use Argon2 hashed passwords):
+
+| Role | Email | Password | Organization | Scope |
+| :--- | :--- | :--- | :--- | :--- |
+| **Super Admin** | `superadmin@platform.com` | `Password123!` | *None (Global)* | Platform-wide |
+| **Admin** | `admin@acme.com` | `Password123!` | Acme Sales Corp | Organization-wide |
+| **Manager** | `manager@acme.com` | `Password123!` | Acme Sales Corp | Team / Leads |
+| **Employee** | `alice@acme.com` | `Password123!` | Acme Sales Corp | Assigned Leads |
+| **Employee** | `bob@acme.com` | `Password123!` | Acme Sales Corp | Assigned Leads |
+
+---
+
+## 6. Starting Frontend and Backend
+
+Start both applications with one command:
 
 ```bash
 npm run dev
 ```
 
-This launches both servers concurrently:
 - **Backend API**: `http://localhost:5000`
 - **Frontend App**: `http://localhost:5173`
 
-Alternatively, you can run them in separate terminals:
+Separate terminals:
 - Backend only: `npm run dev:api`
 - Frontend only: `npm run dev:web`
 
 ---
 
-## 5. Verifying Connectivity
+## 7. Database Administration and Safe Reset
 
-### A. Verify Backend Health Check
-Open your browser or run:
+### View Database Tables
+Using `psql` via Docker:
 ```bash
-curl http://localhost:5000/api/v1/health
-```
-Expected response (`200 OK`):
-```json
-{
-  "success": true,
-  "data": {
-    "status": "healthy",
-    "message": "Business CRM Backend API is running",
-    "uptime": 12,
-    "environment": "development"
-  }
-}
+docker exec -it business_crm_postgres psql -U crm_admin -d business_crm -c "\dt"
 ```
 
-### B. Verify Database Connectivity
+### Safe Database Reset (Wipe & Re-migrate)
+To reset the database completely from scratch:
 ```bash
-curl http://localhost:5000/api/v1/health/db
+# 1. Stop and remove container + volume
+docker compose -f infrastructure/docker/docker-compose.yml down -v
+
+# 2. Start clean PostgreSQL container
+npm run db:up
+
+# 3. Apply all migrations
+npm run db:migrate
+
+# 4. Seed demo data
+npm run db:seed
 ```
-Expected response (`200 OK`):
-```json
-{
-  "success": true,
-  "data": {
-    "status": "connected",
-    "database": "business_crm",
-    "responseTimeMs": 4,
-    "message": "PostgreSQL connection verified successfully"
-  }
-}
-```
-
-### C. Verify in the Browser UI
-1. Open `http://localhost:5173` in your browser.
-2. Click the **"Test Backend Connectivity"** button.
-3. Both the **Backend API** and **PostgreSQL DB** indicators will turn green with response times displayed.
-
----
-
-## 6. Stopping Containers
-
-When you are done developing:
-
-```bash
-docker compose -f infrastructure/docker/docker-compose.yml down
-```
-*(Or use the npm script: `npm run db:down`)*
-
-> **Note:** The database volume (`business_crm_postgres_data`) preserves all data across container restarts. To remove the volume and start completely fresh, use:
-> ```bash
-> docker compose -f infrastructure/docker/docker-compose.yml down -v
-> ```
-
----
-
-## 7. Code Quality and Linting
-
-- Run linting:
-  ```bash
-  npm run lint
-  ```
-- Format code:
-  ```bash
-  npm run format
-  ```
-- Build frontend:
-  ```bash
-  npm run build:web
-  ```
-
