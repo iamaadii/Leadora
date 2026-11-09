@@ -14,6 +14,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { useToast } from '../components/ui/Toast.jsx';
+import { useAuth } from '../features/auth/hooks/useAuth.js';
 import {
   useNotifications,
   useMarkNotificationAsRead,
@@ -21,8 +22,10 @@ import {
 } from '../features/notifications/hooks/useNotifications.js';
 
 export function NotificationsPage() {
+  const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
   const [filter, setFilter] = useState('ALL');
   const [page, setPage] = useState(1);
 
@@ -59,9 +62,9 @@ export function NotificationsPage() {
     }
 
     if (notif.entity_type === 'LEAD' && notif.entity_id) {
-      navigate(`/leads/${notif.entity_id}`);
+      navigate(isDemo ? `/demo/leads/${notif.entity_id}` : `/leads/${notif.entity_id}`);
     } else if (notif.entity_type === 'FOLLOW_UP') {
-      navigate('/follow-ups');
+      navigate(isDemo ? '/demo/follow-ups' : '/follow-ups');
     }
   };
 
@@ -102,7 +105,7 @@ export function NotificationsPage() {
         title="Notifications"
         description="Stay updated with lead assignments, approaching follow-ups, and organization alerts."
         breadcrumbs={[
-          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Dashboard', href: isDemo ? '/demo' : '/dashboard' },
           { label: 'Notifications' },
         ]}
         actions={

@@ -38,6 +38,15 @@ const ROUTE_TITLES = {
   '/settings': 'Organization Settings',
   '/platform/organizations': 'Platform Organizations',
   '/profile': 'User Profile',
+  '/demo': 'Demo Dashboard',
+  '/demo/leads': 'Leads Pipeline (Demo)',
+  '/demo/leads/kanban': 'Leads Kanban (Demo)',
+  '/demo/employees': 'Employees & Teams (Demo)',
+  '/demo/teams': 'Team Management (Demo)',
+  '/demo/follow-ups': 'Follow-ups & Tasks (Demo)',
+  '/demo/activities': 'Activity Feed (Demo)',
+  '/demo/notifications': 'Notifications (Demo)',
+  '/demo/reports': 'Analytics & Reports (Demo)',
 };
 
 export function Topbar({ onToggleMobileSidebar }) {
@@ -74,11 +83,12 @@ export function Topbar({ onToggleMobileSidebar }) {
     };
   }, [isNotifOpen]);
 
-  const currentTitle = ROUTE_TITLES[location.pathname] || 'Leadora';
+  const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
+  const currentTitle = ROUTE_TITLES[location.pathname] || (isDemo ? 'Leadora Demo' : 'Leadora');
 
   const handleLogout = async () => {
     await logout();
-    navigate('/login', { replace: true });
+    navigate(isDemo ? '/' : '/login', { replace: true });
   };
 
   const handleNotificationItemClick = async (notif) => {
@@ -87,11 +97,11 @@ export function Topbar({ onToggleMobileSidebar }) {
     }
     setIsNotifOpen(false);
     if (notif.entity_type === 'LEAD' && notif.entity_id) {
-      navigate(`/leads/${notif.entity_id}`);
+      navigate(isDemo ? `/demo/leads/${notif.entity_id}` : `/leads/${notif.entity_id}`);
     } else if (notif.entity_type === 'FOLLOW_UP') {
-      navigate('/follow-ups');
+      navigate(isDemo ? '/demo/follow-ups' : '/follow-ups');
     } else {
-      navigate('/notifications');
+      navigate(isDemo ? '/demo/notifications' : '/notifications');
     }
   };
 
@@ -225,7 +235,7 @@ export function Topbar({ onToggleMobileSidebar }) {
 
               <div className="border-t border-slate-100 p-2 text-center bg-slate-50/50">
                 <Link
-                  to="/notifications"
+                  to={isDemo ? '/demo/notifications' : '/notifications'}
                   onClick={() => setIsNotifOpen(false)}
                   className="text-xs font-semibold text-blue-600 hover:text-blue-700 block py-1"
                 >

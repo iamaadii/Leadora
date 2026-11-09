@@ -18,10 +18,13 @@ import {
   User,
 } from 'lucide-react';
 import { useToast } from '../components/ui/Toast.jsx';
+import { useAuth } from '../features/auth/hooks/useAuth.js';
 import { useActivities } from '../features/activities/hooks/useActivities.js';
 
 export function ActivitiesPage() {
+  const { user } = useAuth();
   const { toast } = useToast();
+  const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
   const [filterType, setFilterType] = useState('');
   const [page, setPage] = useState(1);
 
@@ -79,7 +82,7 @@ export function ActivitiesPage() {
         title="Activity Feed"
         description="Chronological log of customer interactions, stage changes, employee notes, and milestones."
         breadcrumbs={[
-          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Dashboard', href: isDemo ? '/demo' : '/dashboard' },
           { label: 'Activities' },
         ]}
         actions={
@@ -169,7 +172,7 @@ export function ActivitiesPage() {
                         <>
                           <ArrowRight className="w-3 h-3 text-slate-400" />
                           <Link
-                            to={`/leads/${leadId}`}
+                            to={isDemo ? `/demo/leads/${leadId}` : `/leads/${leadId}`}
                             className="font-bold text-blue-600 hover:text-blue-700 hover:underline"
                           >
                             {leadName}

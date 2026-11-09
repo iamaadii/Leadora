@@ -1,5 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../auth/hooks/useAuth.js';
 import { PageHeader } from '../../../components/ui/PageHeader.jsx';
 import { Badge } from '../../../components/ui/Badge.jsx';
 import { Button } from '../../../components/ui/Button.jsx';
@@ -17,6 +18,8 @@ import {
 export function TeamDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
 
   const { data: teamData, isLoading: isLoadingTeam } = useTeam(id);
   const { data: rosterData } = useTeamRoster(id);
@@ -53,7 +56,7 @@ export function TeamDetailsPage() {
           size="sm"
           className="mt-4"
           leftIcon={ArrowLeft}
-          onClick={() => navigate('/teams')}
+          onClick={() => navigate(isDemo ? '/demo/teams' : '/teams')}
         >
           Back to Teams
         </Button>
@@ -67,8 +70,8 @@ export function TeamDetailsPage() {
         title={team.name}
         description={team.description || 'Sales team workspace, member roster, and workload distribution.'}
         breadcrumbs={[
-          { label: 'Dashboard', href: '/dashboard' },
-          { label: 'Teams', href: '/teams' },
+          { label: 'Dashboard', href: isDemo ? '/demo' : '/dashboard' },
+          { label: 'Teams', href: isDemo ? '/demo/teams' : '/teams' },
           { label: team.name },
         ]}
         actions={
@@ -76,7 +79,7 @@ export function TeamDetailsPage() {
             variant="secondary"
             size="sm"
             leftIcon={ArrowLeft}
-            onClick={() => navigate('/teams')}
+            onClick={() => navigate(isDemo ? '/demo/teams' : '/teams')}
           >
             Back to Teams
           </Button>

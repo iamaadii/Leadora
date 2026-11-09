@@ -4,6 +4,7 @@
 import React, { useState } from 'react';
 import { PageHeader } from '../components/ui/PageHeader.jsx';
 import { useAuth } from '../features/auth/hooks/useAuth.js';
+import { useToast } from '../components/ui/Toast.jsx';
 import {
   useReport,
   usePlatformReport,
@@ -18,7 +19,9 @@ import { ExportDropdown } from '../features/reports/components/ExportDropdown.js
 
 export function ReportsPage() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const isSuperAdmin = user?.role === 'SUPER_ADMIN';
+  const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
 
   // Active Category State
   const [activeCategory, setActiveCategory] = useState(
@@ -70,6 +73,14 @@ export function ReportsPage() {
   };
 
   const handleExport = (format) => {
+    if (isDemo) {
+      toast.warning(
+        'Action disabled in Demo Mode: Exporting CRM data is disabled in the live product demo.',
+        'Demo Mode (Read-Only)',
+      );
+      return;
+    }
+
     if (isSuperAdmin) {
       platformExport.mutate({
         reportType: activeCategory,

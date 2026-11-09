@@ -10,7 +10,7 @@ export const teamsService = {
    * - MANAGER sees only teams they manage
    */
   async listTeams(actor, query) {
-    if (actor.role === 'ADMIN') {
+    if (actor.role === 'ADMIN' || actor.isDemo) {
       return teamsRepository.findMany(actor.organizationId, query, null);
     }
     if (actor.role === 'MANAGER') {

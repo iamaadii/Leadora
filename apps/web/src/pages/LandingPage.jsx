@@ -20,6 +20,7 @@ import {
   Globe,
   TrendingUp,
   Clock,
+  Sparkles,
 } from 'lucide-react';
 
 export function LandingPage() {
@@ -199,6 +200,13 @@ export function LandingPage() {
           {/* Action CTAs */}
           <div className="hidden sm:flex items-center space-x-3">
             <Link
+              to="/demo"
+              className="inline-flex items-center space-x-1.5 text-xs font-semibold text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 px-3.5 py-2 rounded-xl transition"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Explore Live Demo</span>
+            </Link>
+            <Link
               to="/login"
               className="text-xs font-semibold text-slate-300 hover:text-white px-3.5 py-2 rounded-xl transition-colors"
             >
@@ -240,6 +248,14 @@ export function LandingPage() {
               ))}
             </nav>
             <div className="pt-3 border-t border-slate-800 flex flex-col space-y-2">
+              <Link
+                to="/demo"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full text-center py-2.5 text-xs font-semibold text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center space-x-1.5"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Explore Live Demo</span>
+              </Link>
               <Link
                 to="/login"
                 onClick={() => setMobileMenuOpen(false)}
@@ -289,6 +305,13 @@ export function LandingPage() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <Link
+              to="/demo"
+              className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3.5 rounded-xl shadow-lg shadow-emerald-600/30 transition transform hover:-translate-y-0.5 active:translate-y-0"
+            >
+              <Sparkles className="w-4 h-4 text-emerald-200" />
+              <span>Explore Live Demo</span>
+            </Link>
             <Link
               to="/login"
               className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white px-6 py-3.5 rounded-xl shadow-lg shadow-blue-600/30 transition transform hover:-translate-y-0.5 active:translate-y-0"
@@ -831,10 +854,17 @@ export function LandingPage() {
             Sign in to your organization workspace or contact your system administrator
             to experience visual sales pipeline management.
           </p>
-          <div className="pt-2">
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              to="/demo"
+              className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 text-sm font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-7 py-3.5 rounded-xl shadow-xl transition transform active:scale-95"
+            >
+              <Sparkles className="w-4 h-4 text-slate-950" />
+              <span>Explore Live Demo</span>
+            </Link>
             <Link
               to="/login"
-              className="inline-flex items-center space-x-2 text-sm font-bold bg-white text-blue-600 hover:bg-slate-100 px-7 py-3.5 rounded-xl shadow-xl transition transform active:scale-95"
+              className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 text-sm font-bold bg-white text-blue-600 hover:bg-slate-100 px-7 py-3.5 rounded-xl shadow-xl transition transform active:scale-95"
             >
               <span>Access Your CRM Portal</span>
               <ArrowRight className="w-4 h-4" />

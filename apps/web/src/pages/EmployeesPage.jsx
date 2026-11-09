@@ -5,6 +5,7 @@ import { Input } from '../components/ui/Input.jsx';
 import { Select } from '../components/ui/Select.jsx';
 import { EmptyState } from '../components/ui/EmptyState.jsx';
 import { useAuth } from '../features/auth/hooks/useAuth.js';
+import { useToast } from '../components/ui/Toast.jsx';
 import { useEmployees, useEmployeeMutations } from '../features/employees/hooks/useEmployees.js';
 import { EmployeeTable } from '../features/employees/components/EmployeeTable.jsx';
 import { CreateEmployeeModal } from '../features/employees/components/CreateEmployeeModal.jsx';
@@ -23,6 +24,8 @@ import {
 
 export function EmployeesPage() {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [isActiveFilter, setIsActiveFilter] = useState('');
@@ -63,6 +66,13 @@ export function EmployeesPage() {
   const employeeCount = employees.filter((e) => e.role === 'EMPLOYEE' && e.is_active).length;
 
   const handleToggleActive = async (emp) => {
+    if (isDemo) {
+      toast.warning(
+        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
+        'Demo Mode (Read-Only)',
+      );
+      return;
+    }
     if (emp.is_active) {
       if (window.confirm(`Are you sure you want to deactivate ${emp.first_name} ${emp.last_name}? Their active sessions will be terminated immediately.`)) {
         await deactivateEmployee(emp.id);
@@ -72,20 +82,31 @@ export function EmployeesPage() {
     }
   };
 
+  const handleOpenCreate = () => {
+    if (isDemo) {
+      toast.warning(
+        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
+        'Demo Mode (Read-Only)',
+      );
+      return;
+    }
+    setIsCreateOpen(true);
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Employee Directory & Staff Administration"
         description="Manage organizational staff, configure security roles, and control account access."
         breadcrumbs={[
-          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Dashboard', href: isDemo ? '/demo' : '/dashboard' },
           { label: 'Employees' },
         ]}
         actions={
           <Button
             size="sm"
             leftIcon={UserPlus}
-            onClick={() => setIsCreateOpen(true)}
+            onClick={handleOpenCreate}
           >
             Add Employee
           </Button>

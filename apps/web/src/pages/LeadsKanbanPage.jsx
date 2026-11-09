@@ -19,9 +19,10 @@ export function LeadsKanbanPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
 
-  const userRole = user?.role || 'EMPLOYEE';
-  const canViewAll = userRole === 'ADMIN' || userRole === 'MANAGER';
+  const userRole = isDemo ? 'DEMO' : user?.role || 'EMPLOYEE';
+  const canViewAll = userRole === 'ADMIN' || userRole === 'MANAGER' || isDemo;
 
   const [filters, setFilters] = useState({
     search: '',
@@ -84,8 +85,8 @@ export function LeadsKanbanPage() {
         title="Pipeline Kanban"
         description="Visualize and manage lead progression across pipeline stages with drag-and-drop workflow."
         breadcrumbs={[
-          { label: 'Dashboard', href: '/dashboard' },
-          { label: 'Leads', href: '/leads' },
+          { label: 'Dashboard', href: isDemo ? '/demo' : '/dashboard' },
+          { label: 'Leads', href: isDemo ? '/demo/leads' : '/leads' },
           { label: 'Kanban Board' },
         ]}
         actions={
@@ -95,7 +96,7 @@ export function LeadsKanbanPage() {
                 variant="ghost"
                 size="xs"
                 leftIcon={Table}
-                onClick={() => navigate('/leads')}
+                onClick={() => navigate(isDemo ? '/demo/leads' : '/leads')}
                 className="text-slate-600 hover:text-slate-900"
               >
                 Table View

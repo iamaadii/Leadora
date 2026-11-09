@@ -33,6 +33,7 @@ import {
 export function FollowupsPage() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
 
   // State
   const [activeTab, setActiveTab] = useState('PENDING');
@@ -107,6 +108,14 @@ export function FollowupsPage() {
   };
 
   const handleCreateSubmit = async (payload) => {
+    if (isDemo) {
+      toast.warning(
+        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
+        'Demo Mode (Read-Only)',
+      );
+      setIsCreateModalOpen(false);
+      return;
+    }
     try {
       await createMutation.mutateAsync(payload);
       toast.success('Follow-up task scheduled successfully');
@@ -120,6 +129,14 @@ export function FollowupsPage() {
   };
 
   const handleEditSubmit = async (payload) => {
+    if (isDemo) {
+      toast.warning(
+        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
+        'Demo Mode (Read-Only)',
+      );
+      setEditingFollowup(null);
+      return;
+    }
     try {
       await updateMutation.mutateAsync({
         id: editingFollowup.id,
@@ -136,6 +153,14 @@ export function FollowupsPage() {
   };
 
   const handleCompleteSubmit = async (notes) => {
+    if (isDemo) {
+      toast.warning(
+        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
+        'Demo Mode (Read-Only)',
+      );
+      setCompletingFollowup(null);
+      return;
+    }
     try {
       await completeMutation.mutateAsync({
         id: completingFollowup.id,
@@ -152,6 +177,14 @@ export function FollowupsPage() {
   };
 
   const handleCancelConfirm = async () => {
+    if (isDemo) {
+      toast.warning(
+        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
+        'Demo Mode (Read-Only)',
+      );
+      setCancellingFollowup(null);
+      return;
+    }
     try {
       await cancelMutation.mutateAsync(cancellingFollowup.id);
       toast.success('Follow-up task was cancelled');

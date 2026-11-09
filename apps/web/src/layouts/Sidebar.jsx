@@ -84,31 +84,76 @@ export const NAVIGATION_ITEMS = [
   },
 ];
 
+export const DEMO_NAVIGATION_ITEMS = [
+  {
+    name: 'Dashboard',
+    href: '/demo',
+    icon: LayoutDashboard,
+  },
+  {
+    name: 'Leads',
+    href: '/demo/leads',
+    icon: Target,
+  },
+  {
+    name: 'Employees',
+    href: '/demo/employees',
+    icon: Users,
+  },
+  {
+    name: 'Teams',
+    href: '/demo/teams',
+    icon: Users2,
+  },
+  {
+    name: 'Follow-ups',
+    href: '/demo/follow-ups',
+    icon: CalendarClock,
+  },
+  {
+    name: 'Activities',
+    href: '/demo/activities',
+    icon: Activity,
+  },
+  {
+    name: 'Notifications',
+    href: '/demo/notifications',
+    icon: Bell,
+  },
+  {
+    name: 'Reports',
+    href: '/demo/reports',
+    icon: BarChart3,
+  },
+];
+
 export function Sidebar({
   isCollapsed,
   setIsCollapsed,
   isMobileOpen,
   setIsMobileOpen,
+  isDemo: isDemoProp,
 }) {
   const { user } = useAuth();
-  const userRole = user?.role || 'EMPLOYEE';
+  const isDemo = Boolean(isDemoProp || user?.isDemo || user?.role === 'DEMO');
+  const userRole = isDemo ? 'DEMO' : user?.role || 'EMPLOYEE';
 
   const organizationName =
     user?.organization?.name ||
     user?.organizationName ||
     (userRole === 'SUPER_ADMIN' ? 'Platform Administration' : 'Leadora Workspace');
 
-  // Filter navigation items based on current authenticated role
-  const visibleNavItems = NAVIGATION_ITEMS.filter((item) =>
-    item.roles.includes(userRole),
-  );
+  // Filter navigation items based on current authenticated role or demo status
+  const visibleNavItems = isDemo
+    ? DEMO_NAVIGATION_ITEMS
+    : NAVIGATION_ITEMS.filter((item) => item.roles.includes(userRole));
 
   const sidebarContent = (
     <div className="flex flex-col h-full bg-white border-r border-slate-200 select-none">
       {/* Brand Header */}
       <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200/80 shrink-0">
         <Link
-          to="/dashboard"
+          to={isDemo ? '/demo' : '/dashboard'}
           className="flex items-center overflow-hidden group min-w-0"
           onClick={() => setIsMobileOpen?.(false)}
         >

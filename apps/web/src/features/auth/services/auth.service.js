@@ -14,6 +14,14 @@ export const authService = {
   },
 
   /**
+   * Initialize interactive demo session (read-only demo organization)
+   */
+  async createDemoSession() {
+    const res = await apiClient.post('/v1/auth/demo-session');
+    return res.data;
+  },
+
+  /**
    * Refreshes access token using HttpOnly cookie
    */
   async refresh() {

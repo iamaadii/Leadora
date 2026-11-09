@@ -8,6 +8,7 @@ import { ToastProvider } from './components/ui/Toast.jsx';
 import { ProtectedRoute } from './features/auth/components/ProtectedRoute.jsx';
 import { RoleRoute } from './features/auth/components/RoleRoute.jsx';
 import { DashboardLayout } from './layouts/DashboardLayout.jsx';
+import { DemoLayout } from './layouts/DemoLayout.jsx';
 
 // Pages
 import { LandingPage } from './pages/LandingPage.jsx';
@@ -47,6 +48,22 @@ export function App() {
               {/* Public Routes */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
+
+              {/* Dedicated Public Read-Only Interactive Demo Route Tree */}
+              <Route path="/demo" element={<DemoLayout />}>
+                <Route index element={<DashboardPage />} />
+                <Route path="leads" element={<LeadsPage />} />
+                <Route path="leads/kanban" element={<LeadsKanbanPage />} />
+                <Route path="leads/:id" element={<LeadDetailsPage />} />
+                <Route path="employees" element={<EmployeesPage />} />
+                <Route path="teams" element={<TeamsPage />} />
+                <Route path="teams/:id" element={<TeamDetailsPage />} />
+                <Route path="follow-ups" element={<FollowupsPage />} />
+                <Route path="followups" element={<FollowupsPage />} />
+                <Route path="activities" element={<ActivitiesPage />} />
+                <Route path="notifications" element={<NotificationsPage />} />
+                <Route path="reports" element={<ReportsPage />} />
+              </Route>
 
               {/* Protected Routes inside DashboardLayout */}
               <Route

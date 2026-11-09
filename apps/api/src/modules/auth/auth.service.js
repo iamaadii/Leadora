@@ -1,7 +1,7 @@
 import argon2 from 'argon2';
 import { userRepository } from '../../repositories/user.repository.js';
 import { refreshTokenRepository } from '../../repositories/refresh-token.repository.js';
-import { withTransaction } from '../../config/database.js';
+import { pool, withTransaction } from '../../config/database.js';
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -236,6 +236,64 @@ export const authService = {
       isActive: user.is_active,
       lastLoginAt: user.last_login_at,
       createdAt: user.created_at,
+    };
+  },
+
+  /**
+   * Initializes a safe, restricted, read-only demo session
+   * Bound exclusively to the leadora-demo organization with role DEMO
+   * @returns {Promise<object>}
+   */
+  async createDemoSession() {
+    // 1. Find demo organization
+    const orgRes = await pool.query(
+      `SELECT id, name, slug, is_active FROM organizations WHERE slug = 'leadora-demo' LIMIT 1;`,
+    );
+
+    if (orgRes.rows.length === 0 || !orgRes.rows[0].is_active) {
+      throw AppError.internal('Demo organization is currently unavailable.', 'DEMO_UNAVAILABLE');
+    }
+
+    const demoOrg = orgRes.rows[0];
+
+    // 2. Find demo viewer user
+    const userRes = await pool.query(
+      `SELECT id, organization_id, first_name, last_name, email, role, is_active
+       FROM users
+       WHERE organization_id = $1 AND email = 'demo-viewer@leadora.example.com'
+       LIMIT 1;`,
+      [demoOrg.id],
+    );
+
+    if (userRes.rows.length === 0 || !userRes.rows[0].is_active) {
+      throw AppError.internal('Demo viewer user is currently unavailable.', 'DEMO_USER_UNAVAILABLE');
+    }
+
+    const demoUser = userRes.rows[0];
+
+    // 3. Generate signed access token with isDemo: true
+    const accessToken = generateAccessToken(
+      {
+        id: demoUser.id,
+        organization_id: demoOrg.id,
+        role: 'DEMO',
+      },
+      { isDemo: true },
+    );
+
+    return {
+      accessToken,
+      user: {
+        id: demoUser.id,
+        organizationId: demoOrg.id,
+        organizationName: demoOrg.name,
+        organizationSlug: demoOrg.slug,
+        firstName: demoUser.first_name,
+        lastName: demoUser.last_name,
+        email: demoUser.email,
+        role: 'DEMO',
+        isDemo: true,
+      },
     };
   },
 };

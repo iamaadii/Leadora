@@ -11,6 +11,7 @@ const router = Router();
 router.post('/login', rateLimiter({ max: 10 }), validate(loginSchema), authController.login);
 router.post('/refresh', authController.refresh);
 router.post('/logout', authController.logout);
+router.post('/demo-session', rateLimiter({ max: 30 }), authController.createDemoSession);
 
 // Protected routes (require valid JWT access token)
 router.get('/me', authenticate, authController.getMe);

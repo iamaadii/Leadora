@@ -24,10 +24,11 @@ export function LeadsPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
 
-  const userRole = user?.role || 'EMPLOYEE';
+  const userRole = isDemo ? 'DEMO' : user?.role || 'EMPLOYEE';
   const canArchive = userRole === 'ADMIN';
-  const canViewAll = userRole === 'ADMIN' || userRole === 'MANAGER';
+  const canViewAll = userRole === 'ADMIN' || userRole === 'MANAGER' || isDemo;
 
   // Parse filters from URL search params
   const filters = useMemo(() => {
@@ -96,7 +97,7 @@ export function LeadsPage() {
 
   // Actions
   const handleView = (leadId) => {
-    navigate(`/leads/${leadId}`);
+    navigate(isDemo ? `/demo/leads/${leadId}` : `/leads/${leadId}`);
   };
 
   const handleEdit = (lead) => {
@@ -104,6 +105,14 @@ export function LeadsPage() {
   };
 
   const handleCreateSubmit = async (payload) => {
+    if (isDemo) {
+      toast.warning(
+        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
+        'Demo Mode (Read-Only)',
+      );
+      setIsCreateModalOpen(false);
+      return;
+    }
     try {
       const res = await createLeadMutation.mutateAsync(payload);
       toast.success(`Lead "${res.data.name}" created successfully`);
@@ -118,6 +127,14 @@ export function LeadsPage() {
   };
 
   const handleEditSubmit = async (payload) => {
+    if (isDemo) {
+      toast.warning(
+        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
+        'Demo Mode (Read-Only)',
+      );
+      setEditingLead(null);
+      return;
+    }
     try {
       await updateLeadMutation.mutateAsync({
         id: editingLead.id,
@@ -140,6 +157,14 @@ export function LeadsPage() {
 
   const handleArchiveConfirm = async () => {
     if (!archivingLead) return;
+    if (isDemo) {
+      toast.warning(
+        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
+        'Demo Mode (Read-Only)',
+      );
+      setArchivingLead(null);
+      return;
+    }
     try {
       await archiveLeadMutation.mutateAsync(archivingLead.id);
       toast.success(`Lead "${archivingLead.name}" has been archived.`);
@@ -153,6 +178,13 @@ export function LeadsPage() {
   };
 
   const handleRestore = async (lead) => {
+    if (isDemo) {
+      toast.warning(
+        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
+        'Demo Mode (Read-Only)',
+      );
+      return;
+    }
     try {
       await restoreLeadMutation.mutateAsync(lead.id);
       toast.success(`Lead "${lead.name}" restored to active status.`);
@@ -175,7 +207,7 @@ export function LeadsPage() {
         title="Leads & Pipeline"
         description="Capture, qualify, assign, and advance customer opportunities across your sales pipeline."
         breadcrumbs={[
-          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Dashboard', href: isDemo ? '/demo' : '/dashboard' },
           { label: 'Leads' },
         ]}
         actions={
@@ -193,7 +225,7 @@ export function LeadsPage() {
                 variant="ghost"
                 size="xs"
                 leftIcon={LayoutGrid}
-                onClick={() => navigate('/leads/kanban')}
+                onClick={() => navigate(isDemo ? '/demo/leads/kanban' : '/leads/kanban')}
                 className="text-slate-600 hover:text-slate-900"
               >
                 Kanban

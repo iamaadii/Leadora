@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../auth/hooks/useAuth.js';
 import {
   Building2,
   ExternalLink,
@@ -17,7 +18,9 @@ export const KANBAN_STAGES = [
 ];
 
 export function LeadKanbanBoard({ leads = [], onStatusChange, isUpdating = false }) {
+  const { user } = useAuth();
   const { toast } = useToast();
+  const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
   const [draggedLeadId, setDraggedLeadId] = useState(null);
   const [dragOverStage, setDragOverStage] = useState(null);
 
@@ -161,7 +164,7 @@ export function LeadKanbanBoard({ leads = [], onStatusChange, isUpdating = false
                         {/* Title & Link */}
                         <div className="flex items-start justify-between gap-1.5">
                           <Link
-                            to={`/leads/${lead.id}`}
+                            to={isDemo ? `/demo/leads/${lead.id}` : `/leads/${lead.id}`}
                             className="text-xs font-bold text-slate-900 hover:text-blue-600 transition line-clamp-1 flex-1 flex items-center space-x-1"
                           >
                             <span>{lead.name}</span>

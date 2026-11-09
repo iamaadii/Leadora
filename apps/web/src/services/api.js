@@ -103,6 +103,31 @@ apiClient.interceptors.response.use(
       }
     }
 
+    // Intercept demo environment read-only mutations and disabled exports
+    if (error.response?.status === 403) {
+      const code =
+        error.response?.data?.error?.code ||
+        error.response?.data?.code ||
+        '';
+
+      if (code === 'DEMO_READ_ONLY' || code === 'DEMO_EXPORT_DISABLED') {
+        const message =
+          code === 'DEMO_EXPORT_DISABLED'
+            ? 'Action disabled in Demo Mode: Exporting CRM data is disabled in the live product demo.'
+            : 'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.';
+
+        window.dispatchEvent(
+          new CustomEvent('app:toast', {
+            detail: {
+              type: 'warning',
+              title: 'Demo Mode (Read-Only)',
+              message,
+            },
+          }),
+        );
+      }
+    }
+
     return Promise.reject(error);
   },
 );

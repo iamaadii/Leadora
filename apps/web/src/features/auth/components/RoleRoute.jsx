@@ -10,6 +10,19 @@ export function RoleRoute({ allowedRoles = [], children }) {
     return <Navigate to="/login" replace />;
   }
 
+  // Demo user read access for standard tenant features (Employees, Teams, Follow-ups, Activities, Reports)
+  const isDemoUser = Boolean(user.isDemo || user.role === 'DEMO');
+  const isSuperAdminPlatform = allowedRoles.length === 1 && allowedRoles[0] === 'SUPER_ADMIN';
+  const isSettings =
+    allowedRoles.length === 1 &&
+    allowedRoles[0] === 'ADMIN' &&
+    typeof window !== 'undefined' &&
+    window.location.pathname.includes('/settings');
+
+  if (isDemoUser && !isSuperAdminPlatform && !isSettings) {
+    return children ? children : <Outlet />;
+  }
+
   if (!allowedRoles.includes(user.role)) {
     return (
       <div className="bg-white rounded-2xl border border-rose-200 p-8 max-w-lg mx-auto text-center space-y-4 my-12 shadow-sm">

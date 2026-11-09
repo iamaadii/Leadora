@@ -35,7 +35,8 @@ import {
 
 export function DashboardPage() {
   const { user } = useAuth();
-  const role = user?.role || 'EMPLOYEE';
+  const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
+  const role = isDemo ? 'DEMO' : user?.role || 'EMPLOYEE';
   const isSuperAdmin = role === 'SUPER_ADMIN';
 
   // Common Date Range Filter state
@@ -83,6 +84,8 @@ export function DashboardPage() {
   // Description copy tailored to role
   const getRoleDescription = () => {
     switch (role) {
+      case 'DEMO':
+        return 'Interactive public product demo. Explore live pipeline tracking, analytics, and sales workflows.';
       case 'ADMIN':
         return 'Organization-wide sales overview. Track conversion velocity, rep workload, and customer engagements.';
       case 'MANAGER':
@@ -152,7 +155,7 @@ export function DashboardPage() {
               endDate={dateFilter.endDate}
               onChange={(newRange) => setDateFilter(newRange)}
             />
-            <Link to="/leads">
+            <Link to={isDemo ? '/demo/leads' : '/leads'}>
               <Button size="sm" leftIcon={Plus}>
                 New Lead
               </Button>

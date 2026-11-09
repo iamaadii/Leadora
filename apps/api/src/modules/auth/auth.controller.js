@@ -124,5 +124,20 @@ export const authController = {
       next(err);
     }
   },
+
+  /**
+   * POST /api/v1/auth/demo-session
+   */
+  async createDemoSession(req, res, next) {
+    try {
+      const result = await authService.createDemoSession();
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
 };
 

@@ -7,12 +7,13 @@ import { env } from '../config/env.js';
  * @param {object} user - User payload
  * @returns {string} Signed JWT
  */
-export function generateAccessToken(user) {
+export function generateAccessToken(user, customClaims = {}) {
   return jwt.sign(
     {
       userId: user.id,
       organizationId: user.organization_id || null,
       role: user.role,
+      ...customClaims,
     },
     env.JWT_ACCESS_SECRET,
     {

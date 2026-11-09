@@ -48,6 +48,7 @@ export function LeadDetailsPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
 
   const { data: leadData, isLoading, error } = useLead(id);
   const { data: assigneesData } = useAssignees();
@@ -226,14 +227,14 @@ export function LeadDetailsPage() {
         title={lead.name}
         description={lead.company ? `Prospect at ${lead.company}` : 'Prospective customer'}
         breadcrumbs={[
-          { label: 'Dashboard', href: '/dashboard' },
-          { label: 'Leads', href: '/leads' },
+          { label: 'Dashboard', href: isDemo ? '/demo' : '/dashboard' },
+          { label: 'Leads', href: isDemo ? '/demo/leads' : '/leads' },
           { label: lead.name },
         ]}
         badge={<LeadStatusBadge status={lead.status} size="md" />}
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <Link to="/leads">
+            <Link to={isDemo ? '/demo/leads' : '/leads'}>
               <Button variant="outline" size="sm" leftIcon={ArrowLeft}>
                 Back to Leads
               </Button>

@@ -46,17 +46,45 @@ export async function authenticate(req, res, next) {
       }
     }
 
+    const isDemo = Boolean(decoded.isDemo || user.email === 'demo-viewer@leadora.example.com');
+
     // Attach safe user object to request
     req.user = {
       id: user.id,
       organizationId: user.organization_id,
       organizationName: user.organization_name || null,
       organizationSlug: user.organization_slug || null,
-      role: user.role,
+      role: isDemo ? 'DEMO' : user.role,
       email: user.email,
       firstName: user.first_name,
       lastName: user.last_name,
+      isDemo,
     };
+
+    // Strict Backend Enforcement: Read-Only Demo Restrictions
+    if (isDemo) {
+      // 1. Any non-GET state mutation is strictly forbidden
+      if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+        throw AppError.forbidden(
+          'Live Demo workspace is read-only. Creating, modifying, or deleting records is disabled in demo mode.',
+          'DEMO_READ_ONLY',
+        );
+      }
+      // 2. Exporting reports or customer data is strictly forbidden
+      if (req.originalUrl && req.originalUrl.includes('/export')) {
+        throw AppError.forbidden(
+          'Exporting reports and customer data is disabled in demo mode.',
+          'DEMO_EXPORT_DISABLED',
+        );
+      }
+      // 3. Platform Administration is strictly forbidden
+      if (req.originalUrl && req.originalUrl.includes('/platform')) {
+        throw AppError.forbidden(
+          'Platform administration is not accessible in demo mode.',
+          'DEMO_FORBIDDEN',
+        );
+      }
+    }
 
     next();
   } catch (err) {

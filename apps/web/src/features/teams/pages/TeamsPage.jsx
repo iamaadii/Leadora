@@ -25,6 +25,7 @@ import {
 export function TeamsPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
   const isAdmin = user?.role === 'ADMIN';
 
   const [search, setSearch] = useState('');
@@ -82,7 +83,7 @@ export function TeamsPage() {
             : 'View your sales teams, member rosters, and lead distribution.'
         }
         breadcrumbs={[
-          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Dashboard', href: isDemo ? '/demo' : '/dashboard' },
           { label: 'Teams' },
         ]}
         actions={
@@ -203,7 +204,7 @@ export function TeamsPage() {
                 key={team.id}
                 team={team}
                 isAdmin={isAdmin}
-                onViewDetails={(t) => navigate(`/teams/${t.id}`)}
+                onViewDetails={(t) => navigate(isDemo ? `/demo/teams/${t.id}` : `/teams/${t.id}`)}
                 onManageMembers={(t) => setManagingMembersTeam(t)}
                 onEdit={(t) => setEditingTeam(t)}
                 onToggleActive={handleToggleActive}

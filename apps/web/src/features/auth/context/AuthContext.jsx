@@ -71,6 +71,16 @@ export function AuthProvider({ children }) {
     return authUser;
   }, []);
 
+  const startDemoSession = useCallback(async () => {
+    const res = await authService.createDemoSession();
+    const { accessToken: newAccessToken, user: authUser } = res.data;
+
+    setMemoryToken(newAccessToken);
+    setAccessToken(newAccessToken);
+    setUser(authUser);
+    return authUser;
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await authService.logout();
@@ -98,7 +108,9 @@ export function AuthProvider({ children }) {
     accessToken,
     isLoading,
     isAuthenticated: !!user && !!accessToken,
+    isDemo: !!user?.isDemo || user?.role === 'DEMO',
     login,
+    startDemoSession,
     logout,
     refreshUser,
   };

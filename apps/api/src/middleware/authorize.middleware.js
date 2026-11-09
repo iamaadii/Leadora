@@ -11,6 +11,17 @@ export function authorizeRoles(...allowedRoles) {
       return next(AppError.unauthorized('Authentication required', 'AUTHENTICATION_REQUIRED'));
     }
 
+    // Demo access check:
+    // If it's a demo session and a read-only GET/HEAD request to tenant resources,
+    // grant read access to demo users across Leads, Employees, Teams, Follow-ups, Activities, Reports, Dashboard.
+    // Strictly deny if the endpoint is strictly for SUPER_ADMIN platform administration.
+    if (req.user.isDemo && ['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+      const isSuperAdminOnly = allowedRoles.length === 1 && allowedRoles[0] === 'SUPER_ADMIN';
+      if (!isSuperAdminOnly) {
+        return next();
+      }
+    }
+
     if (!allowedRoles.includes(req.user.role)) {
       return next(
         AppError.forbidden(
