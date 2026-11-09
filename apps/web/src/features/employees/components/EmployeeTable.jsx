@@ -66,7 +66,7 @@ export function EmployeeTable({
                 {/* Employee details */}
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-primary-100 text-primary-700 font-semibold flex items-center justify-center text-sm shrink-0">
+                    <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-700 font-semibold flex items-center justify-center text-sm shrink-0">
                       {initials}
                     </div>
                     <div>
@@ -102,7 +102,7 @@ export function EmployeeTable({
                 <td className="px-6 py-4">
                   {emp.role === 'MANAGER' ? (
                     emp.managed_team_name ? (
-                      <div className="flex items-center gap-1.5 text-xs font-medium text-primary-700 bg-primary-50 px-2.5 py-1 rounded-lg w-fit">
+                      <div className="flex items-center gap-1.5 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg w-fit">
                         <Layers className="w-3.5 h-3.5 shrink-0" />
                         <span>Leads: {emp.managed_team_name}</span>
                       </div>

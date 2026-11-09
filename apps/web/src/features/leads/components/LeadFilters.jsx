@@ -34,9 +34,9 @@ export function LeadFilters({
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-3">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-center">
+      <div className={`grid grid-cols-1 sm:grid-cols-2 ${canViewAll ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-3 items-center`}>
         {/* Search Input */}
-        <div className="lg:col-span-2">
+        <div className={canViewAll ? 'lg:col-span-2' : 'lg:col-span-2 sm:col-span-2'}>
           <Input
             placeholder="Search leads by name, email, company..."
             leftIcon={Search}
@@ -113,7 +113,7 @@ export function LeadFilters({
       </div>
 
       {/* Filter status row & Clear action */}
-      <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-xs">
         {/* Archive toggle */}
         <div className="flex items-center space-x-2">
           <button

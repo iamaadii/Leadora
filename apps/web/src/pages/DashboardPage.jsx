@@ -145,7 +145,7 @@ export function DashboardPage() {
           </Badge>
         }
         actions={
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-wrap items-center gap-2">
             <DateRangeFilter
               selectedRange={dateFilter.range}
               startDate={dateFilter.startDate}
@@ -162,7 +162,7 @@ export function DashboardPage() {
       />
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
         {/* Total Leads */}
         <DashboardKpiCard
           title={role === 'EMPLOYEE' ? 'My Active Leads' : role === 'MANAGER' ? 'Team Leads' : 'Total Leads'}

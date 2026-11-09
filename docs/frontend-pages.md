@@ -35,8 +35,8 @@ It connects to the Express backend via REST endpoints under `/api/v1`.
 
 ### 3.0 Public Landing Page (`/`)
 - **Purpose:** Public presentation layer for prospective organizations, marketing features, workflow explanation, and portal sign-in navigation.
-- **Header:** Brand identity (`BusinessCRM`), anchor navigation (`#features`, `#how-it-works`, `#benefits`, `#preview`, `#faq`), and "Sign In" / "Get Started" buttons linking to `/login`.
-- **Hero Section:** High-impact value proposition (*"Manage Your Leads. Empower Your Sales Team."*), feature pills, and realistic UI preview of pipeline kanban and sales KPIs.
+- **Header:** Brand identity (`Leadora`), anchor navigation (`#features`, `#how-it-works`, `#benefits`, `#preview`, `#faq`), and "Sign In" / "Get Started" buttons linking to `/login`.
+- **Hero Section:** High-impact value proposition (*"Every Lead. Every Opportunity. One Platform."*), feature pills, and realistic UI preview of pipeline kanban and sales KPIs.
 - **Features Grid:** Showcases 8 actual platform capabilities: Lead Lifecycle Management, 7-Stage Pipeline & Kanban, Employee & Team Management, Follow-ups & Task Scheduling, Real-Time Sales Analytics, Reports & Data Export, Chronological Activity Feed, and Multi-Tenant Role Access.
 - **How It Works:** 5-step operational progression from workspace setup to executive reporting.
 - **Benefits:** Focuses on centralizing customer information, coordinating sales teams, tracking pipeline velocity, zero task neglect, and enterprise isolation.

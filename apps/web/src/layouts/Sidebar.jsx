@@ -19,6 +19,7 @@ import {
   User,
 } from 'lucide-react';
 import { Tooltip } from '../components/ui/Tooltip.jsx';
+import { BrandLogo } from '../components/brand/BrandLogo.jsx';
 
 export const NAVIGATION_ITEMS = [
   {
@@ -95,7 +96,7 @@ export function Sidebar({
   const organizationName =
     user?.organization?.name ||
     user?.organizationName ||
-    (userRole === 'SUPER_ADMIN' ? 'Platform Administration' : 'Business CRM');
+    (userRole === 'SUPER_ADMIN' ? 'Platform Administration' : 'Leadora Workspace');
 
   // Filter navigation items based on current authenticated role
   const visibleNavItems = NAVIGATION_ITEMS.filter((item) =>
@@ -108,22 +109,18 @@ export function Sidebar({
       <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200/80 shrink-0">
         <Link
           to="/dashboard"
-          className="flex items-center space-x-3 overflow-hidden group"
+          className="flex items-center overflow-hidden group min-w-0"
           onClick={() => setIsMobileOpen?.(false)}
         >
-          <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shrink-0 shadow-sm shadow-blue-500/20 group-hover:bg-blue-700 transition">
-            <Building2 className="w-5 h-5" />
-          </div>
-
-          {!isCollapsed && (
-            <div className="flex flex-col min-w-0 transition-opacity duration-200">
-              <span className="text-sm font-bold text-slate-900 tracking-tight leading-tight truncate">
-                Business CRM
-              </span>
-              <span className="text-[11px] font-medium text-slate-500 truncate">
-                {organizationName}
-              </span>
-            </div>
+          {isCollapsed ? (
+            <BrandLogo variant="icon" size="sm" />
+          ) : (
+            <BrandLogo
+              variant="full"
+              size="sm"
+              showSubtitle
+              subtitleText={organizationName}
+            />
           )}
         </Link>
 
@@ -131,7 +128,7 @@ export function Sidebar({
         {setIsMobileOpen && (
           <button
             onClick={() => setIsMobileOpen(false)}
-            className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+            className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition shrink-0 ml-2"
             aria-label="Close sidebar"
           >
             <X className="w-5 h-5" />
@@ -225,7 +222,7 @@ export function Sidebar({
         </Link>
 
         {/* Desktop Collapse Toggle Button */}
-        <div className="hidden md:flex justify-end">
+        <div className="hidden lg:flex justify-end">
           <button
             type="button"
             onClick={() => setIsCollapsed(!isCollapsed)}
@@ -250,7 +247,7 @@ export function Sidebar({
     <>
       {/* Desktop Persistent Sidebar */}
       <aside
-        className={`hidden md:block transition-all duration-200 shrink-0 ${
+        className={`hidden lg:block transition-all duration-200 shrink-0 ${
           isCollapsed ? 'w-20' : 'w-64'
         }`}
       >
@@ -263,7 +260,7 @@ export function Sidebar({
 
       {/* Mobile Drawer Backdrop & Slide-in */}
       {isMobileOpen && (
-        <div className="md:hidden fixed inset-0 z-50 flex">
+        <div className="lg:hidden fixed inset-0 z-50 flex">
           {/* Backdrop */}
           <div
             className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"

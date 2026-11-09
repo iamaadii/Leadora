@@ -1,6 +1,8 @@
-# Business CRM and Lead Management System
+# Leadora — Business CRM & Lead Management SaaS
 
-A multi-organization Business CRM and Lead Management System for small and medium-sized businesses (SMBs). Built with **React**, **Node.js/Express**, and **PostgreSQL** using raw parameterized SQL queries.
+> **Every Lead. Every Opportunity. One Platform.**
+
+**Leadora** is a modern multi-tenant Business CRM and Lead Management SaaS platform for small and medium-sized businesses (SMBs) and high-growth sales teams. Built with **React**, **Tailwind CSS**, **Node.js/Express**, and **PostgreSQL** using raw parameterized SQL queries.
 
 ---
 

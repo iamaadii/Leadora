@@ -177,7 +177,7 @@ export function SettingsPage() {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+            <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex items-center space-x-2 text-xs text-slate-400">
                 <Shield className="w-4 h-4 text-emerald-600" />
                 <span>Multi-tenant data isolation enabled</span>

@@ -76,7 +76,7 @@ export function TeamCard({
           </div>
           {team.manager_id ? (
             <div className="flex items-center gap-2.5">
-              <div className="h-7 w-7 rounded-full bg-primary-100 text-primary-700 font-semibold flex items-center justify-center text-xs shrink-0">
+              <div className="h-7 w-7 rounded-full bg-blue-100 text-blue-700 font-semibold flex items-center justify-center text-xs shrink-0">
                 {managerInitials}
               </div>
               <div className="truncate">

@@ -78,7 +78,7 @@ export function EditTeamModal({ isOpen, onClose, team, onSubmit, isSubmitting })
             value={formData.description}
             onChange={handleChange}
             rows={3}
-            className="w-full rounded-xl border border-slate-200 p-2.5 text-sm text-slate-800 placeholder-slate-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+            className="w-full rounded-xl border border-slate-200 p-2.5 text-sm text-slate-800 placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           />
         </div>
 

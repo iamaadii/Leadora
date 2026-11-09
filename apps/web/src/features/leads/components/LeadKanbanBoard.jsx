@@ -91,8 +91,15 @@ export function LeadKanbanBoard({ leads = [], onStatusChange, isUpdating = false
   };
 
   return (
-    <div className="w-full overflow-x-auto pb-4">
-      <div className="flex gap-4 min-w-[1300px] items-start">
+    <div className="w-full space-y-2">
+      {/* Mobile scroll indicator */}
+      <div className="flex items-center justify-between text-[11px] text-slate-500 lg:hidden px-1">
+        <span>Scroll horizontally to view all pipeline stages</span>
+        <span className="font-semibold text-blue-600">7 Stages &rarr;</span>
+      </div>
+
+      <div className="w-full overflow-x-auto pb-4 touch-pan-x">
+        <div className="flex gap-4 min-w-[1300px] items-start">
         {KANBAN_STAGES.map((stage) => {
           const columnLeads = stageGroups[stage.id] || [];
           const totalValue = columnLeads.reduce(
@@ -167,7 +174,7 @@ export function LeadKanbanBoard({ leads = [], onStatusChange, isUpdating = false
                             onChange={(e) => handleSelectStageChange(lead, e.target.value)}
                             disabled={isUpdating}
                             aria-label="Change stage"
-                            className="text-[10px] font-medium bg-slate-50 border border-slate-200 rounded px-1 py-0.5 text-slate-600 cursor-pointer"
+                            className="text-[11px] font-medium bg-slate-50 border border-slate-200 rounded px-1.5 py-1 text-slate-700 cursor-pointer min-h-[28px] focus:outline-none focus:ring-1 focus:ring-blue-500"
                           >
                             {KANBAN_STAGES.map((s) => (
                               <option key={s.id} value={s.id}>
@@ -213,6 +220,7 @@ export function LeadKanbanBoard({ leads = [], onStatusChange, isUpdating = false
             </div>
           );
         })}
+        </div>
       </div>
     </div>
   );

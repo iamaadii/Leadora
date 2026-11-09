@@ -45,7 +45,7 @@ export function Modal({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6"
     >
       {/* Backdrop */}
       <div
@@ -56,10 +56,10 @@ export function Modal({
 
       {/* Modal Dialog Card */}
       <div
-        className={`relative bg-white rounded-2xl border border-slate-200 shadow-2xl w-full ${sizeClass} transform transition-all overflow-hidden flex flex-col max-h-[90vh]`}
+        className={`relative bg-white rounded-2xl border border-slate-200 shadow-2xl w-full ${sizeClass} transform transition-all overflow-hidden flex flex-col max-h-[92vh]`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-100">
           <div>
             {title && <h3 className="text-base font-bold text-slate-900">{title}</h3>}
             {description && <p className="text-xs text-slate-500 mt-0.5">{description}</p>}
@@ -74,11 +74,11 @@ export function Modal({
         </div>
 
         {/* Content Body */}
-        <div className="px-6 py-5 overflow-y-auto flex-1">{children}</div>
+        <div className="px-4 sm:px-6 py-4 sm:py-5 overflow-y-auto flex-1">{children}</div>
 
         {/* Footer */}
         {footer && (
-          <div className="px-6 py-3.5 bg-slate-50/80 border-t border-slate-100 flex items-center justify-end space-x-2.5">
+          <div className="px-4 sm:px-6 py-3.5 bg-slate-50/80 border-t border-slate-100 flex items-center justify-end space-x-2.5">
             {footer}
           </div>
         )}

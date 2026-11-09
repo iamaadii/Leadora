@@ -74,7 +74,7 @@ export function Topbar({ onToggleMobileSidebar }) {
     };
   }, [isNotifOpen]);
 
-  const currentTitle = ROUTE_TITLES[location.pathname] || 'CRM';
+  const currentTitle = ROUTE_TITLES[location.pathname] || 'Leadora';
 
   const handleLogout = async () => {
     await logout();
@@ -118,7 +118,7 @@ export function Topbar({ onToggleMobileSidebar }) {
         <button
           type="button"
           onClick={onToggleMobileSidebar}
-          className="md:hidden p-2 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition"
+          className="lg:hidden p-2 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition"
           aria-label="Open sidebar menu"
         >
           <Menu className="w-5 h-5" />
@@ -156,7 +156,7 @@ export function Topbar({ onToggleMobileSidebar }) {
           </button>
 
           {isNotifOpen && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white shadow-2xl ring-1 ring-black/5 border border-slate-200 py-2 z-40 animate-in fade-in zoom-in-95 duration-100 overflow-hidden">
+            <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] max-w-sm sm:w-96 rounded-2xl bg-white shadow-2xl ring-1 ring-black/5 border border-slate-200 py-2 z-40 animate-in fade-in zoom-in-95 duration-100 overflow-hidden">
               <div className="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <span className="text-xs font-bold text-slate-900">Notifications</span>

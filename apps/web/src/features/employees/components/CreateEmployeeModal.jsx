@@ -45,7 +45,7 @@ export function CreateEmployeeModal({ isOpen, onClose, onSubmit, isSubmitting })
       size="md"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-medium text-slate-700 mb-1">
               First Name *
@@ -122,7 +122,7 @@ export function CreateEmployeeModal({ isOpen, onClose, onSubmit, isSubmitting })
             <button
               type="button"
               onClick={generateRandomPassword}
-              className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1 font-medium"
+              className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1 font-medium"
             >
               <RefreshCw className="w-3 h-3" />
               Generate

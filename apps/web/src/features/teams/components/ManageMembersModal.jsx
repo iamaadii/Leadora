@@ -51,14 +51,14 @@ export function ManageMembersModal({ isOpen, onClose, team }) {
         {/* Add Member Bar */}
         <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl">
           <h4 className="text-xs font-semibold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-            <UserPlus className="w-3.5 h-3.5 text-primary-600" />
+            <UserPlus className="w-3.5 h-3.5 text-blue-600" />
             Add Employee to Team
           </h4>
-          <form onSubmit={handleAddMember} className="flex gap-2">
+          <form onSubmit={handleAddMember} className="flex flex-col sm:flex-row gap-2">
             <Select
               value={selectedEmployeeId}
               onChange={(e) => setSelectedEmployeeId(e.target.value)}
-              className="flex-1"
+              className="flex-1 min-w-0"
             >
               <option value="">Select unassigned employee...</option>
               {eligibleEmployees.map((emp) => (
@@ -72,6 +72,7 @@ export function ManageMembersModal({ isOpen, onClose, team }) {
               size="sm"
               disabled={!selectedEmployeeId}
               isLoading={isAddingMember}
+              className="shrink-0"
             >
               Add
             </Button>
@@ -103,16 +104,16 @@ export function ManageMembersModal({ isOpen, onClose, team }) {
                   key={member.id}
                   className="py-2.5 flex items-center justify-between gap-3"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-slate-100 text-slate-700 font-semibold flex items-center justify-center text-xs">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="h-8 w-8 shrink-0 rounded-full bg-slate-100 text-slate-700 font-semibold flex items-center justify-center text-xs">
                       {member.first_name?.[0]}
                       {member.last_name?.[0]}
                     </div>
-                    <div>
-                      <div className="text-sm font-medium text-slate-900">
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium text-slate-900 truncate">
                         {member.first_name} {member.last_name}
                       </div>
-                      <div className="text-xs text-slate-500">
+                      <div className="text-xs text-slate-500 truncate">
                         {member.email} • {member.active_leads_count || 0} active leads
                       </div>
                     </div>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <defs>
+    <linearGradient id="leadora-fav-grad" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="#0F172A"/>
+  <rect width="32" height="32" rx="8" stroke="#4F46E5" stroke-width="1.5" stroke-opacity="0.6"/>
+  <!-- Bold Stylized L -->
+  <path d="M9 7C9 6.44772 9.44772 6 10 6H13C13.5523 6 14 6.44772 14 7V19C14 19.5523 14.4477 20 15 20H23C23.5523 20 24 20.4477 24 21V24C24 24.5523 23.5523 25 23 25H11C9.89543 25 9 24.1046 9 23V7Z" fill="url(#leadora-fav-grad)"/>
+  <!-- Growth Node -->
+  <path d="M17 12L24 5M24 5H19M24 5V10" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="24" cy="5" r="2" fill="#10B981"/>
+</svg>
+

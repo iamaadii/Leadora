@@ -15,6 +15,7 @@ const VARIANTS = {
 };
 
 const SIZES = {
+  xs: 'text-[11px] px-2.5 py-1 rounded-md gap-1 font-medium',
   sm: 'text-xs px-2.5 py-1.5 rounded-lg gap-1.5',
   md: 'text-xs sm:text-sm px-3.5 py-2 rounded-lg gap-2',
   lg: 'text-sm px-4 py-2.5 rounded-xl gap-2.5',

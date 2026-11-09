@@ -86,7 +86,7 @@ export function TeamDetailsPage() {
       {/* Team Meta & Manager Header */}
       <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
+          <div className="h-12 w-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
             <Layers className="w-6 h-6" />
           </div>
           <div>
@@ -109,7 +109,7 @@ export function TeamDetailsPage() {
         {/* Manager info */}
         {team.manager_id && (
           <div className="flex items-center gap-3 bg-slate-50 border border-slate-100 px-4 py-2.5 rounded-xl">
-            <div className="h-9 w-9 rounded-full bg-primary-100 text-primary-700 font-semibold flex items-center justify-center text-xs shrink-0">
+            <div className="h-9 w-9 rounded-full bg-blue-100 text-blue-700 font-semibold flex items-center justify-center text-xs shrink-0">
               {team.manager_first_name?.[0]}
               {team.manager_last_name?.[0]}
             </div>
@@ -284,7 +284,7 @@ export function TeamDetailsPage() {
               key={member.id}
               className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 flex items-start gap-3"
             >
-              <div className="h-10 w-10 rounded-full bg-primary-100 text-primary-700 font-semibold flex items-center justify-center text-sm shrink-0">
+              <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-700 font-semibold flex items-center justify-center text-sm shrink-0">
                 {member.first_name?.[0]}
                 {member.last_name?.[0]}
               </div>

@@ -1,7 +1,8 @@
 import React from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth/hooks/useAuth.js';
-import { Building2, LogOut, User } from 'lucide-react';
+import { BrandLogo } from '../components/brand/BrandLogo.jsx';
+import { LogOut, User } from 'lucide-react';
 
 export function AppLayout() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -18,15 +19,7 @@ export function AppLayout() {
       <header className="bg-white border-b border-slate-200">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-3 hover:opacity-90 transition">
-            <div className="bg-blue-600 text-white p-2 rounded-lg">
-              <Building2 className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="font-bold text-slate-900 text-lg">Business CRM</span>
-              <span className="ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                Phase 3: Auth & RBAC
-              </span>
-            </div>
+            <BrandLogo variant="full" size="sm" showSubtitle={false} />
           </Link>
 
           {/* User Status / Auth Controls */}
@@ -74,7 +67,7 @@ export function AppLayout() {
 
       {/* Footer */}
       <footer className="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400">
-        Business CRM &bull; Pure JavaScript ES Modules &bull; JWT & Argon2 Auth
+        Leadora &bull; Pure JavaScript ES Modules &bull; JWT & Argon2 Auth
       </footer>
     </div>
   );

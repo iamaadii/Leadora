@@ -97,7 +97,7 @@ export function EmployeesPage() {
         <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500">Total Staff</span>
-            <div className="p-2 rounded-xl bg-primary-50 text-primary-600">
+            <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
               <Users className="w-4 h-4" />
             </div>
           </div>

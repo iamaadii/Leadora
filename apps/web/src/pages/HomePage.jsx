@@ -68,10 +68,10 @@ export function HomePage() {
       {/* Title Section */}
       <div className="text-center space-y-2">
         <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">
-          Business CRM
+          Leadora
         </h1>
         <p className="text-base text-slate-600 max-w-xl mx-auto">
-          Multi-organization Lead Management System built with React, Express, and PostgreSQL using raw SQL.
+          Every Lead. Every Opportunity. One Platform. Multi-tenant Business CRM & Lead Management.
         </p>
       </div>
 

@@ -19,7 +19,7 @@ export function DashboardLayout() {
       />
 
       {/* Main Layout Container */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
         {/* Top Header Bar */}
         <Topbar onToggleMobileSidebar={() => setIsMobileOpen(true)} />
 

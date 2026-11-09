@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../features/auth/hooks/useAuth.js';
+import { BrandLogo } from '../components/brand/BrandLogo.jsx';
 import {
-  Building2,
   ArrowRight,
   ShieldCheck,
   CheckCircle2,
@@ -140,20 +140,20 @@ export function LandingPage() {
 
   const faqs = [
     {
-      q: 'What is BusinessCRM?',
-      a: 'BusinessCRM is a dedicated multi-tenant B2B Customer Relationship Management and Lead Management SaaS platform. It enables sales organizations to centralize prospective client information, coordinate sales teams, track deals across a 7-stage visual pipeline, schedule follow-ups, and analyze performance.',
+      q: 'What is Leadora?',
+      a: 'Leadora is a dedicated multi-tenant B2B Customer Relationship Management and Lead Management SaaS platform. It enables sales organizations to centralize prospective client information, coordinate sales teams, track deals across a 7-stage visual pipeline, schedule follow-ups, and analyze performance.',
     },
     {
-      q: 'Who can use BusinessCRM?',
-      a: 'BusinessCRM is tailored for small and medium-sized businesses (SMBs), sales teams, and multi-organization enterprises. It provides customized interfaces for four distinct system roles: Platform Super Administrators, Organization Administrators, Sales Managers, and Sales Representatives.',
+      q: 'Who can use Leadora?',
+      a: 'Leadora is tailored for small and medium-sized businesses (SMBs), sales teams, and multi-organization enterprises. It provides customized interfaces for four distinct system roles: Platform Super Administrators, Organization Administrators, Sales Managers, and Sales Representatives.',
     },
     {
-      q: 'What is a lead?',
-      a: 'A lead is a prospective client or sales opportunity. In BusinessCRM, each lead record stores contact details (name, email, phone), company name, estimated deal value, lead source (Website, Referral, Cold Call, Event), priority level, assigned representative, and chronological interaction history.',
+      q: 'What is a lead in Leadora?',
+      a: 'A lead is a prospective client or sales opportunity. In Leadora, each lead record stores contact details (name, email, phone), company name, estimated deal value, lead source (Website, Referral, Cold Call, Event), priority level, assigned representative, and chronological interaction history.',
     },
     {
-      q: 'Can multiple organizations use the platform independently?',
-      a: 'Yes. BusinessCRM is built from the ground up on a multi-tenant database architecture. Every tenant organization is strictly isolated using database foreign keys and row-level tenant queries, ensuring that customer leads, employees, teams, and analytics are never shared or visible across tenants.',
+      q: 'Can multiple organizations use Leadora independently?',
+      a: 'Yes. Leadora is built from the ground up on a multi-tenant database architecture. Every tenant organization is strictly isolated using database foreign keys and row-level tenant queries, ensuring that customer leads, employees, teams, and analytics are never shared or visible across tenants.',
     },
     {
       q: 'What user roles and permission boundaries are supported?',
@@ -171,20 +171,16 @@ export function LandingPage() {
           {/* Brand Logo */}
           <Link
             to="/"
-            className="flex items-center space-x-2.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-1"
-            aria-label="BusinessCRM Home"
+            className="flex items-center text-white focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-1"
+            aria-label="Leadora Home"
           >
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/20">
-              <Building2 className="w-5 h-5 sm:w-6 sm:h-6" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-base sm:text-lg tracking-tight text-white leading-none">
-                Business<span className="text-blue-500">CRM</span>
-              </span>
-              <span className="text-[10px] text-slate-400 font-medium tracking-wide uppercase mt-0.5">
-                Lead Management SaaS
-              </span>
-            </div>
+            <BrandLogo
+              variant="full"
+              size="md"
+              theme="dark"
+              showSubtitle
+              subtitleText="CRM & Pipeline Platform"
+            />
           </Link>
 
           {/* Desktop Navigation Links */}
@@ -274,22 +270,21 @@ export function LandingPage() {
           {/* Tag Pill */}
           <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-slate-800/90 border border-slate-700/80 text-xs font-medium text-slate-300">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Multi-Tenant Architecture &bull; 7 Pipeline Stages</span>
+            <span>Leadora Multi-Tenant SaaS &bull; 7 Pipeline Stages</span>
           </div>
 
           {/* Primary Headline */}
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight sm:leading-tight">
-            Manage Your Leads. <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">
-              Empower Your Sales Team.
+            Every Lead. Every Opportunity. <br className="hidden sm:inline" />
+            <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-emerald-300 bg-clip-text text-transparent">
+              One Unified Platform.
             </span>
           </h1>
 
           {/* Subtitle */}
           <p className="text-sm sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            A comprehensive, multi-tenant Business CRM & Lead Management platform.
-            Centralize client interactions, advance deals through visual Kanban stages,
-            schedule follow-ups, and generate executive reports in real time.
+            Leadora is a modern multi-tenant CRM platform for lead management,
+            sales pipeline tracking, team collaboration, follow-ups, and business analytics.
           </p>
 
           {/* CTA Buttons */}
@@ -335,7 +330,7 @@ export function LandingPage() {
                   <div className="w-3 h-3 rounded-full bg-amber-500/80" />
                   <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
                   <span className="ml-2 font-mono text-slate-400 text-[11px] hidden sm:inline">
-                    crm.business.local &mdash; Pipeline Kanban
+                    app.leadora.io &mdash; Pipeline Kanban
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -494,7 +489,7 @@ export function LandingPage() {
               Streamlined Workflow
             </span>
             <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-              How BusinessCRM Works
+              How Leadora Works
             </h2>
             <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
               From workspace setup to executive analytics in five straightforward steps.
@@ -534,7 +529,7 @@ export function LandingPage() {
               Business Impact
             </span>
             <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Why High-Growth Teams Choose BusinessCRM
+              Why High-Growth Teams Choose Leadora
             </h2>
             <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
               Designed specifically to resolve the operational bottlenecks that slow sales cycles down.
@@ -854,12 +849,13 @@ export function LandingPage() {
       <footer className="bg-slate-950 border-t border-slate-800 text-xs text-slate-400 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center space-x-2.5">
-              <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
-                <Building2 className="w-4 h-4" />
-              </div>
-              <span className="font-bold text-sm text-white">BusinessCRM</span>
-            </div>
+            <BrandLogo
+              variant="full"
+              size="sm"
+              theme="dark"
+              showSubtitle
+              subtitleText="Every Lead. Every Opportunity."
+            />
 
             <div className="flex flex-wrap items-center justify-center gap-6 text-xs">
               <a href="#features" className="hover:text-white transition">Features</a>
@@ -873,7 +869,7 @@ export function LandingPage() {
           </div>
 
           <div className="pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
-            <p>&copy; {new Date().getFullYear()} BusinessCRM SaaS. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Leadora Inc. All rights reserved.</p>
             <div className="flex items-center space-x-4">
               <span>Multi-Tenant Architecture</span>
               <span>&bull;</span>

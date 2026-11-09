@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <linearGradient id="leadora-icon-grad" x1="8" y1="8" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6366F1"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+    <linearGradient id="leadora-accent-grad" x1="28" y1="8" x2="40" y2="20" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#34D399"/>
+      <stop offset="100%" stop-color="#10B981"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Badge -->
+  <rect x="2" y="2" width="44" height="44" rx="12" fill="#0F172A"/>
+  <rect x="2" y="2" width="44" height="44" rx="12" stroke="#4F46E5" stroke-width="1.5" stroke-opacity="0.5"/>
+  <!-- Stylized L Monogram -->
+  <path d="M14 12C14 10.8954 14.8954 10 16 10H20C21.1046 10 22 10.8954 22 12V28C22 29.1046 22.8954 30 24 30H34C35.1046 30 36 30.8954 36 32V36C36 37.1046 35.1046 38 34 38H18C15.7909 38 14 36.2091 14 34V12Z" fill="url(#leadora-icon-grad)"/>
+  <!-- Ascending Growth Node -->
+  <path d="M26 18L36 8M36 8H29M36 8V15" stroke="url(#leadora-accent-grad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="36" cy="8" r="2.5" fill="#34D399"/>
+</svg>
+

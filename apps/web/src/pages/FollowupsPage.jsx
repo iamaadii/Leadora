@@ -185,7 +185,7 @@ export function FollowupsPage() {
       />
 
       {/* KPI Summary Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         {/* Overdue */}
         <div
           onClick={() => handleTabChange('OVERDUE')}
@@ -257,7 +257,7 @@ export function FollowupsPage() {
         {/* All Tasks */}
         <div
           onClick={() => handleTabChange('ALL')}
-          className={`cursor-pointer p-4 rounded-2xl border transition ${
+          className={`cursor-pointer p-4 rounded-2xl border transition col-span-2 sm:col-span-1 ${
             activeTab === 'ALL'
               ? 'bg-slate-100 border-slate-400 ring-2 ring-slate-400/20'
               : 'bg-white border-slate-200/80 hover:border-slate-300 shadow-xs'
@@ -309,9 +309,9 @@ export function FollowupsPage() {
         </div>
 
         {/* Search & Select Filters */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 items-center">
           {/* Search by task title */}
-          <div className="sm:col-span-2 relative">
+          <div className="sm:col-span-2 lg:col-span-1">
             <Input
               placeholder="Search by task title or description..."
               value={search}
@@ -341,35 +341,36 @@ export function FollowupsPage() {
             />
           </div>
 
-          {/* Priority filter & reset */}
-          <div className="flex items-center space-x-2">
-            <div className="flex-1">
-              <Select
-                value={priorityFilter}
-                onChange={(e) => {
-                  setPriorityFilter(e.target.value);
-                  setPage(1);
-                }}
-                options={[
-                  { value: '', label: 'All Priorities' },
-                  { value: 'HIGH', label: 'High Priority' },
-                  { value: 'MEDIUM', label: 'Medium Priority' },
-                  { value: 'LOW', label: 'Low Priority' },
-                ]}
-              />
-            </div>
-            {(search || typeFilter || priorityFilter || activeTab !== 'PENDING') && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleResetFilters}
-                title="Reset Filters"
-              >
-                <RotateCcw className="w-4 h-4" />
-              </Button>
-            )}
+          {/* Priority filter */}
+          <div>
+            <Select
+              value={priorityFilter}
+              onChange={(e) => {
+                setPriorityFilter(e.target.value);
+                setPage(1);
+              }}
+              options={[
+                { value: '', label: 'All Priorities' },
+                { value: 'HIGH', label: 'High Priority' },
+                { value: 'MEDIUM', label: 'Medium Priority' },
+                { value: 'LOW', label: 'Low Priority' },
+              ]}
+            />
           </div>
         </div>
+
+        {(search || typeFilter || priorityFilter || activeTab !== 'PENDING') && (
+          <div className="flex justify-end pt-2 border-t border-slate-100">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleResetFilters}
+              leftIcon={RotateCcw}
+            >
+              Reset Filters
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Main Table */}

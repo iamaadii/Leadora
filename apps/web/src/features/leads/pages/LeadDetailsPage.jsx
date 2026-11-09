@@ -220,7 +220,7 @@ export function LeadDetailsPage() {
   });
 
   return (
-    <div className="space-y-6 max-w-6xl">
+    <div className="space-y-6 w-full">
       {/* Header with Breadcrumb & Primary Actions */}
       <PageHeader
         title={lead.name}
@@ -232,7 +232,7 @@ export function LeadDetailsPage() {
         ]}
         badge={<LeadStatusBadge status={lead.status} size="md" />}
         actions={
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Link to="/leads">
               <Button variant="outline" size="sm" leftIcon={ArrowLeft}>
                 Back to Leads
