@@ -227,4 +227,43 @@ sequenceDiagram
    - Record transitions to `COMPLETED` and becomes immutable.
    - Activity entry `FOLLOWUP_COMPLETED` appends notes into the lead's chronological audit trail.
 
+---
+
+### 2.9 Journey 9: Role-Aware Dashboard & Analytics Workflow (Phase 8)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Admin / Manager / Rep
+    participant React as Dashboard Page
+    participant API as Express API
+    participant DB as PostgreSQL Database
+
+    User->>React: Navigates to /dashboard (or changes date filter)
+    React->>API: GET /api/v1/dashboard/overview?range=30d
+    React->>API: GET /api/v1/dashboard/lead-pipeline
+    React->>API: GET /api/v1/dashboard/lead-trends?range=30d
+    React->>API: GET /api/v1/dashboard/followup-analytics
+
+    alt Admin or Manager Role
+        React->>API: GET /api/v1/dashboard/team-performance
+        React->>API: GET /api/v1/dashboard/employee-performance?range=30d
+    end
+
+    API->>DB: Run optimized SQL aggregations with role-scoped WHERE clauses
+    DB-->>API: Return aggregated counts, stage metrics, and time-series
+    API-->>React: Return JSON envelopes with computed statistics
+    React->>User: Renders KPI cards, SVG trend charts, pipeline funnel, and performance tables
+```
+
+**Step-by-step Execution:**
+1. **Authentication & Role Discovery**: The React application reads `user.role` from the active session.
+2. **Scoping**:
+   - For an **Admin**, queries aggregate across the entire organization.
+   - For a **Manager**, queries filter by teams where `t.manager_id = user.id` and active members of those teams.
+   - For an **Employee**, queries filter by `l.assigned_to_id = user.id` or `l.created_by_id = user.id`. Team and employee performance widgets are hidden on the UI and forbidden by the backend (HTTP 403).
+3. **Date Filtering**: Changing the date range filter (7d, 30d, 90d, this month, previous month, or custom) triggers query invalidation and updates time-series trends and period-based KPI indicators.
+4. **Interactive Navigation**: Clicking on any stage in the Pipeline Funnel navigates to `/leads?status=:stage` with the appropriate status pre-filtered.
+
+
 

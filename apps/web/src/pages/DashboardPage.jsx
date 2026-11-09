@@ -1,209 +1,275 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../features/auth/hooks/useAuth.js';
-import { useFollowupSummary } from '../features/followups/hooks/useFollowups.js';
+import {
+  useDashboardOverview,
+  useLeadPipeline,
+  useLeadTrends,
+  useFollowupAnalytics,
+  useTeamPerformance,
+  useEmployeePerformance,
+  useRecentActivity,
+} from '../features/dashboard/hooks/useDashboard.js';
 import { PageHeader } from '../components/ui/PageHeader.jsx';
-import { StatCard } from './dashboard/components/StatCard.jsx';
-import { EmptyState } from '../components/ui/EmptyState.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Link } from 'react-router-dom';
+import { DateRangeFilter } from '../features/dashboard/components/DateRangeFilter.jsx';
+import { DashboardKpiCard } from '../features/dashboard/components/DashboardKpiCard.jsx';
+import { PipelineFunnelChart } from '../features/dashboard/components/PipelineFunnelChart.jsx';
+import { LeadTrendChart } from '../features/dashboard/components/LeadTrendChart.jsx';
+import { FollowupAnalyticsCard } from '../features/dashboard/components/FollowupAnalyticsCard.jsx';
+import { TeamPerformanceTable } from '../features/dashboard/components/TeamPerformanceTable.jsx';
+import { EmployeePerformanceTable } from '../features/dashboard/components/EmployeePerformanceTable.jsx';
+import { RecentActivityFeed } from '../features/dashboard/components/RecentActivityFeed.jsx';
 import {
   Users,
   Sparkles,
   Trophy,
   UserX,
   Clock,
-  PieChart,
-  TrendingUp,
-  Activity,
-  CalendarCheck,
   Plus,
+  ShieldCheck,
+  Building2,
+  Percent,
 } from 'lucide-react';
 
 export function DashboardPage() {
   const { user } = useAuth();
-  const isTenantUser = user?.role !== 'SUPER_ADMIN';
-  const { data: followupSummaryData, isLoading: isFollowupsLoading } = useFollowupSummary({
-    enabled: isTenantUser,
+  const role = user?.role || 'EMPLOYEE';
+  const isSuperAdmin = role === 'SUPER_ADMIN';
+
+  // Common Date Range Filter state
+  const [dateFilter, setDateFilter] = useState({
+    range: '30d',
+    startDate: undefined,
+    endDate: undefined,
   });
 
-  const followupSummary = followupSummaryData?.data;
-  const pendingTasksCount = followupSummary ? followupSummary.pending : null;
-  const overdueCount = followupSummary ? followupSummary.overdue : 0;
+  // Queries (only active for tenant users)
+  const { data: overviewData, isLoading: isOverviewLoading } = useDashboardOverview(
+    dateFilter,
+    { enabled: !isSuperAdmin },
+  );
+
+  const { data: pipelineData, isLoading: isPipelineLoading } = useLeadPipeline({
+    enabled: !isSuperAdmin,
+  });
+
+  const { data: trendsData, isLoading: isTrendsLoading } = useLeadTrends(
+    dateFilter,
+    { enabled: !isSuperAdmin },
+  );
+
+  const { data: followupData, isLoading: isFollowupLoading } = useFollowupAnalytics({
+    enabled: !isSuperAdmin,
+  });
+
+  const { data: teamPerfData, isLoading: isTeamPerfLoading } = useTeamPerformance({
+    enabled: !isSuperAdmin && role !== 'EMPLOYEE',
+  });
+
+  const { data: empPerfData, isLoading: isEmpPerfLoading } = useEmployeePerformance(
+    dateFilter,
+    { enabled: !isSuperAdmin && role !== 'EMPLOYEE' },
+  );
+
+  const { data: activityData, isLoading: isActivityLoading } = useRecentActivity(
+    { limit: 8 },
+    { enabled: !isSuperAdmin },
+  );
+
+  const kpis = overviewData?.data?.kpis || {};
+
+  // Description copy tailored to role
+  const getRoleDescription = () => {
+    switch (role) {
+      case 'ADMIN':
+        return 'Organization-wide sales overview. Track conversion velocity, rep workload, and customer engagements.';
+      case 'MANAGER':
+        return 'Team performance dashboard. Monitor your sales teams, representative pipeline health, and pending follow-ups.';
+      case 'EMPLOYEE':
+        return 'Your personal sales workspace. Manage your pipeline progress, scheduled discovery calls, and touchpoints.';
+      default:
+        return 'Monitor pipeline metrics, team performance, and customer touchpoints.';
+    }
+  };
+
+  // If Super Admin, show platform notice
+  if (isSuperAdmin) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Platform Super Administrator"
+          description="Global platform administration, tenant onboarding, and system infrastructure governance."
+          badge={
+            <Badge variant="neutral" size="sm" dot>
+              PLATFORM ADMIN
+            </Badge>
+          }
+        />
+
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-8 shadow-xs text-center max-w-xl mx-auto space-y-4 my-8">
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center mx-auto text-blue-600">
+            <ShieldCheck className="w-6 h-6 stroke-[1.75]" />
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-base font-bold text-slate-900">
+              Tenant Sales Data is Strictly Isolated
+            </h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              As a platform-level Super Administrator, private customer sales pipelines, leads,
+              and follow-up touchpoints are isolated per tenant compliance rules.
+            </p>
+          </div>
+          <div className="pt-2">
+            <Link to="/settings">
+              <Button size="sm" variant="outline" leftIcon={Building2}>
+                View System Organizations
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Top Header */}
       <PageHeader
         title={`Welcome back, ${user?.firstName || 'User'}`}
-        description="Monitor your sales pipeline metrics, upcoming follow-ups, and customer touchpoints in real time."
+        description={getRoleDescription()}
         badge={
           <Badge variant="primary" size="sm" dot>
-            {user?.role || 'EMPLOYEE'}
+            {role}
           </Badge>
         }
         actions={
-          <Link to="/leads">
-            <Button size="sm" leftIcon={Plus}>
-              New Lead
-            </Button>
-          </Link>
+          <div className="flex items-center space-x-2">
+            <DateRangeFilter
+              selectedRange={dateFilter.range}
+              startDate={dateFilter.startDate}
+              endDate={dateFilter.endDate}
+              onChange={(newRange) => setDateFilter(newRange)}
+            />
+            <Link to="/leads">
+              <Button size="sm" leftIcon={Plus}>
+                New Lead
+              </Button>
+            </Link>
+          </div>
         }
       />
 
-      {/* Primary KPI Metrics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <StatCard
-          title="Total Leads"
-          empty
+      {/* KPI Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
+        {/* Total Leads */}
+        <DashboardKpiCard
+          title={role === 'EMPLOYEE' ? 'My Active Leads' : role === 'MANAGER' ? 'Team Leads' : 'Total Leads'}
+          value={kpis.totalLeads}
+          isLoading={isOverviewLoading}
           icon={Users}
           color="blue"
-          description="Pipeline lead volume"
+          description="Active pipeline volume"
         />
-        <StatCard
+
+        {/* New Leads in Period */}
+        <DashboardKpiCard
           title="New Leads"
-          empty
+          value={kpis.newLeadsInPeriod}
+          isLoading={isOverviewLoading}
           icon={Sparkles}
           color="purple"
-          description="Awaiting initial contact"
+          trend={kpis.newLeadsTrend}
+          description="Created in period"
         />
-        <StatCard
+
+        {/* Converted Deals */}
+        <DashboardKpiCard
           title="Converted"
-          empty
+          value={kpis.convertedLeads}
+          isLoading={isOverviewLoading}
           icon={Trophy}
           color="emerald"
-          description="Deals successfully won"
+          trend={kpis.conversionsTrend}
+          description="Won deals in scope"
         />
-        <StatCard
+
+        {/* Lost Leads */}
+        <DashboardKpiCard
           title="Lost Leads"
-          empty
+          value={kpis.lostLeads}
+          isLoading={isOverviewLoading}
           icon={UserX}
           color="rose"
           description="Archived or dropped"
         />
-        <StatCard
+
+        {/* Overall Win Rate */}
+        <DashboardKpiCard
+          title="Conversion Rate"
+          value={kpis.overallConversionRate !== undefined ? `${kpis.overallConversionRate}%` : '--'}
+          isLoading={isOverviewLoading}
+          icon={Percent}
+          color="indigo"
+          description="Won vs total leads"
+        />
+
+        {/* Pending Tasks */}
+        <DashboardKpiCard
           title="Pending Tasks"
-          value={pendingTasksCount !== null ? pendingTasksCount : '--'}
-          empty={pendingTasksCount === null && !isFollowupsLoading}
-          isLoading={isFollowupsLoading}
+          value={kpis.pendingFollowups}
+          isLoading={isOverviewLoading}
           icon={Clock}
-          color={overdueCount > 0 ? 'rose' : 'amber'}
+          color={kpis.overdueFollowups > 0 ? 'rose' : 'amber'}
           description={
-            overdueCount > 0
-              ? `${overdueCount} overdue task(s)`
-              : 'Scheduled follow-ups'
+            kpis.overdueFollowups > 0
+              ? `${kpis.overdueFollowups} overdue touchpoint(s)`
+              : `${kpis.dueTodayFollowups || 0} due today`
           }
         />
       </div>
 
-      {/* Analytics & Pipeline Visualizations Section */}
+      {/* Pipeline Analytics & Trends Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Leads by Status Card */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <div className="flex items-center space-x-2">
-              <PieChart className="w-4 h-4 text-slate-500" />
-              <h3 className="text-sm font-bold text-slate-900">Leads by Status</h3>
-            </div>
-            <Badge variant="neutral" size="sm">
-              Current Period
-            </Badge>
-          </div>
+        <PipelineFunnelChart
+          data={pipelineData?.data}
+          isLoading={isPipelineLoading}
+        />
 
-          <div className="py-8">
-            <EmptyState
-              icon={PieChart}
-              title="No pipeline data available"
-              description="Lead status breakdown will appear here once leads are added to your organization."
-              className="border-none shadow-none py-4"
-            />
-          </div>
-
-          <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
-            <span>Stages: New &bull; Contacted &bull; Qualified &bull; Proposal &bull; Won</span>
-            <Link to="/leads" className="text-blue-600 hover:text-blue-700 font-medium">
-              View Leads &rarr;
-            </Link>
-          </div>
-        </div>
-
-        {/* Monthly Lead Trends Card */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="w-4 h-4 text-slate-500" />
-              <h3 className="text-sm font-bold text-slate-900">Monthly Lead Trends</h3>
-            </div>
-            <Badge variant="neutral" size="sm">
-              Last 6 Months
-            </Badge>
-          </div>
-
-          <div className="py-8">
-            <EmptyState
-              icon={TrendingUp}
-              title="No trend data recorded"
-              description="Monthly acquisition trajectories will be automatically charted as leads are generated."
-              className="border-none shadow-none py-4"
-            />
-          </div>
-
-          <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
-            <span>Tracking monthly velocity & conversion rate</span>
-            <Link to="/reports" className="text-blue-600 hover:text-blue-700 font-medium">
-              Reports &rarr;
-            </Link>
-          </div>
-        </div>
+        <LeadTrendChart
+          data={trendsData?.data}
+          isLoading={isTrendsLoading}
+        />
       </div>
 
-      {/* Operational Feed & Tasks Section */}
+      {/* Follow-up Health & Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Activity Card */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <div className="flex items-center space-x-2">
-              <Activity className="w-4 h-4 text-slate-500" />
-              <h3 className="text-sm font-bold text-slate-900">Recent Activity</h3>
-            </div>
-            <Link to="/activities" className="text-xs text-blue-600 hover:underline font-medium">
-              View All
-            </Link>
-          </div>
+        <FollowupAnalyticsCard
+          data={followupData?.data}
+          isLoading={isFollowupLoading}
+        />
 
-          <div className="py-6">
-            <EmptyState
-              icon={Activity}
-              title="No recent activity logged"
-              description="System audit logs, notes, and lead transitions will appear here in chronological order."
-              className="border-none shadow-none py-4"
-            />
-          </div>
-        </div>
-
-        {/* Upcoming Follow-ups Card */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <div className="flex items-center space-x-2">
-              <CalendarCheck className="w-4 h-4 text-slate-500" />
-              <h3 className="text-sm font-bold text-slate-900">Upcoming Follow-ups</h3>
-            </div>
-            <Link to="/follow-ups" className="text-xs text-blue-600 hover:underline font-medium">
-              Schedule Task
-            </Link>
-          </div>
-
-          <div className="py-6">
-            <EmptyState
-              icon={CalendarCheck}
-              title="No upcoming follow-ups scheduled"
-              description="Keep sales conversations warm by scheduling phone calls, meetings, or emails."
-              className="border-none shadow-none py-4"
-            />
-          </div>
-        </div>
+        <RecentActivityFeed
+          activities={activityData?.data || []}
+          isLoading={isActivityLoading}
+        />
       </div>
+
+      {/* Performance Section (Admin & Manager only) */}
+      {role !== 'EMPLOYEE' && (
+        <div className="space-y-6">
+          <TeamPerformanceTable
+            teams={teamPerfData?.data || []}
+            isLoading={isTeamPerfLoading}
+          />
+
+          <EmployeePerformanceTable
+            employees={empPerfData?.data || []}
+            isLoading={isEmpPerfLoading}
+          />
+        </div>
+      )}
     </div>
   );
 }
-

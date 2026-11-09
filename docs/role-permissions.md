@@ -184,4 +184,21 @@ This guarantees that no user can ever see data from another company.
 ### Terminal Status Invariance
 Follow-ups in terminal status (`COMPLETED` or `CANCELLED`) cannot be modified, completed, or cancelled by any role (returns HTTP 400).
 
+---
+
+## 6. Dashboard & Analytics Permissions (Phase 8)
+
+### Permission Matrix
+
+| Dashboard Endpoint | Super Admin | Admin | Manager | Employee |
+| :--- | :--- | :--- | :--- | :--- |
+| **GET /dashboard/overview** | 403 Forbidden | Org-wide KPIs | Managed Teams Scope | Personal Scope |
+| **GET /dashboard/lead-pipeline** | 403 Forbidden | Org-wide Stages | Managed Teams Scope | Personal Scope |
+| **GET /dashboard/lead-trends** | 403 Forbidden | Org-wide Velocity | Managed Teams Scope | Personal Scope |
+| **GET /dashboard/followup-analytics** | 403 Forbidden | Org-wide Tasks | Managed Teams Scope | Personal Scope |
+| **GET /dashboard/team-performance** | 403 Forbidden | Org Teams | Managed Teams Only | **403 Forbidden** |
+| **GET /dashboard/employee-performance**| 403 Forbidden | Org Reps | Managed Reps Only | **403 Forbidden** |
+| **GET /dashboard/recent-activity** | 403 Forbidden | Org Stream | Team Stream | Personal Stream |
+
+
 

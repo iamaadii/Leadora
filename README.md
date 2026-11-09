@@ -324,7 +324,7 @@ The frontend is built with React + Vite, Tailwind CSS, and Lucide React icons fo
 - **Safe Dynamic Filtering & Sorting:** Safe parameterization with strict allowlists (`created_at`, `updated_at`, `name`, `company`, `status`), preventing SQL injection.
 
 ### Running Backend Tests
-Execute all 5 automated test suites (Auth, Leads, Employees, Teams, Follow-ups - 82 tests total):
+Execute all 6 automated test suites (Auth, Leads, Employees, Teams, Follow-ups, Dashboard - 103 tests total):
 ```bash
 npm run test:api
 # Or run individual test suites:
@@ -333,6 +333,7 @@ node --test apps/api/tests/leads.test.js
 node --test apps/api/tests/employees.test.js
 node --test apps/api/tests/teams.test.js
 node --test apps/api/tests/followups.test.js
+node --test apps/api/tests/dashboard.test.js
 ```
 
 ---
@@ -360,7 +361,20 @@ node --test apps/api/tests/followups.test.js
 
 ---
 
-## 11. Starting Frontend and Backend
+## 11. Dashboard & Analytics (Phase 8)
+
+- **Role-Aware Dashboards:**
+  - `ADMIN`: Global organization visibility, complete sales funnel, lead creation & verified conversion velocity, team performance, and representative workload.
+  - `MANAGER`: Scoped strictly to managed teams and their active members.
+  - `EMPLOYEE`: Personal sales workspace with individual pipeline distribution and task execution health.
+  - `SUPER_ADMIN`: Strictly isolated from tenant sales figures (HTTP 403 Forbidden).
+- **KPI Metrics:** Total accessible leads, new leads in period (with % trend vs previous period), converted deals, lost leads, overall win rate, and pending tasks (with overdue warning).
+- **Visualizations:** Custom lightweight, dependency-free SVG charts including interactive Lead Trend timeline, 7-stage Funnel progression, and Task health mix.
+- **Date Range Filters:** Common filter supporting `Last 7 days`, `Last 30 days`, `Last 90 days`, `This month`, `Previous month`, and validated `Custom range` (up to 1 year).
+
+---
+
+## 12. Starting Frontend and Backend
 
 Start both applications with one command:
 

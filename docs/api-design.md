@@ -214,6 +214,18 @@ Every API endpoint returns a predictable JSON structure:
 | `GET` | `/followups/lead/:leadId`| Admin, Manager, Employee | Get all follow-ups linked to a lead |
 | `GET` | `/leads/:id/followups` | Admin, Manager, Employee | Alternate REST resource endpoint for lead follow-ups |
 
+### 4.6 Dashboard & Analytics Endpoints (Phase 8)
+
+| Method | Endpoint | Allowed Roles | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/dashboard/overview` | Admin, Manager, Employee | KPI summary cards with date range filtering and previous period delta comparisons |
+| `GET` | `/dashboard/lead-pipeline` | Admin, Manager, Employee | Aggregated counts and percentage breakdown across all 7 pipeline stages |
+| `GET` | `/dashboard/lead-trends` | Admin, Manager, Employee | Time-series lead creation and historical conversions by day/week/month bucket |
+| `GET` | `/dashboard/followup-analytics` | Admin, Manager, Employee | Status distribution, activity type mix, and overall execution rate |
+| `GET` | `/dashboard/team-performance` | Admin, Manager | Team member count, active leads, won/lost counts, pending tasks, win rate (403 for Employee) |
+| `GET` | `/dashboard/employee-performance` | Admin, Manager | Individual representative pipeline volume, follow-ups, and conversion rate (403 for Employee)|
+| `GET` | `/dashboard/recent-activity` | Admin, Manager, Employee | Latest customer engagements stream scoped to permitted leads |
+
 ---
 
 ## 5. Request Validation Using Zod

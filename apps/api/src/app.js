@@ -10,6 +10,7 @@ import { leadsRouter } from './modules/leads/leads.routes.js';
 import employeesRouter from './modules/employees/employees.routes.js';
 import teamsRouter from './modules/teams/teams.routes.js';
 import { followupsRouter } from './modules/followups/followups.routes.js';
+import { dashboardRouter } from './modules/dashboard/dashboard.routes.js';
 import { errorMiddleware } from './middleware/error.middleware.js';
 import { notFoundMiddleware } from './middleware/not-found.middleware.js';
 
@@ -98,6 +99,9 @@ export function createApp() {
 
   // Follow-ups & Task Scheduling Routes (Phase 7)
   app.use('/api/v1/followups', followupsRouter);
+
+  // Dashboard & Analytics Routes (Phase 8)
+  app.use('/api/v1/dashboard', dashboardRouter);
 
   // 404 Handler
   app.use(notFoundMiddleware);
