@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: business_crm_postgres
+    restart: unless-stopped
+    env_file:
+      - ../../.env
+    environment:
+      POSTGRES_USER: ${DB_USER:-crm_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-crm_secret_password}
+      POSTGRES_DB: ${DB_NAME:-business_crm}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-crm_admin} -d ${DB_NAME:-business_crm}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  postgres_data:
+    name: business_crm_postgres_data
+

@@ -1,0 +1,32 @@
+{
+  "name": "business-crm",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Business CRM and Lead Management System",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n \"api,web\" -c \"blue,magenta\" \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "build:web": "npm run build --workspace=apps/web",
+    "lint": "npm run lint --workspaces --if-present",
+    "lint:api": "npm run lint --workspace=apps/api",
+    "lint:web": "npm run lint --workspace=apps/web",
+    "format": "prettier --write \"**/*.{js,jsx,json,md,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,json,md,yml,yaml}\"",
+    "db:up": "docker compose -f infrastructure/docker/docker-compose.yml up -d",
+    "db:down": "docker compose -f infrastructure/docker/docker-compose.yml down",
+    "db:logs": "docker compose -f infrastructure/docker/docker-compose.yml logs -f postgres"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.34.1",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "prettier": "^3.2.5"
+  }
+}
+
