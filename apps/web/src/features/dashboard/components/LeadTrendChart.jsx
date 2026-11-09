@@ -250,3 +250,4 @@ export function LeadTrendChart({ data = null, isLoading = false }) {
     </div>
   );
 }
+

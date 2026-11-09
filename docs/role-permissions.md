@@ -200,5 +200,26 @@ Follow-ups in terminal status (`COMPLETED` or `CANCELLED`) cannot be modified, c
 | **GET /dashboard/employee-performance**| 403 Forbidden | Org Reps | Managed Reps Only | **403 Forbidden** |
 | **GET /dashboard/recent-activity** | 403 Forbidden | Org Stream | Team Stream | Personal Stream |
 
+---
+
+## 7. Reports & Data Export Permissions (Phase 9)
+
+### Permission Matrix
+
+| Report & Export Operation | Super Admin | Admin | Manager | Employee |
+| :--- | :--- | :--- | :--- | :--- |
+| **GET /reports/leads** | 403 Forbidden | Org-wide | Managed Teams Scope | Personal Scope |
+| **GET /reports/conversions** | 403 Forbidden | Org-wide | Managed Teams Scope | Personal Scope |
+| **GET /reports/lost-leads** | 403 Forbidden | Org-wide | Managed Teams Scope | Personal Scope |
+| **GET /reports/followups** | 403 Forbidden | Org-wide | Managed Teams Scope | Personal Scope |
+| **GET /reports/employees** | 403 Forbidden | Org Reps | Managed Reps Scope | Personal Scope |
+| **GET /reports/teams** | 403 Forbidden | Org Teams | Managed Teams Only | **403 Forbidden** |
+| **GET /reports/activities** | 403 Forbidden | Org Log | Team Audit Stream | Personal Scope |
+| **Export Reports (CSV/Excel/PDF)**| 403 Forbidden | Org-wide Export | Managed Teams Scope | Personal Scope |
+| **GET /platform/reports/organizations**| Full Access | **403 Forbidden** | **403 Forbidden** | **403 Forbidden** |
+| **GET /platform/reports/users**| Full Access | **403 Forbidden** | **403 Forbidden** | **403 Forbidden** |
+| **Platform Exports (CSV/Excel/PDF)**| Full Access | **403 Forbidden** | **403 Forbidden** | **403 Forbidden** |
+
+
 
 

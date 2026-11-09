@@ -359,3 +359,4 @@ describe('Phase 8: Dashboard & Analytics Module Tests', () => {
     assert.strictEqual(body.data.range, 'custom');
   });
 });
+

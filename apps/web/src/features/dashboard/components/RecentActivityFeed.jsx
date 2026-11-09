@@ -97,3 +97,4 @@ export function RecentActivityFeed({ activities = [], isLoading = false }) {
     </div>
   );
 }
+

@@ -36,3 +36,4 @@ router.get(
 router.get('/recent-activity', dashboardController.getRecentActivity);
 
 export const dashboardRouter = router;
+

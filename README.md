@@ -59,13 +59,19 @@ business-crm/
 │   │   │   │   │   ├── leads.routes.js
 │   │   │   │   │   ├── leads.service.js
 │   │   │   │   │   └── leads.validation.js
-│   │   │   │   └── teams/               # Sales Team Management module (Phase 6)
-│   │   │   │       ├── teams.constants.js
-│   │   │   │       ├── teams.controller.js
-│   │   │   │       ├── teams.repository.js
-│   │   │   │       ├── teams.routes.js
-│   │   │   │       ├── teams.service.js
-│   │   │   │       └── teams.validation.js
+│   │   │   │   ├── followups/           # Follow-ups & Task Scheduling (Phase 7)
+│   │   │   │   ├── dashboard/           # Dashboard & Analytics module (Phase 8)
+│   │   │   │   └── reports/             # Reports & Data Export module (Phase 9)
+│   │   │   │       ├── exporters/       # Multi-format export engines (CSV, Excel, PDF)
+│   │   │   │       │   ├── csv.exporter.js
+│   │   │   │       │   ├── excel.exporter.js
+│   │   │   │       │   └── pdf.exporter.js
+│   │   │   │       ├── reports.constants.js
+│   │   │   │       ├── reports.controller.js
+│   │   │   │       ├── reports.repository.js
+│   │   │   │       ├── reports.routes.js
+│   │   │   │       ├── reports.service.js
+│   │   │   │       └── reports.validation.js
 │   │   │   ├── repositories/            # Raw SQL repository layer
 │   │   │   │   ├── auth.repository.js
 │   │   │   │   ├── refresh-token.repository.js
@@ -77,7 +83,10 @@ business-crm/
 │   │   │   ├── auth.test.js             # 17-point automated auth & RBAC test suite
 │   │   │   ├── leads.test.js            # 18-point automated lead lifecycle test suite
 │   │   │   ├── employees.test.js        # 13-point automated employee administration test suite
-│   │   │   └── teams.test.js            # 10-point automated team & manager boundary test suite
+│   │   │   ├── teams.test.js            # 10-point automated team & manager boundary test suite
+│   │   │   ├── followups.test.js        # 24-point automated follow-up & task scheduling test suite
+│   │   │   ├── dashboard.test.js        # 21-point automated dashboard & analytics test suite
+│   │   │   └── reports.test.js          # 19-point automated reports & data export test suite
 │   │   └── package.json
 │   │
 │   └── web/                              # Frontend React + Vite Application
@@ -374,7 +383,29 @@ node --test apps/api/tests/dashboard.test.js
 
 ---
 
-## 12. Starting Frontend and Backend
+## 12. Phase 9: Reports & Data Export Module
+
+- **7 Tenant Report Categories:**
+  - `Lead Report`: Volume, channels, status distribution, and assigned representatives.
+  - `Conversion Report`: Won opportunities, conversion rates, and sales velocity (days to close).
+  - `Lost Leads Report`: Deal drop-off points and qualitative loss reasons.
+  - `Follow-up Report`: Execution rates, completed vs overdue scheduled tasks.
+  - `Employee Performance Report`: Individual representative pipeline volume and win rates.
+  - `Team Performance Report`: Aggregated team metrics, roster size, and team conversion rates.
+  - `Activity Report`: Full system audit trail of customer interactions and status transitions.
+- **Platform Governance Reports (Super Admin):**
+  - Tenant organization growth and status (`/platform/reports/organizations`).
+  - Cross-tenant user roles and active status (`/platform/reports/users`).
+  - Strict tenant boundary isolation (Super Admin forbidden with HTTP 403 from organization sales data).
+- **Multi-Format Export Engine:**
+  - **CSV**: Full RFC 4180 compliance, UTF-8 BOM (`\uFEFF`) for spreadsheet compatibility, and Formula Injection Defense (CWE-1236) neutralizing leading formula characters (`=`, `+`, `-`, `@`, `\t`, `\r`).
+  - **Excel (.xlsx)**: Generated via `exceljs` featuring metadata header blocks, KPI summary panels, frozen headers, styled borders, and zebra row striping.
+  - **PDF**: Generated via `pdfkit` featuring clean A4 landscape tables, executive summary cards, and dynamic buffered page numbering (`Page X of Y`).
+- **Synchronous Execution:** Safe in-memory stream processing bounded by a 10,000-row safety limit (`LIMIT 10000`).
+
+---
+
+## 13. Starting Frontend and Backend
 
 Start both applications with one command:
 

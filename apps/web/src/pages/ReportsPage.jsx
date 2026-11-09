@@ -1,85 +1,148 @@
+// ReportsPage.jsx
+// Phase 9: Reports & Data Export Workspace
+
 import React, { useState } from 'react';
 import { PageHeader } from '../components/ui/PageHeader.jsx';
-import { Button } from '../components/ui/Button.jsx';
-import { Select } from '../components/ui/Select.jsx';
-import { EmptyState } from '../components/ui/EmptyState.jsx';
-import { BarChart3, Download, Calendar } from 'lucide-react';
-import { useToast } from '../components/ui/Toast.jsx';
+import { useAuth } from '../features/auth/hooks/useAuth.js';
+import {
+  useReport,
+  usePlatformReport,
+  useExportReport,
+  useExportPlatformReport,
+} from '../features/reports/hooks/useReports.js';
+import { ReportCategoryNav } from '../features/reports/components/ReportCategoryNav.jsx';
+import { ReportFilterBar } from '../features/reports/components/ReportFilterBar.jsx';
+import { ReportSummaryCards } from '../features/reports/components/ReportSummaryCards.jsx';
+import { ReportTable } from '../features/reports/components/ReportTable.jsx';
+import { ExportDropdown } from '../features/reports/components/ExportDropdown.jsx';
 
 export function ReportsPage() {
-  const { toast } = useToast();
-  const [dateRange, setDateRange] = useState('THIS_MONTH');
+  const { user } = useAuth();
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN';
 
-  const handleExport = () => {
-    toast.info('Export functionality will be activated in Phase 9 (Reports & Analytics).');
+  // Active Category State
+  const [activeCategory, setActiveCategory] = useState(
+    isSuperAdmin ? 'organizations' : 'leads'
+  );
+
+  // Filter & Pagination State
+  const [filters, setFilters] = useState({
+    range: '30d',
+    page: 1,
+    limit: 50,
+  });
+
+  // Query Hooks (Tenant vs Platform)
+  const tenantQuery = useReport(activeCategory, filters, {
+    enabled: !isSuperAdmin,
+  });
+
+  const platformQuery = usePlatformReport(activeCategory, filters, {
+    enabled: isSuperAdmin,
+  });
+
+  // Export Mutations
+  const tenantExport = useExportReport();
+  const platformExport = useExportPlatformReport();
+
+  const activeQuery = isSuperAdmin ? platformQuery : tenantQuery;
+  const isExporting = isSuperAdmin ? platformExport.isPending : tenantExport.isPending;
+
+  const handleFilterChange = (newFilters) => {
+    setFilters((prev) => ({ ...prev, ...newFilters }));
   };
 
+  const handleResetFilters = () => {
+    setFilters({
+      range: '30d',
+      page: 1,
+      limit: 50,
+    });
+  };
+
+  const handleCategorySelect = (newCategory) => {
+    setActiveCategory(newCategory);
+    setFilters({
+      range: '30d',
+      page: 1,
+      limit: 50,
+    });
+  };
+
+  const handleExport = (format) => {
+    if (isSuperAdmin) {
+      platformExport.mutate({
+        reportType: activeCategory,
+        format,
+        params: filters,
+      });
+    } else {
+      tenantExport.mutate({
+        reportType: activeCategory,
+        format,
+        params: filters,
+      });
+    }
+  };
+
+  const reportData = activeQuery.data?.data || {};
+  const columns = reportData.columns || [];
+  const rows = reportData.data || [];
+  const summary = reportData.summary || {};
+  const pagination = reportData.pagination || {};
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Page Header */}
       <PageHeader
-        title="Analytics & Reports"
-        description="Analyze team sales velocity, win-loss ratios, revenue forecasts, and channel attribution."
+        title={isSuperAdmin ? 'Platform Reports & Analytics' : 'Reports & Data Export'}
+        description={
+          isSuperAdmin
+            ? 'Centralized platform governance, multi-tenant organization health, and cross-platform user audits.'
+            : 'Operational business reports, conversion velocity, lost deal diagnostics, and multi-format data exports.'
+        }
         breadcrumbs={[
           { label: 'Dashboard', href: '/dashboard' },
           { label: 'Reports' },
         ]}
         actions={
-          <div className="flex items-center space-x-2.5">
-            <Select
-              value={dateRange}
-              onChange={(e) => setDateRange(e.target.value)}
-              className="w-40"
-            >
-              <option value="THIS_MONTH">This Month</option>
-              <option value="LAST_MONTH">Last Month</option>
-              <option value="THIS_QUARTER">This Quarter</option>
-              <option value="YEAR_TO_DATE">Year to Date</option>
-            </Select>
-
-            <Button variant="outline" size="sm" leftIcon={Download} onClick={handleExport}>
-              Export
-            </Button>
-          </div>
+          <ExportDropdown
+            onExport={handleExport}
+            isExporting={isExporting}
+          />
         }
       />
 
-      {/* Reports Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Sales Rep Performance */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center space-x-2 pb-3 border-b border-slate-100">
-            <BarChart3 className="w-4 h-4 text-slate-500" />
-            <h3 className="text-sm font-bold text-slate-900">Performance by Sales Rep</h3>
-          </div>
+      {/* Category Navigation Tabs */}
+      <ReportCategoryNav
+        activeCategory={activeCategory}
+        onSelectCategory={handleCategorySelect}
+        isSuperAdmin={isSuperAdmin}
+      />
 
-          <div className="py-8">
-            <EmptyState
-              icon={BarChart3}
-              title="No sales rep records"
-              description="Rep performance summaries (conversion rates, deal volume, and revenue) will appear once leads are closed."
-              className="border-none shadow-none py-4"
-            />
-          </div>
-        </div>
+      {/* Dynamic Summary KPI Cards */}
+      <ReportSummaryCards
+        category={activeCategory}
+        summary={summary}
+      />
 
-        {/* Lead Source Breakdown */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center space-x-2 pb-3 border-b border-slate-100">
-            <Calendar className="w-4 h-4 text-slate-500" />
-            <h3 className="text-sm font-bold text-slate-900">Lead Source Channel Breakdown</h3>
-          </div>
+      {/* Report Filter Toolbar */}
+      <ReportFilterBar
+        category={activeCategory}
+        filters={filters}
+        onChangeFilters={handleFilterChange}
+        onResetFilters={handleResetFilters}
+      />
 
-          <div className="py-8">
-            <EmptyState
-              icon={BarChart3}
-              title="No channel attribution data"
-              description="Inbound vs outbound channel distribution will be automatically summarized here."
-              className="border-none shadow-none py-4"
-            />
-          </div>
-        </div>
-      </div>
+      {/* Data Table */}
+      <ReportTable
+        columns={columns}
+        data={rows}
+        pagination={pagination}
+        isLoading={activeQuery.isLoading}
+        onPageChange={(newPage) => handleFilterChange({ page: newPage })}
+      />
     </div>
   );
 }
-
+export default ReportsPage;

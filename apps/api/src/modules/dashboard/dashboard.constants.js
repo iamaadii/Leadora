@@ -17,3 +17,4 @@ export const ALLOWED_DATE_RANGES = [
 ];
 
 export const ALLOWED_INTERVALS = ['day', 'week', 'month'];
+

@@ -92,3 +92,4 @@ export function TeamPerformanceTable({ teams = [], isLoading = false }) {
     </div>
   );
 }
+

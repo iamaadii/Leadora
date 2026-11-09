@@ -104,3 +104,4 @@ All endpoints are mounted at `/api/v1/dashboard` and require authentication.
 | `GET` | `/team-performance` | Admin, Manager | Team-level workload, member count, and conversion rates |
 | `GET` | `/employee-performance` | Admin, Manager | Representative workload and performance |
 | `GET` | `/recent-activity` | Admin, Manager, Employee | Chronological audit engagement feed |
+

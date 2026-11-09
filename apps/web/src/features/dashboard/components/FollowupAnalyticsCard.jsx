@@ -122,3 +122,4 @@ export function FollowupAnalyticsCard({ data = null, isLoading = false }) {
     </div>
   );
 }
+

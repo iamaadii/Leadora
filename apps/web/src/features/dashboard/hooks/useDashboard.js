@@ -65,3 +65,4 @@ export function useRecentActivity(params = {}, options = {}) {
     ...options,
   });
 }
+

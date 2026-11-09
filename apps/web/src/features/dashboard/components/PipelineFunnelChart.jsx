@@ -104,3 +104,4 @@ export function PipelineFunnelChart({ data = null, isLoading = false }) {
     </div>
   );
 }
+

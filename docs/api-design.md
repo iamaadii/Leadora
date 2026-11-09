@@ -226,6 +226,18 @@ Every API endpoint returns a predictable JSON structure:
 | `GET` | `/dashboard/employee-performance` | Admin, Manager | Individual representative pipeline volume, follow-ups, and conversion rate (403 for Employee)|
 | `GET` | `/dashboard/recent-activity` | Admin, Manager, Employee | Latest customer engagements stream scoped to permitted leads |
 
+### 4.7 Reports & Data Export Endpoints (Phase 9)
+
+| Method | Endpoint | Allowed Roles | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/reports/:reportType` | Admin, Manager, Employee | Fetch paginated report data preview (`leads`, `conversions`, `lost-leads`, `followups`, `employees`, `teams`, `activities`) |
+| `GET` | `/reports/:reportType/export` | Admin, Manager, Employee | Stream direct file download for report (`format=csv`, `format=excel`, `format=pdf`) |
+| `POST` | `/reports/:reportType/export` | Admin, Manager, Employee | Alternate POST file export with filter body payload |
+| `GET` | `/platform/reports/organizations` | Super Admin | Tenant organization health, active counts, and account growth |
+| `GET` | `/platform/reports/users` | Super Admin | Cross-tenant platform users, role distributions, and activity status |
+| `GET` | `/platform/reports/:reportType/export` | Super Admin | Direct file download for platform governance reports |
+| `POST` | `/platform/reports/:reportType/export` | Super Admin | Alternate POST export for platform reports |
+
 ---
 
 ## 5. Request Validation Using Zod

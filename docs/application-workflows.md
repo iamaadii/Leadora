@@ -265,5 +265,48 @@ sequenceDiagram
 3. **Date Filtering**: Changing the date range filter (7d, 30d, 90d, this month, previous month, or custom) triggers query invalidation and updates time-series trends and period-based KPI indicators.
 4. **Interactive Navigation**: Clicking on any stage in the Pipeline Funnel navigates to `/leads?status=:stage` with the appropriate status pre-filtered.
 
+---
+
+### 2.10 Journey 10: Operational Reports & Multi-Format Data Export Workflow (Phase 9)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Admin / Manager / Rep
+    participant React as Reports Page
+    participant API as Express API (/api/v1/reports)
+    participant Exporter as Export Engine (CSV/Excel/PDF)
+    participant DB as PostgreSQL Database
+
+    User->>React: Navigates to /reports and selects Category (e.g., Conversions)
+    React->>API: GET /api/v1/reports/conversions?range=30d&page=1
+    API->>DB: Parameterized query with role scoping & LIMIT 50
+    DB-->>API: Return summary metrics & paginated records
+    API-->>React: Return JSON payload with columns, data & pagination
+    React->>User: Displays Summary Cards, Filter Toolbar, and Paginated Table
+
+    Note over User,DB: Exporting Data...
+    User->>React: Selects "Export as Excel (.xlsx)" from Export menu
+    React->>API: GET /api/v1/reports/conversions/export?format=excel&range=30d
+    API->>DB: Parameterized query with role scoping & LIMIT 10000
+    DB-->>API: Up to 10,000 raw matching rows
+    API->>Exporter: Invoke generateExcel({ title, orgName, summary, columns, data })
+    Exporter-->>API: Return compiled binary Buffer (.xlsx)
+    API-->>React: 200 OK (Content-Type: application/vnd.openxmlformats-officedocument..., Content-Disposition: attachment)
+    React->>User: Browser triggers instant file download (conversions-report-2026-11-10.xlsx)
+```
+
+**Step-by-step Execution:**
+1. **Category Navigation**: The user picks from 7 tenant report categories (`leads`, `conversions`, `lost-leads`, `followups`, `employees`, `teams`, `activities`) or platform reports for `SUPER_ADMIN`.
+2. **Filter & Preview**: Selecting date ranges (Today, 7D, 30D, 90D, This Month, Last Month, Custom) or attributes (stage, source) re-fetches the live JSON preview table and updates dynamic KPI summary blocks.
+3. **Synchronous Export**: When the user clicks Export (CSV, Excel, or PDF):
+   - The frontend issues a blob request to the `/export` endpoint.
+   - The backend runs a synchronous query bounded by a safety limit of 10,000 rows.
+   - For CSV: Applies RFC 4180 rules, UTF-8 BOM, and mitigates spreadsheet formula injection (CWE-1236) by prefixing dangerous characters with single quotes (`'`).
+   - For Excel: Formats executive summary, frozen header row, zebra striping, and column auto-widths via `exceljs`.
+   - For PDF: Renders a printable A4 landscape enterprise document with page counts ("Page X of Y") via `pdfkit`.
+   - The file streams directly to the browser for instant download.
+
+
 
 

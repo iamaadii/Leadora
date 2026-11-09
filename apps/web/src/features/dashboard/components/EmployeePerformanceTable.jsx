@@ -101,3 +101,4 @@ export function EmployeePerformanceTable({ employees = [], isLoading = false }) 
     </div>
   );
 }
+

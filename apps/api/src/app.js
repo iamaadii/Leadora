@@ -11,6 +11,7 @@ import employeesRouter from './modules/employees/employees.routes.js';
 import teamsRouter from './modules/teams/teams.routes.js';
 import { followupsRouter } from './modules/followups/followups.routes.js';
 import { dashboardRouter } from './modules/dashboard/dashboard.routes.js';
+import { reportsRouter, platformReportsRouter } from './modules/reports/reports.routes.js';
 import { errorMiddleware } from './middleware/error.middleware.js';
 import { notFoundMiddleware } from './middleware/not-found.middleware.js';
 
@@ -102,6 +103,10 @@ export function createApp() {
 
   // Dashboard & Analytics Routes (Phase 8)
   app.use('/api/v1/dashboard', dashboardRouter);
+
+  // Reports & Data Export Routes (Phase 9)
+  app.use('/api/v1/reports', reportsRouter);
+  app.use('/api/v1/platform/reports', platformReportsRouter);
 
   // 404 Handler
   app.use(notFoundMiddleware);
