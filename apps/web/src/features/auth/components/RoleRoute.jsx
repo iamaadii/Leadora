@@ -3,7 +3,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.js';
 import { ShieldAlert } from 'lucide-react';
 
-export function RoleRoute({ allowedRoles = [] }) {
+export function RoleRoute({ allowedRoles = [], children }) {
   const { user } = useAuth();
 
   if (!user) {
@@ -12,8 +12,8 @@ export function RoleRoute({ allowedRoles = [] }) {
 
   if (!allowedRoles.includes(user.role)) {
     return (
-      <div className="bg-white rounded-xl border border-rose-200 p-8 max-w-lg mx-auto text-center space-y-4 my-12 shadow-sm">
-        <div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center mx-auto">
+      <div className="bg-white rounded-2xl border border-rose-200 p-8 max-w-lg mx-auto text-center space-y-4 my-12 shadow-sm">
+        <div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto">
           <ShieldAlert className="w-6 h-6" />
         </div>
         <h2 className="text-xl font-bold text-slate-900">Access Restricted</h2>
@@ -25,5 +25,5 @@ export function RoleRoute({ allowedRoles = [] }) {
     );
   }
 
-  return <Outlet />;
+  return children ? children : <Outlet />;
 }

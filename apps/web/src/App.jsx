@@ -2,9 +2,25 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './features/auth/context/AuthContext.jsx';
-import { AppLayout } from './layouts/AppLayout.jsx';
-import { HomePage } from './pages/HomePage.jsx';
+import { ToastProvider } from './components/ui/Toast.jsx';
+
+// Route Guards & Layouts
+import { ProtectedRoute } from './features/auth/components/ProtectedRoute.jsx';
+import { RoleRoute } from './features/auth/components/RoleRoute.jsx';
+import { DashboardLayout } from './layouts/DashboardLayout.jsx';
+
+// Pages
 import { LoginPage } from './features/auth/pages/LoginPage.jsx';
+import { DashboardPage } from './pages/DashboardPage.jsx';
+import { LeadsPage } from './pages/LeadsPage.jsx';
+import { EmployeesPage } from './pages/EmployeesPage.jsx';
+import { FollowupsPage } from './pages/FollowupsPage.jsx';
+import { ActivitiesPage } from './pages/ActivitiesPage.jsx';
+import { NotificationsPage } from './pages/NotificationsPage.jsx';
+import { ReportsPage } from './pages/ReportsPage.jsx';
+import { SettingsPage } from './pages/SettingsPage.jsx';
+import { ProfilePage } from './pages/ProfilePage.jsx';
+import { HomePage } from './pages/HomePage.jsx';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,18 +35,89 @@ export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            {/* Public Login Route */}
-            <Route path="/login" element={<LoginPage />} />
+        <ToastProvider>
+          <BrowserRouter>
+            <Routes>
+              {/* Public Route: Login */}
+              <Route path="/login" element={<LoginPage />} />
 
-            {/* Application Layout */}
-            <Route path="/" element={<AppLayout />}>
-              <Route index element={<HomePage />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
+              {/* Protected Routes inside DashboardLayout */}
+              <Route
+                element={
+                  <ProtectedRoute>
+                    <DashboardLayout />
+                  </ProtectedRoute>
+                }
+              >
+                {/* Default Index Route redirects to Dashboard */}
+                <Route index element={<Navigate to="/dashboard" replace />} />
+                <Route path="dashboard" element={<DashboardPage />} />
+                <Route path="leads" element={<LeadsPage />} />
+
+                {/* Role-Guarded: Employees (Admin, Manager, SuperAdmin) */}
+                <Route
+                  path="employees"
+                  element={
+                    <RoleRoute allowedRoles={['SUPER_ADMIN', 'ADMIN', 'MANAGER']}>
+                      <EmployeesPage />
+                    </RoleRoute>
+                  }
+                />
+
+                {/* Role-Guarded: Follow-ups (Admin, Manager, Employee) */}
+                <Route
+                  path="follow-ups"
+                  element={
+                    <RoleRoute allowedRoles={['ADMIN', 'MANAGER', 'EMPLOYEE']}>
+                      <FollowupsPage />
+                    </RoleRoute>
+                  }
+                />
+
+                {/* Role-Guarded: Activities (Admin, Manager, Employee) */}
+                <Route
+                  path="activities"
+                  element={
+                    <RoleRoute allowedRoles={['ADMIN', 'MANAGER', 'EMPLOYEE']}>
+                      <ActivitiesPage />
+                    </RoleRoute>
+                  }
+                />
+
+                <Route path="notifications" element={<NotificationsPage />} />
+
+                {/* Role-Guarded: Reports (Admin, Manager, SuperAdmin) */}
+                <Route
+                  path="reports"
+                  element={
+                    <RoleRoute allowedRoles={['SUPER_ADMIN', 'ADMIN', 'MANAGER']}>
+                      <ReportsPage />
+                    </RoleRoute>
+                  }
+                />
+
+                {/* Role-Guarded: Settings (SuperAdmin, Admin) */}
+                <Route
+                  path="settings"
+                  element={
+                    <RoleRoute allowedRoles={['SUPER_ADMIN', 'ADMIN']}>
+                      <SettingsPage />
+                    </RoleRoute>
+                  }
+                />
+
+                {/* Authenticated User Profile */}
+                <Route path="profile" element={<ProfilePage />} />
+
+                {/* Diagnostic System Health page from Phase 1 */}
+                <Route path="system-status" element={<HomePage />} />
+              </Route>
+
+              {/* Catch-all Wildcard Route */}
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </ToastProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

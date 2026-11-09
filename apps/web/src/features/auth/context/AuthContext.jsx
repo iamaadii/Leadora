@@ -1,10 +1,12 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { authService } from '../services/auth.service.js';
 import { setMemoryToken, clearMemoryToken } from '../../../services/api.js';
 
 export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
+  const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -46,6 +48,7 @@ export function AuthProvider({ children }) {
     // Listen for global session expiration events from Axios interceptor
     const handleSessionExpired = () => {
       clearMemoryToken();
+      queryClient.clear();
       setUser(null);
       setAccessToken(null);
     };
@@ -56,7 +59,7 @@ export function AuthProvider({ children }) {
       isMounted = false;
       window.removeEventListener('auth:session-expired', handleSessionExpired);
     };
-  }, []);
+  }, [queryClient]);
 
   const login = useCallback(async (credentials) => {
     const res = await authService.login(credentials);
@@ -75,10 +78,11 @@ export function AuthProvider({ children }) {
       // Ignore network errors on logout to ensure local cleanup
     } finally {
       clearMemoryToken();
+      queryClient.clear();
       setUser(null);
       setAccessToken(null);
     }
-  }, []);
+  }, [queryClient]);
 
   const refreshUser = useCallback(async () => {
     try {

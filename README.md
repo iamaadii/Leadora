@@ -212,7 +212,45 @@ Full API specifications are available in [docs/api-documentation.md](docs/api-do
 
 ---
 
-## 7. Starting Frontend and Backend
+## 7. Frontend Layout & Design System (Phase 4)
+
+### Overview & Architecture
+The frontend is built with React + Vite, Tailwind CSS, and Lucide React icons following modern SaaS CRM design standards:
+- **Responsive Dashboard Layout (`DashboardLayout`):**
+  - **Sidebar:** Dynamic role-based navigation with desktop collapse toggle (`20` / `64` width) and mobile slide-in drawer.
+  - **Topbar:** Mobile hamburger toggle, dynamic page title/breadcrumbs, active organization badge, notification bell with unread indicator, and user profile dropdown with logout.
+  - **Main Viewport:** Wrapped inside React `<ErrorBoundary>` with consistent padding and responsive max-width.
+- **Role-Based Navigation:**
+  - `SUPER_ADMIN`: Dashboard, Employees, Notifications, Settings, Profile.
+  - `ADMIN`: Dashboard, Leads, Employees, Follow-ups, Activities, Notifications, Reports, Settings, Profile.
+  - `MANAGER`: Dashboard, Leads, Employees (Team), Follow-ups, Activities, Notifications, Reports, Profile.
+  - `EMPLOYEE`: Dashboard, Leads (Assigned), Follow-ups, Activities, Notifications, Profile.
+- **Reusable UI Components (`apps/web/src/components/ui/`):**
+  - `Button` (5 variants, 3 sizes, loading spinner, disabled states)
+  - `Input`, `Select`, `Textarea` (form fields with validation error text, helper text, icons)
+  - `Badge` (primary, success, warning, danger, neutral, info with optional dot indicator)
+  - `Modal`, `ConfirmationDialog` (accessible keyboard escape, backdrop click, focus management)
+  - `Dropdown`, `DropdownItem`, `DropdownDivider` (profile menu, actions)
+  - `Avatar` (initials fallback generator, online status indicator)
+  - `Tooltip` (directional hover tooltips)
+  - `Skeleton`, `SkeletonCard`, `Spinner` (loading states)
+  - `EmptyState`, `ErrorState` (standardized user messaging)
+  - `PageHeader` (breadcrumb, title, badge, action buttons)
+  - `Toast` (global toast notification provider via `useToast()`)
+- **Pages Implemented:**
+  - `DashboardPage` (KPI cards: total, new, converted, lost, pending tasks; chart & activity placeholders)
+  - `LeadsPage` (lead creation modal preview, search & stage filters, empty state)
+  - `EmployeesPage` (invitation modal preview, role filter, empty state)
+  - `FollowupsPage` (task scheduling modal preview, pending vs completed tabs, empty state)
+  - `ActivitiesPage` (interaction timeline filter, empty state)
+  - `NotificationsPage` (alert filters, mark-all-read action, empty state)
+  - `ReportsPage` (rep performance & lead source breakdown card placeholders)
+  - `SettingsPage` (organization name, timezone, currency defaults)
+  - `ProfilePage` (user identity badge, assigned role, change password integration)
+
+---
+
+## 8. Starting Frontend and Backend
 
 Start both applications with one command:
 
@@ -229,7 +267,7 @@ Separate terminals:
 
 ---
 
-## 8. Database Administration and Safe Reset
+## 9. Database Administration and Safe Reset
 
 ### View Database Tables
 Using `psql` via Docker:

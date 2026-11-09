@@ -1,8 +1,27 @@
 import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth.js';
 import { LoginForm } from '../components/LoginForm.jsx';
-import { Building2, ShieldCheck } from 'lucide-react';
+import { Building2, ShieldCheck, Loader2 } from 'lucide-react';
 
 export function LoginPage() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  // If restoring session, show loading indicator
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center space-y-3">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <p className="text-xs text-slate-500 font-medium">Restoring session...</p>
+      </div>
+    );
+  }
+
+  // If already authenticated, redirect to dashboard
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-2">
