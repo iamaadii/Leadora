@@ -136,3 +136,4 @@ export const userRepository = {
     await db.query(query, [userId]);
   },
 };
+

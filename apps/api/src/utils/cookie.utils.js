@@ -38,3 +38,4 @@ export function clearRefreshTokenCookie(res) {
 export function getRefreshTokenFromRequest(req) {
   return req.cookies?.[env.COOKIE_NAME] || null;
 }
+

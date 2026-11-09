@@ -108,13 +108,14 @@ Every API endpoint returns a predictable JSON structure:
 
 | Method | Endpoint | Allowed Roles | Description |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/leads` | All Logged In | Lists leads (paginated, filtered by role automatically) |
-| `POST` | `/leads` | All Logged In | Creates a new lead and logs 'Lead Created' activity |
-| `GET` | `/leads/:id` | All Logged In | Gets lead details, active stage, and assigned employee |
-| `PUT` | `/leads/:id` | All Logged In | Updates lead contact information |
-| `PATCH` | `/leads/:id/stage` | All Logged In | Moves lead to a new stage (e.g. QUALIFIED, WON, LOST) |
-| `PATCH` | `/leads/:id/assign` | Admin, Manager | Reassigns lead to another sales rep |
-| `DELETE` | `/leads/:id` | Admin | Soft-deletes a lead (`deleted_at = NOW()`) |
+| `GET` | `/leads` | Admin, Manager, Employee | Lists leads (paginated, filtered by role automatically) |
+| `POST` | `/leads` | Admin, Manager, Employee | Creates a new lead and logs 'LEAD_CREATED' activity |
+| `GET` | `/leads/assignees` | Admin, Manager, Employee | Lists active staff in organization for assignee selection |
+| `GET` | `/leads/:id` | Admin, Manager, Employee | Gets lead details, active stage, and recent activities |
+| `PATCH` | `/leads/:id` | Admin, Manager, Employee | Updates lead fields, stage, or assignment with activity logging |
+| `PATCH` | `/leads/:id/archive` | Admin | Soft-archives a lead (`archived_at = NOW()`) |
+| `PATCH` | `/leads/:id/restore` | Admin | Restores an archived lead (`archived_at = NULL`) |
+| `GET` | `/leads/:id/activities` | Admin, Manager, Employee | Returns chronological history of lead events and notes |
 
 ---
 

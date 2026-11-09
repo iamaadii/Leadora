@@ -30,3 +30,4 @@ export function LoadingScreen({ message = 'Loading...' }) {
     </div>
   );
 }
+

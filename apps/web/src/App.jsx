@@ -13,6 +13,7 @@ import { DashboardLayout } from './layouts/DashboardLayout.jsx';
 import { LoginPage } from './features/auth/pages/LoginPage.jsx';
 import { DashboardPage } from './pages/DashboardPage.jsx';
 import { LeadsPage } from './pages/LeadsPage.jsx';
+import { LeadDetailsPage } from './features/leads/pages/LeadDetailsPage.jsx';
 import { EmployeesPage } from './pages/EmployeesPage.jsx';
 import { FollowupsPage } from './pages/FollowupsPage.jsx';
 import { ActivitiesPage } from './pages/ActivitiesPage.jsx';
@@ -53,6 +54,7 @@ export function App() {
                 <Route index element={<Navigate to="/dashboard" replace />} />
                 <Route path="dashboard" element={<DashboardPage />} />
                 <Route path="leads" element={<LeadsPage />} />
+                <Route path="leads/:id" element={<LeadDetailsPage />} />
 
                 {/* Role-Guarded: Employees (Admin, Manager, SuperAdmin) */}
                 <Route

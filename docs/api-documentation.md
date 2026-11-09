@@ -362,3 +362,193 @@ Used to test Role-Based Access Control (RBAC) middleware implementation.
 | `POST /auth/change-password` | Allowed | Allowed | Allowed | Allowed |
 | `GET /auth/test-admin` | Allowed | Allowed | Denied (403) | Denied (403) |
 | `GET /auth/test-manager` | Allowed | Allowed | Allowed | Denied (403) |
+
+---
+
+## 5. Lead Management Module (`/api/v1/leads`) — Phase 5
+
+All lead endpoints require authentication via Bearer JWT token (`Authorization: Bearer <accessToken>`).
+Data isolation is strictly enforced at the organization level: tenant users can only access leads belonging to their own organization (`organization_id = req.user.organizationId`). Platform Super Admins do not access organization leads directly (403 Forbidden).
+
+### 5.1 Create Lead
+- **Method:** `POST`
+- **URL:** `/api/v1/leads`
+- **Access Level:** `ADMIN`, `MANAGER`, `EMPLOYEE`
+- **Headers:** `Authorization: Bearer <accessToken>`, `Content-Type: application/json`
+
+#### Request Body
+| Field | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `name` | `string` | Yes | Lead contact name (1-255 chars) |
+| `email` | `string` | No | Valid email address |
+| `phone` | `string` | No | Phone contact (max 50 chars) |
+| `company` | `string` | No | Organization/company name |
+| `source` | `string` | No | Lead acquisition channel (Default: `WEBSITE`) |
+| `status` | `string` | No | `NEW`, `CONTACTED`, `INTERESTED`, `QUALIFIED`, `PROPOSAL_SENT`, `CONVERTED`, `LOST` (Default: `NEW`) |
+| `assigned_to_id` | `UUID` | No | Active employee in same organization. Employees can only assign to themselves. |
+| `description` | `string` | No | Background notes and qualification details |
+
+#### Example Request
+```json
+{
+  "name": "Sarah Connor",
+  "email": "sarah@cyberdyne.com",
+  "phone": "+1-555-0199",
+  "company": "Cyberdyne Systems",
+  "source": "WEBSITE",
+  "status": "NEW",
+  "assigned_to_id": "8d1bdd99-3fae-42c2-9f73-b257dd52e0a8",
+  "description": "Enterprise security prospect"
+}
+```
+
+#### Success Response (`201 Created`)
+```json
+{
+  "success": true,
+  "message": "Lead created successfully",
+  "data": {
+    "id": "e4b1e5a2-3f82-4e0d-9b5a-1b4e2f8a1c90",
+    "organization_id": "d3c0e1a1-2b71-4d9c-8a4e-0a3e1f7a0b89",
+    "name": "Sarah Connor",
+    "email": "sarah@cyberdyne.com",
+    "phone": "+1-555-0199",
+    "company": "Cyberdyne Systems",
+    "source": "WEBSITE",
+    "status": "NEW",
+    "assigned_to_id": "8d1bdd99-3fae-42c2-9f73-b257dd52e0a8",
+    "description": "Enterprise security prospect",
+    "created_by_id": "4c63ca67-9459-45c2-bca5-70cd00a41120",
+    "archived_at": null,
+    "created_at": "2026-11-09T22:30:00.000Z",
+    "updated_at": "2026-11-09T22:30:00.000Z"
+  }
+}
+```
+
+---
+
+### 5.2 List Leads
+- **Method:** `GET`
+- **URL:** `/api/v1/leads`
+- **Access Level:** `ADMIN`, `MANAGER`, `EMPLOYEE`
+- **Query Parameters:**
+  - `page`: Page number (Default: `1`)
+  - `limit`: Records per page (Default: `10`, Max: `100`)
+  - `search`: Filter matching name, email, phone, or company (case-insensitive)
+  - `status`: Filter by lead stage
+  - `source`: Filter by acquisition channel
+  - `assigned_to_id`: Filter by assigned employee UUID
+  - `startDate`: Filter created on or after ISO date
+  - `endDate`: Filter created on or before ISO date
+  - `sortBy`: Allowlist (`created_at`, `updated_at`, `name`, `company`, `status`; Default: `created_at`)
+  - `sortOrder`: `ASC` or `DESC` (Default: `DESC`)
+  - `isArchived`: `true` to view archived leads, `false` for active (Default: `false`)
+
+#### Success Response (`200 OK`)
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "e4b1e5a2-3f82-4e0d-9b5a-1b4e2f8a1c90",
+      "name": "Sarah Connor",
+      "company": "Cyberdyne Systems",
+      "status": "NEW",
+      "source": "WEBSITE",
+      "assigned_to_id": "8d1bdd99-3fae-42c2-9f73-b257dd52e0a8",
+      "assigned_to_first_name": "Alice",
+      "assigned_to_last_name": "Smith",
+      "assigned_to_email": "alice@acme.com",
+      "created_at": "2026-11-09T22:30:00.000Z"
+    }
+  ],
+  "meta": {
+    "total": 45,
+    "page": 1,
+    "limit": 10,
+    "totalPages": 5
+  }
+}
+```
+
+---
+
+### 5.3 Get Lead Details
+- **Method:** `GET`
+- **URL:** `/api/v1/leads/:id`
+- **Access Level:** `ADMIN`, `MANAGER`, `EMPLOYEE` (Assigned or creator only for Employees)
+
+#### Success Response (`200 OK`)
+```json
+{
+  "success": true,
+  "data": {
+    "id": "e4b1e5a2-3f82-4e0d-9b5a-1b4e2f8a1c90",
+    "name": "Sarah Connor",
+    "email": "sarah@cyberdyne.com",
+    "phone": "+1-555-0199",
+    "company": "Cyberdyne Systems",
+    "source": "WEBSITE",
+    "status": "NEW",
+    "assigned_to_first_name": "Alice",
+    "assigned_to_last_name": "Smith",
+    "created_by_first_name": "Acme",
+    "created_by_last_name": "Admin",
+    "created_at": "2026-11-09T22:30:00.000Z",
+    "updated_at": "2026-11-09T22:30:00.000Z",
+    "recent_activities": [
+      {
+        "id": "f5c2e6b3-4f93-5e1e-ac6b-2c5f3a9b2d01",
+        "activity_type": "LEAD_CREATED",
+        "description": "Lead \"Sarah Connor\" created and assigned to Alice Smith",
+        "actor_first_name": "Acme",
+        "actor_last_name": "Admin",
+        "created_at": "2026-11-09T22:30:00.000Z"
+      }
+    ]
+  }
+}
+```
+
+---
+
+### 5.4 Update Lead
+- **Method:** `PATCH`
+- **URL:** `/api/v1/leads/:id`
+- **Access Level:** `ADMIN`, `MANAGER`, `EMPLOYEE` (Employees cannot reassign leads)
+- **Request Body:** Partial fields (`name`, `email`, `phone`, `company`, `source`, `status`, `assigned_to_id`, `description`)
+
+---
+
+### 5.5 Archive Lead
+- **Method:** `PATCH`
+- **URL:** `/api/v1/leads/:id/archive`
+- **Access Level:** `ADMIN`
+- **Description:** Soft-archives the lead by setting `archived_at = NOW()` and logs a `LEAD_ARCHIVED` activity.
+
+---
+
+### 5.6 Restore Archived Lead
+- **Method:** `PATCH`
+- **URL:** `/api/v1/leads/:id/restore`
+- **Access Level:** `ADMIN`
+- **Description:** Restores an archived lead by setting `archived_at = NULL` and logs a `LEAD_RESTORED` activity.
+
+---
+
+### 5.7 Get Lead Activity History
+- **Method:** `GET`
+- **URL:** `/api/v1/leads/:id/activities`
+- **Access Level:** `ADMIN`, `MANAGER`, `EMPLOYEE`
+- **Query Parameters:** `page`, `limit` (Default: `20`)
+- **Description:** Returns paginated chronological event feed for the specified lead.
+
+---
+
+### 5.8 Get Assignable Employees
+- **Method:** `GET`
+- **URL:** `/api/v1/leads/assignees`
+- **Access Level:** `ADMIN`, `MANAGER`, `EMPLOYEE`
+- **Description:** Returns active staff members within the tenant organization for selection in assignee dropdowns.
+

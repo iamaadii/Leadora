@@ -40,11 +40,18 @@ business-crm/
 │   │   │   │   ├── error.middleware.js        # Centralized error handler
 │   │   │   │   └── not-found.middleware.js    # 404 handler
 │   │   │   ├── modules/
-│   │   │   │   └── auth/                # Authentication module
-│   │   │   │       ├── auth.controller.js
-│   │   │   │       ├── auth.routes.js
-│   │   │   │       ├── auth.service.js
-│   │   │   │       └── auth.validation.js
+│   │   │   │   ├── auth/                # Authentication module (Phase 3)
+│   │   │   │   │   ├── auth.controller.js
+│   │   │   │   │   ├── auth.routes.js
+│   │   │   │   │   ├── auth.service.js
+│   │   │   │   │   └── auth.validation.js
+│   │   │   │   └── leads/               # Lead Management module (Phase 5)
+│   │   │   │       ├── leads.constants.js
+│   │   │   │       ├── leads.controller.js
+│   │   │   │       ├── leads.repository.js
+│   │   │   │       ├── leads.routes.js
+│   │   │   │       ├── leads.service.js
+│   │   │   │       └── leads.validation.js
 │   │   │   ├── repositories/            # Raw SQL repository layer
 │   │   │   │   ├── auth.repository.js
 │   │   │   │   ├── refresh-token.repository.js
@@ -53,25 +60,40 @@ business-crm/
 │   │   │   ├── app.js                   # Express app configuration & middleware
 │   │   │   └── server.js                # Server entry point & graceful shutdown
 │   │   ├── tests/
-│   │   │   └── auth.test.js             # 17-point automated auth & RBAC test suite
+│   │   │   ├── auth.test.js             # 17-point automated auth & RBAC test suite
+│   │   │   └── leads.test.js            # 18-point automated lead lifecycle test suite
 │   │   └── package.json
 │   │
 │   └── web/                              # Frontend React + Vite Application
 │       ├── src/
 │       │   ├── features/
-│       │   │   └── auth/                # Frontend Auth feature module
+│       │   │   ├── auth/                # Frontend Auth feature module (Phase 3)
+│       │   │   │   ├── components/
+│       │   │   │   │   ├── LoginForm.jsx
+│       │   │   │   │   ├── ProtectedRoute.jsx
+│       │   │   │   │   └── RoleRoute.jsx
+│       │   │   │   ├── context/
+│       │   │   │   │   └── AuthContext.jsx # In-memory JWT access token provider
+│       │   │   │   ├── hooks/
+│       │   │   │   │   └── useAuth.js
+│       │   │   │   ├── pages/
+│       │   │   │   │   └── LoginPage.jsx
+│       │   │   │   └── services/
+│       │   │   │       └── auth.service.js
+│       │   │   └── leads/               # Frontend Leads feature module (Phase 5)
 │       │   │       ├── components/
-│       │   │       │   ├── LoginForm.jsx
-│       │   │       │   ├── ProtectedRoute.jsx
-│       │   │       │   └── RoleRoute.jsx
-│       │   │       ├── context/
-│       │   │       │   └── AuthContext.jsx # In-memory JWT access token provider
+│       │   │       │   ├── LeadActivityTimeline.jsx
+│       │   │       │   ├── LeadFilters.jsx
+│       │   │       │   ├── LeadForm.jsx
+│       │   │       │   ├── LeadStatusBadge.jsx
+│       │   │       │   └── LeadTable.jsx
 │       │   │       ├── hooks/
-│       │   │       │   └── useAuth.js
+│       │   │       │   └── useLeads.js
 │       │   │       ├── pages/
-│       │   │       │   └── LoginPage.jsx
+│       │   │       │   ├── LeadDetailsPage.jsx
+│       │   │       │   └── LeadsPage.jsx
 │       │   │       └── services/
-│       │   │           └── auth.service.js
+│       │   │           └── leads.service.js
 │       │   ├── layouts/
 │       │   │   └── AppLayout.jsx        # Top navbar & authenticated user status
 │       │   ├── pages/
@@ -250,7 +272,29 @@ The frontend is built with React + Vite, Tailwind CSS, and Lucide React icons fo
 
 ---
 
-## 8. Starting Frontend and Backend
+## 8. Complete Lead Management Module (Phase 5)
+
+### Architecture & Security
+- **Multi-Tenant Scoping:** Every lead query strictly enforces `organization_id = req.user.organizationId`.
+- **Role-Based Lead Scoping:**
+  - `ADMIN`: Full access to create, view, update, assign, archive, and restore all organization leads.
+  - `MANAGER`: Full access to view, create, update, and assign leads within organization scope.
+  - `EMPLOYEE`: Access strictly restricted to assigned leads (`assigned_to_id = req.user.id` or created by employee). Cannot reassign leads to other users or archive records.
+  - `SUPER_ADMIN`: Restricted from accessing organization leads directly (HTTP 403 Forbidden).
+- **Atomic Event Auditing:** Lead creation, updates, stage transitions, assignment changes, archiving, and restorations are committed alongside immutable activity records inside single PostgreSQL transactions (`withTransaction`).
+- **Safe Dynamic Filtering & Sorting:** Safe parameterization with strict allowlists (`created_at`, `updated_at`, `name`, `company`, `status`), preventing SQL injection.
+
+### Running Backend Tests
+Execute both Phase 3 Auth and Phase 5 Lead Management automated test suites (35 tests total):
+```bash
+npm run test:api
+# Or run lead suite specifically:
+node --test apps/api/tests/leads.test.js
+```
+
+---
+
+## 9. Starting Frontend and Backend
 
 Start both applications with one command:
 
@@ -267,7 +311,7 @@ Separate terminals:
 
 ---
 
-## 9. Database Administration and Safe Reset
+## 10. Database Administration and Safe Reset
 
 ### View Database Tables
 Using `psql` via Docker:

@@ -22,3 +22,4 @@ export function ProtectedRoute({ children }) {
 
   return children ? children : <Outlet />;
 }
+

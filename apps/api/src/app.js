@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import { env } from './config/env.js';
 import { pool } from './config/database.js';
 import { authRouter } from './modules/auth/auth.routes.js';
+import { leadsRouter } from './modules/leads/leads.routes.js';
 import { errorMiddleware } from './middleware/error.middleware.js';
 import { notFoundMiddleware } from './middleware/not-found.middleware.js';
 
@@ -82,6 +83,9 @@ export function createApp() {
 
   // Authentication & Session Routes
   app.use('/api/v1/auth', authRouter);
+
+  // Lead Management Routes
+  app.use('/api/v1/leads', leadsRouter);
 
   // 404 Handler
   app.use(notFoundMiddleware);

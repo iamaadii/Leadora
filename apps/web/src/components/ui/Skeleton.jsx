@@ -34,3 +34,4 @@ export function SkeletonCard({ rows = 3, className = '' }) {
     </div>
   );
 }
+

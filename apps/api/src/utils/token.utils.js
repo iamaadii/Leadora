@@ -74,3 +74,4 @@ export function calculateExpiryDate(expiresIn = env.REFRESH_TOKEN_EXPIRES_IN) {
   const ms = value * (unitMultipliers[unit] || unitMultipliers.d);
   return new Date(now + ms);
 }
+

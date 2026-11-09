@@ -123,7 +123,7 @@ Append-only chronological timeline of events on each lead.
 - `organization_id`: `UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE`
 - `lead_id`: `UUID NOT NULL` (FK to `leads(organization_id, id)`)
 - `actor_user_id`: `UUID NULL` (FK to `users(organization_id, id)`)
-- `activity_type`: `VARCHAR(50) NOT NULL` (`CALL`, `MEETING`, `EMAIL`, `NOTE`, `STATUS_CHANGE`, `ASSIGNMENT_CHANGE`, `FOLLOWUP_CREATED`, `FOLLOWUP_COMPLETED`)
+- `activity_type`: `VARCHAR(50) NOT NULL` (`CALL`, `MEETING`, `EMAIL`, `NOTE`, `STATUS_CHANGE`, `ASSIGNMENT_CHANGE`, `FOLLOWUP_CREATED`, `FOLLOWUP_COMPLETED`, `LEAD_CREATED`, `LEAD_UPDATED`, `LEAD_ASSIGNED`, `LEAD_STATUS_CHANGED`, `LEAD_ARCHIVED`, `LEAD_RESTORED`)
 - `description`: `TEXT NOT NULL`
 - `metadata`: `JSONB DEFAULT '{}'::jsonb NOT NULL`
 - `created_at`: `TIMESTAMPTZ DEFAULT NOW() NOT NULL`
