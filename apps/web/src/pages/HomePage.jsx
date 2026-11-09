@@ -1,8 +1,23 @@
 import React, { useState } from 'react';
+import { useAuth } from '../features/auth/hooks/useAuth.js';
 import { getApiHealth, getDbHealth } from '../services/api.js';
-import { Server, Database, CheckCircle2, AlertCircle, RefreshCw, Activity, Terminal } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import {
+  Server,
+  Database,
+  CheckCircle2,
+  AlertCircle,
+  RefreshCw,
+  Activity,
+  Terminal,
+  ShieldCheck,
+  UserCheck,
+  Building,
+} from 'lucide-react';
 
 export function HomePage() {
+  const { user, isAuthenticated, logout } = useAuth();
+
   const [loading, setLoading] = useState(false);
   const [apiResult, setApiResult] = useState(null);
   const [dbResult, setDbResult] = useState(null);
@@ -20,6 +35,7 @@ export function HomePage() {
       setApiResult(apiData);
     } catch (apiErr) {
       const errorMsg =
+        apiErr.response?.data?.message ||
         apiErr.response?.data?.error?.message ||
         (apiErr.response?.status === 500 || apiErr.response?.status === 503
           ? 'Backend Express server is not running on http://localhost:5000. Please start it using "npm run dev:api" or "npm run dev".'
@@ -30,7 +46,7 @@ export function HomePage() {
       return;
     }
 
-    // 2. Test PostgreSQL Database (only if Backend is online)
+    // 2. Test PostgreSQL Database
     try {
       const dbData = await getDbHealth();
       setDbResult(dbData);
@@ -58,6 +74,74 @@ export function HomePage() {
           Multi-organization Lead Management System built with React, Express, and PostgreSQL using raw SQL.
         </p>
       </div>
+
+      {/* Authenticated User Session Card */}
+      {isAuthenticated && user ? (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6 max-w-xl mx-auto space-y-4 shadow-sm">
+          <div className="flex items-center justify-between pb-3 border-b border-emerald-200/60">
+            <div className="flex items-center space-x-2.5 text-emerald-900 font-semibold text-sm">
+              <UserCheck className="w-5 h-5 text-emerald-600" />
+              <span>Active Authenticated Session</span>
+            </div>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-200 text-emerald-800">
+              {user.role}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <span className="text-slate-500 block">Logged-in User:</span>
+              <strong className="text-slate-900">{user.firstName} {user.lastName}</strong>
+            </div>
+            <div>
+              <span className="text-slate-500 block">Email:</span>
+              <strong className="text-slate-900 font-mono">{user.email}</strong>
+            </div>
+            <div>
+              <span className="text-slate-500 block">Organization:</span>
+              <strong className="text-slate-900">
+                {user.organizationName ? `${user.organizationName} (${user.organizationSlug})` : 'Platform Global (Super Admin)'}
+              </strong>
+            </div>
+            <div>
+              <span className="text-slate-500 block">User ID:</span>
+              <span className="text-slate-600 font-mono text-[11px] truncate block">{user.id}</span>
+            </div>
+          </div>
+
+          <div className="pt-2 border-t border-emerald-200/60 flex items-center justify-between text-xs">
+            <span className="text-emerald-800 flex items-center space-x-1">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>In-memory JWT access token active</span>
+            </span>
+            <button
+              onClick={logout}
+              className="px-2.5 py-1 text-xs font-semibold rounded bg-white hover:bg-emerald-100 text-emerald-900 border border-emerald-300 transition"
+            >
+              Sign Out
+            </button>
+          </div>
+        </div>
+      ) : (
+        /* Sign In Callout Banner if not authenticated */
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 max-w-xl mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-blue-100 text-blue-700 rounded-lg">
+              <Building className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-blue-900">Sign in to test Phase 3 Auth</h3>
+              <p className="text-xs text-blue-700">Test login with Admin, Manager, Employee or Super Admin</p>
+            </div>
+          </div>
+          <Link
+            to="/login"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm transition"
+          >
+            Go to Login
+          </Link>
+        </div>
+      )}
 
       {/* Connectivity Diagnostic Card */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-xl mx-auto space-y-6">

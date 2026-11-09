@@ -35,6 +35,10 @@ const envSchema = z.object({
     .string()
     .min(1)
     .default('postgresql://crm_admin:crm_secret_password@localhost:5432/business_crm'),
+  JWT_ACCESS_SECRET: z.string().min(16).default('super-secret-jwt-access-token-key-minimum-32-chars-long'),
+  ACCESS_TOKEN_EXPIRES_IN: z.string().default('10m'),
+  REFRESH_TOKEN_EXPIRES_IN: z.string().default('7d'),
+  COOKIE_NAME: z.string().default('refreshToken'),
 });
 
 const parsed = envSchema.safeParse(process.env);

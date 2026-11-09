@@ -2,8 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import { env } from './config/env.js';
 import { pool } from './config/database.js';
+import { authRouter } from './modules/auth/auth.routes.js';
 import { errorMiddleware } from './middleware/error.middleware.js';
 import { notFoundMiddleware } from './middleware/not-found.middleware.js';
 
@@ -22,6 +24,9 @@ export function createApp() {
       allowedHeaders: ['Content-Type', 'Authorization'],
     }),
   );
+
+  // Cookie parser
+  app.use(cookieParser());
 
   // Request body parsing
   app.use(express.json({ limit: '1mb' }));
@@ -75,6 +80,9 @@ export function createApp() {
     }
   });
 
+  // Authentication & Session Routes
+  app.use('/api/v1/auth', authRouter);
+
   // 404 Handler
   app.use(notFoundMiddleware);
 
@@ -85,4 +93,3 @@ export function createApp() {
 }
 
 export const app = createApp();
-

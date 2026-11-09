@@ -51,18 +51,15 @@ export async function seedDatabase() {
       `SELECT id FROM users WHERE email = $1 AND organization_id IS NULL;`,
       ['superadmin@platform.com'],
     );
-    let superAdminId;
     if (superAdminRes.rows.length === 0) {
-      const res = await client.query(
+      await client.query(
         `INSERT INTO users (organization_id, first_name, last_name, email, password_hash, phone, role, is_active)
          VALUES (NULL, $1, $2, $3, $4, $5, $6, $7)
          RETURNING id;`,
         ['Super', 'Admin', 'superadmin@platform.com', passwordHash, '+1-555-0001', 'SUPER_ADMIN', true],
       );
-      superAdminId = res.rows[0].id;
       console.log('   Created Super Admin: superadmin@platform.com');
     } else {
-      superAdminId = superAdminRes.rows[0].id;
       console.log('   Super Admin already exists.');
     }
 
@@ -522,3 +519,4 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       process.exit(1);
     });
 }
+

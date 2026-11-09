@@ -42,3 +42,4 @@ CREATE TABLE IF NOT EXISTS activities (
 CREATE INDEX IF NOT EXISTS idx_activities_lead_created ON activities(lead_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_activities_org_created ON activities(organization_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_activities_metadata ON activities USING GIN (metadata);
+

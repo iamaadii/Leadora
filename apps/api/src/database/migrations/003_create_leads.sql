@@ -51,3 +51,4 @@ CREATE TRIGGER trg_leads_updated_at
     BEFORE UPDATE ON leads
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
+

@@ -142,3 +142,4 @@ A critical design achievement in this schema is **Composite Foreign Key Isolatio
 - `activities` references `(organization_id, lead_id)` -> `leads(organization_id, id)`
 
 This guarantees that a lead or follow-up can **never** be associated with a user or entity from a different organization, enforced directly by PostgreSQL engine constraints.
+

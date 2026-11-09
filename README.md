@@ -26,42 +26,63 @@ business-crm/
 │   │   │   │   ├── database.js          # pg.Pool connection & withTransaction helper
 │   │   │   │   └── env.js               # Zod environment variable validation
 │   │   │   ├── database/                # Database migrations & seeds
-│   │   │   │   ├── migrations/          # Versioned raw SQL migration files
-│   │   │   │   │   ├── 001_create_organizations.sql
-│   │   │   │   │   ├── 002_create_users.sql
-│   │   │   │   │   ├── 003_create_leads.sql
-│   │   │   │   │   ├── 004_create_followups.sql
-│   │   │   │   │   ├── 005_create_activities.sql
-│   │   │   │   │   ├── 006_create_notifications.sql
-│   │   │   │   │   ├── 007_create_refresh_tokens.sql
-│   │   │   │   │   └── 008_create_audit_logs.sql
+│   │   │   │   ├── migrations/          # Versioned raw SQL migration files (001-008)
 │   │   │   │   ├── seeds/
 │   │   │   │   │   └── seed.js          # Argon2 idempotent demo seed script
 │   │   │   │   ├── migrate.js           # Database migration runner
 │   │   │   │   └── verify.js            # Automated 36-point DB architecture test suite
+│   │   │   ├── errors/
+│   │   │   │   └── app-error.js         # Standard AppError class
 │   │   │   ├── middleware/
-│   │   │   │   ├── error.middleware.js  # Centralized error handling
-│   │   │   │   └── not-found.middleware.js # 404 handler
-│   │   │   ├── utils/                   # Shared utility helpers
-│   │   │   ├── app.js                   # Express app configuration & health routes
+│   │   │   │   ├── authenticate.middleware.js # JWT verification & tenant active check
+│   │   │   │   ├── authorize.middleware.js    # RBAC role authorization
+│   │   │   │   ├── rate-limit.middleware.js   # In-memory IP rate limiter
+│   │   │   │   ├── error.middleware.js        # Centralized error handler
+│   │   │   │   └── not-found.middleware.js    # 404 handler
+│   │   │   ├── modules/
+│   │   │   │   └── auth/                # Authentication module
+│   │   │   │       ├── auth.controller.js
+│   │   │   │       ├── auth.routes.js
+│   │   │   │       ├── auth.service.js
+│   │   │   │       └── auth.validation.js
+│   │   │   ├── repositories/            # Raw SQL repository layer
+│   │   │   │   ├── auth.repository.js
+│   │   │   │   ├── refresh-token.repository.js
+│   │   │   │   └── user.repository.js
+│   │   │   ├── utils/                   # Shared utility helpers (tokens, cookies)
+│   │   │   ├── app.js                   # Express app configuration & middleware
 │   │   │   └── server.js                # Server entry point & graceful shutdown
+│   │   ├── tests/
+│   │   │   └── auth.test.js             # 17-point automated auth & RBAC test suite
 │   │   └── package.json
 │   │
 │   └── web/                              # Frontend React + Vite Application
 │       ├── src/
+│       │   ├── features/
+│       │   │   └── auth/                # Frontend Auth feature module
+│       │   │       ├── components/
+│       │   │       │   ├── LoginForm.jsx
+│       │   │       │   ├── ProtectedRoute.jsx
+│       │   │       │   └── RoleRoute.jsx
+│       │   │       ├── context/
+│       │   │       │   └── AuthContext.jsx # In-memory JWT access token provider
+│       │   │       ├── hooks/
+│       │   │       │   └── useAuth.js
+│       │   │       ├── pages/
+│       │   │       │   └── LoginPage.jsx
+│       │   │       └── services/
+│       │   │           └── auth.service.js
 │       │   ├── layouts/
-│       │   │   └── AppLayout.jsx        # Top navbar & main shell layout
+│       │   │   └── AppLayout.jsx        # Top navbar & authenticated user status
 │       │   ├── pages/
-│       │   │   └── HomePage.jsx         # Initial home screen with connectivity test
+│       │   │   └── HomePage.jsx         # Home dashboard with session card & connectivity test
 │       │   ├── services/
-│       │   │   └── api.js               # Axios API client (proxied to /api)
-│       │   ├── App.jsx                  # React Router & TanStack Query client
+│       │   │   └── api.js               # Axios client with token & refresh interceptors
+│       │   ├── App.jsx                  # React Router & AuthProvider
 │       │   ├── main.jsx                 # React DOM entry point
 │       │   └── index.css                # Tailwind CSS directives
 │       ├── index.html
 │       ├── vite.config.js               # Vite proxy config (/api -> http://localhost:5000)
-│       ├── tailwind.config.js
-│       ├── postcss.config.js
 │       └── package.json
 │
 ├── docs/                                 # Architectural Specifications
@@ -71,6 +92,7 @@ business-crm/
 │   ├── database-design.md
 │   ├── database-erd.md                  # Mermaid Entity-Relationship Diagram
 │   ├── api-design.md
+│   ├── api-documentation.md             # Complete REST API reference documentation
 │   ├── architecture.md
 │   └── frontend-pages.md
 │
@@ -80,9 +102,6 @@ business-crm/
 │
 ├── .env.example                          # Environment variables template
 ├── .env                                  # Local development credentials (git-ignored)
-├── .gitignore
-├── .eslintrc.json                        # ESLint configuration
-├── .prettierrc                           # Prettier configuration
 ├── package.json                          # Root npm workspaces configuration
 └── README.md
 ```
@@ -113,6 +132,12 @@ DB_HOST=localhost
 PORT=5000
 FRONTEND_URL=http://localhost:5173
 DATABASE_URL="postgresql://crm_admin:crm_secret_password@localhost:5432/business_crm"
+
+# JWT and Authentication Security (Phase 3)
+JWT_ACCESS_SECRET="crm-dev-super-secret-access-token-key-change-in-production-min-32-chars"
+ACCESS_TOKEN_EXPIRES_IN="10m"
+REFRESH_TOKEN_EXPIRES_IN="7d"
+COOKIE_NAME="refresh_token"
 
 # Frontend Configuration
 VITE_API_BASE_URL=/api
@@ -163,7 +188,31 @@ The seed script creates the following demo accounts for local testing (all use A
 
 ---
 
-## 6. Starting Frontend and Backend
+## 6. Authentication & Role-Based Authorization (Phase 3)
+
+### Security Architecture
+- **In-Memory Access Tokens:** The frontend keeps short-lived JWTs (~10m) strictly in application memory (`AuthContext`), never in `localStorage` or `sessionStorage` (mitigating XSS theft).
+- **HttpOnly Refresh Cookies:** 64-byte cryptographically secure random refresh tokens (~7d) reside in `HttpOnly`, `SameSite=Lax` cookies, accessible solely by the backend authentication endpoints.
+- **SHA-256 Database Persistence:** Raw refresh tokens are never stored. The database stores only SHA-256 hashes (`token_hash`) alongside expiry and revocation status.
+- **Single-Use Rotation & Reuse Detection:** Every refresh call consumes the old token and issues a fresh one. If an already revoked token is used (indicating stolen cookies), the system invalidates **all** active sessions for that user instantly.
+- **Tenant Isolation at Login:** Tenant users must provide their organization slug; platform Super Admins log in globally without tenant scoping.
+- **Argon2 Password Hashing:** Robust modern password hashing with salt generation.
+
+### Testing Authentication & Running Test Suite
+Execute the 17-point automated auth test suite (covering login, refresh rotation, reuse detection, password changes, logout, and RBAC middleware):
+
+```bash
+# Run backend test suite
+npm run test:api
+# Or directly with Node's built-in test runner:
+node --test apps/api/tests/auth.test.js
+```
+
+Full API specifications are available in [docs/api-documentation.md](docs/api-documentation.md).
+
+---
+
+## 7. Starting Frontend and Backend
 
 Start both applications with one command:
 
@@ -180,7 +229,7 @@ Separate terminals:
 
 ---
 
-## 7. Database Administration and Safe Reset
+## 8. Database Administration and Safe Reset
 
 ### View Database Tables
 Using `psql` via Docker:
