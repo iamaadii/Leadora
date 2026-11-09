@@ -168,6 +168,36 @@ Security and administrative governance history.
 - `created_at`: `TIMESTAMPTZ DEFAULT NOW() NOT NULL`
 - **Indexes:** `idx_audit_logs_org_created`, `idx_audit_logs_entity`.
 
+### 3.9 `teams`
+Sales and marketing teams within an organization.
+- `id`: `UUID PRIMARY KEY DEFAULT gen_random_uuid()`
+- `organization_id`: `UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE`
+- `name`: `VARCHAR(100) NOT NULL`
+- `description`: `TEXT NULL`
+- `manager_id`: `UUID NULL` (FK to `users(organization_id, id)`)
+- `is_active`: `BOOLEAN DEFAULT TRUE NOT NULL`
+- `created_at`: `TIMESTAMPTZ DEFAULT NOW() NOT NULL`
+- `updated_at`: `TIMESTAMPTZ DEFAULT NOW() NOT NULL`
+- **Constraints:** `CONSTRAINT uq_teams_org_name UNIQUE (organization_id, name)`, `CONSTRAINT uq_teams_org_id UNIQUE (organization_id, id)`.
+- **Indexes:** `idx_teams_org_id`, `idx_teams_manager_id`.
+
+### 3.10 `team_members`
+Staff membership assignment to sales teams.
+- `id`: `UUID PRIMARY KEY DEFAULT gen_random_uuid()`
+- `organization_id`: `UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE`
+- `team_id`: `UUID NOT NULL` (FK to `teams(organization_id, id)`)
+- `employee_id`: `UUID NOT NULL` (FK to `users(organization_id, id)`)
+- `joined_at`: `TIMESTAMPTZ DEFAULT NOW() NOT NULL`
+- `removed_at`: `TIMESTAMPTZ NULL`
+- `created_at`: `TIMESTAMPTZ DEFAULT NOW() NOT NULL`
+- **Constraints / Partial Unique Index:**
+  ```sql
+  CREATE UNIQUE INDEX uq_team_members_active_employee
+  ON team_members (organization_id, employee_id)
+  WHERE removed_at IS NULL;
+  ```
+  *(Enforces that an employee can belong to at most one active team at any given time).*
+
 ---
 
 ## 4. Migration Execution Structure
@@ -181,5 +211,7 @@ Migrations are organized as versioned files under `apps/api/src/database/migrati
 6. `006_create_notifications.sql`
 7. `007_create_refresh_tokens.sql`
 8. `008_create_audit_logs.sql`
+9. `009_expand_activity_types.sql`
+10. `010_create_teams_and_employee_management.sql`
 
 A dedicated tracking table `schema_migrations` prevents re-execution.

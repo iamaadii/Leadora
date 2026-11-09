@@ -107,3 +107,4 @@ export function LeadActivityTimeline({ activities = [], isLoading = false }) {
     </div>
   );
 }
+

@@ -485,6 +485,42 @@ export async function seedDatabase() {
     console.log(`   Seeded ${sampleNotifications.length} sample notifications.`);
 
     // ------------------------------------------------------------------------
+    // 6.5 Teams & Team Members
+    // ------------------------------------------------------------------------
+    console.log('👥 Seeding demo team and membership...');
+    let teamRes = await client.query(
+      `SELECT id FROM teams WHERE organization_id = $1 AND name = $2;`,
+      [orgId, 'Enterprise Outbound'],
+    );
+    let teamId;
+    if (teamRes.rows.length === 0) {
+      const newTeam = await client.query(
+        `INSERT INTO teams (organization_id, name, description, manager_id, is_active)
+         VALUES ($1, $2, $3, $4, true)
+         RETURNING id;`,
+        [orgId, 'Enterprise Outbound', 'Primary enterprise outbound prospecting & closing team', managerId],
+      );
+      teamId = newTeam.rows[0].id;
+      console.log(`   Created team: Enterprise Outbound (${teamId})`);
+    } else {
+      teamId = teamRes.rows[0].id;
+    }
+
+    // Add Alice to Enterprise Outbound if not already a member
+    const memberRes = await client.query(
+      `SELECT id FROM team_members WHERE organization_id = $1 AND team_id = $2 AND employee_id = $3 AND removed_at IS NULL;`,
+      [orgId, teamId, aliceId],
+    );
+    if (memberRes.rows.length === 0) {
+      await client.query(
+        `INSERT INTO team_members (organization_id, team_id, employee_id, joined_at)
+         VALUES ($1, $2, $3, NOW());`,
+        [orgId, teamId, aliceId],
+      );
+      console.log(`   Added Alice Smith to Enterprise Outbound`);
+    }
+
+    // ------------------------------------------------------------------------
     // 7. Audit Log Entry
     // ------------------------------------------------------------------------
     console.log('🛡️ Seeding initial audit log...');

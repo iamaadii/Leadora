@@ -7,6 +7,8 @@ import { env } from './config/env.js';
 import { pool } from './config/database.js';
 import { authRouter } from './modules/auth/auth.routes.js';
 import { leadsRouter } from './modules/leads/leads.routes.js';
+import employeesRouter from './modules/employees/employees.routes.js';
+import teamsRouter from './modules/teams/teams.routes.js';
 import { errorMiddleware } from './middleware/error.middleware.js';
 import { notFoundMiddleware } from './middleware/not-found.middleware.js';
 
@@ -86,6 +88,12 @@ export function createApp() {
 
   // Lead Management Routes
   app.use('/api/v1/leads', leadsRouter);
+
+  // Employee Management Routes (Phase 6)
+  app.use('/api/v1/employees', employeesRouter);
+
+  // Team Management Routes (Phase 6)
+  app.use('/api/v1/teams', teamsRouter);
 
   // 404 Handler
   app.use(notFoundMiddleware);

@@ -170,6 +170,38 @@ Every API endpoint returns a predictable JSON structure:
 
 ---
 
+### 4.10 Employee Administration (`/api/v1/employees`) — Phase 6
+
+| Method | Endpoint | Allowed Roles | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/employees` | Admin | List paginated staff with team info & active lead counts |
+| `POST` | `/employees` | Admin | Create employee with temporary password (`must_change_password=true`) |
+| `GET` | `/employees/:id` | Admin | Get employee details by ID |
+| `PATCH` | `/employees/:id` | Admin | Update employee contact details (firstName, lastName, phone) |
+| `PATCH` | `/employees/:id/role` | Admin | Change employee role (enforces safety checks) |
+| `PATCH` | `/employees/:id/deactivate` | Admin | Deactivate employee, revoke sessions, and remove team memberships |
+| `PATCH` | `/employees/:id/activate` | Admin | Reactivate employee account |
+
+---
+
+### 4.11 Team Management (`/api/v1/teams`) — Phase 6
+
+| Method | Endpoint | Allowed Roles | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/teams` | Admin, Manager | List teams (Admin: all org teams; Manager: managed teams only) |
+| `GET` | `/teams/my-teams` | Admin, Manager | List teams managed by the caller |
+| `POST` | `/teams` | Admin | Create new sales team and assign manager |
+| `GET` | `/teams/:id` | Admin, Manager | Get team details (Manager restricted to managed team) |
+| `PATCH` | `/teams/:id` | Admin | Update team name, description, and manager |
+| `PATCH` | `/teams/:id/deactivate` | Admin | Deactivate team and unassign active members |
+| `PATCH` | `/teams/:id/activate` | Admin | Reactivate team |
+| `POST` | `/teams/:id/members` | Admin | Add employee to team (enforces single active team invariant) |
+| `DELETE` | `/teams/:id/members/:employeeId` | Admin | Remove employee from team |
+| `GET` | `/teams/:id/roster` | Admin, Manager | Get active team roster |
+| `GET` | `/teams/:id/workload` | Admin, Manager | Get team member workload breakdown and pipeline stage counts |
+
+---
+
 ## 5. Request Validation Using Zod
 
 Before a request hits business logic, Express middleware validates it with Zod.

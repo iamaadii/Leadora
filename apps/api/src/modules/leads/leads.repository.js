@@ -97,6 +97,23 @@ export const leadsRepository = {
       conditions.push(`(l.assigned_to_id = $${paramIndex} OR l.created_by_id = $${paramIndex})`);
       values.push(userId);
       paramIndex++;
+    } else if (role === 'MANAGER') {
+      // Managers view leads assigned to them, created by them, or assigned to their active team members
+      conditions.push(`(
+        l.assigned_to_id = $${paramIndex} 
+        OR l.created_by_id = $${paramIndex} 
+        OR l.assigned_to_id IN (
+          SELECT tm.employee_id 
+          FROM team_members tm 
+          JOIN teams t ON tm.team_id = t.id 
+          WHERE t.manager_id = $${paramIndex} 
+            AND t.organization_id = $1 
+            AND t.is_active = TRUE 
+            AND tm.removed_at IS NULL
+        )
+      )`);
+      values.push(userId);
+      paramIndex++;
     }
 
     // Archive filter
@@ -349,18 +366,95 @@ export const leadsRepository = {
   },
 
   /**
-   * Get all active assignable users in organization
-   * @param {string} organizationId
-   * @param {import('pg').PoolClient|import('pg').Pool} [db=pool]
+   * Check if an employee belongs to any active team managed by the specified manager
    */
-  async findAssignableUsers(organizationId, db = pool) {
+  async isEmployeeInManagerTeams(employeeId, managerId, organizationId, db = pool) {
+    const query = `
+      SELECT 1
+      FROM team_members tm
+      JOIN teams t ON tm.team_id = t.id
+      WHERE tm.employee_id = $1
+        AND t.manager_id = $2
+        AND tm.organization_id = $3
+        AND t.is_active = TRUE
+        AND tm.removed_at IS NULL
+      LIMIT 1;
+    `;
+    const res = await db.query(query, [employeeId, managerId, organizationId]);
+    return (res.rowCount || 0) > 0;
+  },
+
+  /**
+   * Check if a lead is accessible to a manager
+   */
+  async isLeadAccessibleByManager(leadId, managerId, organizationId, db = pool) {
+    const query = `
+      SELECT 1
+      FROM leads l
+      WHERE l.id = $1 AND l.organization_id = $2
+        AND (
+          l.assigned_to_id = $3
+          OR l.created_by_id = $3
+          OR l.assigned_to_id IN (
+            SELECT tm.employee_id
+            FROM team_members tm
+            JOIN teams t ON tm.team_id = t.id
+            WHERE t.manager_id = $3
+              AND t.organization_id = $2
+              AND t.is_active = TRUE
+              AND tm.removed_at IS NULL
+          )
+        )
+      LIMIT 1;
+    `;
+    const res = await db.query(query, [leadId, organizationId, managerId]);
+    return (res.rowCount || 0) > 0;
+  },
+
+  /**
+   * Get active assignable users scoped by caller role:
+   * - ADMIN: all active users in organization
+   * - MANAGER: manager themselves + active members of manager's active teams
+   * - EMPLOYEE: employee themselves
+   */
+  async findAssignableUsers(organizationId, role = 'ADMIN', userId = null, db = pool) {
+    if (role === 'ADMIN') {
+      const query = `
+        SELECT id, first_name, last_name, email, role
+        FROM users
+        WHERE organization_id = $1 AND is_active = true
+        ORDER BY first_name ASC, last_name ASC;
+      `;
+      const res = await db.query(query, [organizationId]);
+      return res.rows;
+    }
+
+    if (role === 'MANAGER') {
+      const query = `
+        SELECT DISTINCT u.id, u.first_name, u.last_name, u.email, u.role
+        FROM users u
+        LEFT JOIN team_members tm ON u.id = tm.employee_id AND tm.removed_at IS NULL
+        LEFT JOIN teams t ON tm.team_id = t.id AND t.is_active = TRUE
+        WHERE u.organization_id = $1 
+          AND u.is_active = TRUE
+          AND (
+            u.id = $2
+            OR (u.role = 'EMPLOYEE' AND t.manager_id = $2)
+          )
+        ORDER BY u.first_name ASC, u.last_name ASC;
+      `;
+      const res = await db.query(query, [organizationId, userId]);
+      return res.rows;
+    }
+
+    // Default: return user themselves
     const query = `
       SELECT id, first_name, last_name, email, role
       FROM users
-      WHERE organization_id = $1 AND is_active = true
-      ORDER BY first_name ASC, last_name ASC;
+      WHERE id = $1 AND organization_id = $2 AND is_active = true;
     `;
-    const res = await db.query(query, [organizationId]);
+    const res = await db.query(query, [userId, organizationId]);
     return res.rows;
   },
 };
+

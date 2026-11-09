@@ -23,3 +23,4 @@ export function LeadStatusBadge({ status, size = 'sm', className = '' }) {
     </Badge>
   );
 }
+

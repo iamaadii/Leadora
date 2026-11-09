@@ -139,20 +139,42 @@ flowchart TD
 
 ---
 
-### 2.5 Journey 5: Employee Deactivation & Lead Handover
+### 2.5 Journey 5: Employee Deactivation & Session Revocation
 
-When an employee departs the company:
+When an employee departs the company or needs to be deactivated:
 1. The **Admin** opens the Employees page and clicks **Deactivate User**.
-2. The system checks if the user has active leads:
-   ```sql
-   SELECT COUNT(*) FROM leads 
-   WHERE organization_id = $1 AND assigned_user_id = $2 AND deleted_at IS NULL;
-   ```
-3. If active leads exist, a popup appears: *"This user currently owns 14 active leads. Who should take over these leads?"*
-4. The Admin selects a new employee.
-5. In a single SQL transaction:
-   - All active leads are updated: `assigned_user_id = $new_user_id`.
-   - The user account is marked `status = 'INACTIVE'`.
-   - A notification is sent to the new employee: *"14 leads were reassigned to you."*
-   - An entry is added to the company audit log.
+2. Safety validations ensure:
+   - The user is not the Admin themselves.
+   - The user is not the last active Administrator in the organization.
+   - The user is not a Manager leading active teams (must reassign teams first).
+3. In a single SQL transaction:
+   - User status is marked `is_active = FALSE`.
+   - All active refresh tokens are revoked (`revoked_at = NOW()`).
+   - Active team memberships are terminated (`removed_at = NOW()`).
+   - Audit log entry `DEACTIVATE_EMPLOYEE` is recorded.
+4. On the very next request, the user's access token is rejected by authentication middleware.
+
+---
+
+### 2.6 Journey 6: Employee Onboarding & Temporary Password Workflow
+
+1. **Admin Creation**: Admin creates a new employee account with email, name, role (`ADMIN`, `MANAGER`, or `EMPLOYEE`), and temporary password.
+2. The user is stored with `must_change_password = TRUE`.
+3. Passwords are saved hashed with **Argon2**.
+4. When the employee first logs in with their temporary credentials:
+   - The frontend identifies `user.must_change_password = true` and prompts a mandatory password change screen before navigating into the CRM.
+   - Once updated, `must_change_password` is set to `FALSE`.
+
+---
+
+### 2.7 Journey 7: Team Creation, Membership Assignment & Lead Scoping
+
+1. **Team Creation**: Admin creates a team and assigns an active user with role `MANAGER`.
+2. **Member Assignment**: Admin assigns employees (`role = 'EMPLOYEE'`) to the team. The system enforces the single active team membership constraint via PostgreSQL partial unique index `uq_team_members_active_employee`.
+3. **Manager Workload Scoping**:
+   - The Manager logs in and views `/teams`, which displays only teams they lead.
+   - The Manager clicks **View Workload** to see lead counts across all pipeline stages (New, Contacted, Qualified, Proposal, Won, Lost) for each active team member.
+4. **Lead Assignment Boundary**:
+   - Managers can only assign leads to themselves or active members of their managed teams.
+   - If a Manager attempts to assign or view leads outside their teams, the API returns `403 Forbidden` / `404 Not Found`.
 

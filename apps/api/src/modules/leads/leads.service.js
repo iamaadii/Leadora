@@ -34,6 +34,21 @@ export const leadsService = {
       );
     }
 
+    // Check Manager role restrictions: can only assign to self or members of their managed teams
+    if (user.role === 'MANAGER' && assigned_to_id && assigned_to_id !== user.id) {
+      const isMember = await leadsRepository.isEmployeeInManagerTeams(
+        assigned_to_id,
+        user.id,
+        user.organizationId,
+      );
+      if (!isMember) {
+        throw AppError.forbidden(
+          'Managers can only assign leads to members of their managed teams.',
+          'FORBIDDEN',
+        );
+      }
+    }
+
     // Verify assigned employee belongs to the same organization and is active
     let assigneeName = null;
     if (assigned_to_id) {
@@ -138,6 +153,18 @@ export const leadsService = {
       throw AppError.notFound('Lead not found', 'LEAD_NOT_FOUND');
     }
 
+    // Role check for Manager
+    if (user.role === 'MANAGER') {
+      const isAccessible = await leadsRepository.isLeadAccessibleByManager(
+        leadId,
+        user.id,
+        user.organizationId,
+      );
+      if (!isAccessible) {
+        throw AppError.notFound('Lead not found', 'LEAD_NOT_FOUND');
+      }
+    }
+
     // Fetch recent activities
     const recentActivities = await leadsRepository.findActivities(
       leadId,
@@ -175,6 +202,18 @@ export const leadsService = {
       existingLead.created_by_id !== user.id
     ) {
       throw AppError.notFound('Lead not found', 'LEAD_NOT_FOUND');
+    }
+
+    // Role check for Manager
+    if (user.role === 'MANAGER') {
+      const isAccessible = await leadsRepository.isLeadAccessibleByManager(
+        leadId,
+        user.id,
+        user.organizationId,
+      );
+      if (!isAccessible) {
+        throw AppError.notFound('Lead not found', 'LEAD_NOT_FOUND');
+      }
     }
 
     // Clean and sanitize input to prevent modifying protected fields
@@ -223,6 +262,20 @@ export const leadsService = {
       }
 
       if (fieldsToUpdate.assigned_to_id) {
+        if (user.role === 'MANAGER' && fieldsToUpdate.assigned_to_id !== user.id) {
+          const isMember = await leadsRepository.isEmployeeInManagerTeams(
+            fieldsToUpdate.assigned_to_id,
+            user.id,
+            user.organizationId,
+          );
+          if (!isMember) {
+            throw AppError.forbidden(
+              'Managers can only assign leads to members of their managed teams.',
+              'FORBIDDEN',
+            );
+          }
+        }
+
         const assignee = await leadsRepository.findActiveUserInOrg(
           fieldsToUpdate.assigned_to_id,
           user.organizationId,
@@ -429,6 +482,18 @@ export const leadsService = {
       throw AppError.notFound('Lead not found', 'LEAD_NOT_FOUND');
     }
 
+    // Role check for Manager
+    if (user.role === 'MANAGER') {
+      const isAccessible = await leadsRepository.isLeadAccessibleByManager(
+        leadId,
+        user.id,
+        user.organizationId,
+      );
+      if (!isAccessible) {
+        throw AppError.notFound('Lead not found', 'LEAD_NOT_FOUND');
+      }
+    }
+
     return await leadsRepository.findActivities(leadId, user.organizationId, pagination);
   },
 
@@ -443,6 +508,11 @@ export const leadsService = {
       );
     }
 
-    return await leadsRepository.findAssignableUsers(user.organizationId);
+    return await leadsRepository.findAssignableUsers(
+      user.organizationId,
+      user.role,
+      user.id,
+    );
   },
 };
+

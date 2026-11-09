@@ -23,3 +23,4 @@ ALTER TABLE activities ADD CONSTRAINT chk_activity_type CHECK (
         'LEAD_RESTORED'
     )
 );
+

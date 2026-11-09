@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   Target,
   Users,
+  Users2,
   CalendarClock,
   Activity,
   Bell,
@@ -36,7 +37,13 @@ export const NAVIGATION_ITEMS = [
     name: 'Employees',
     href: '/employees',
     icon: Users,
-    roles: ['SUPER_ADMIN', 'ADMIN', 'MANAGER'],
+    roles: ['ADMIN'],
+  },
+  {
+    name: 'Teams',
+    href: '/teams',
+    icon: Users2,
+    roles: ['ADMIN', 'MANAGER'],
   },
   {
     name: 'Follow-ups',

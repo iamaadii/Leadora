@@ -15,6 +15,8 @@ import { DashboardPage } from './pages/DashboardPage.jsx';
 import { LeadsPage } from './pages/LeadsPage.jsx';
 import { LeadDetailsPage } from './features/leads/pages/LeadDetailsPage.jsx';
 import { EmployeesPage } from './pages/EmployeesPage.jsx';
+import { TeamsPage } from './features/teams/pages/TeamsPage.jsx';
+import { TeamDetailsPage } from './features/teams/pages/TeamDetailsPage.jsx';
 import { FollowupsPage } from './pages/FollowupsPage.jsx';
 import { ActivitiesPage } from './pages/ActivitiesPage.jsx';
 import { NotificationsPage } from './pages/NotificationsPage.jsx';
@@ -56,12 +58,30 @@ export function App() {
                 <Route path="leads" element={<LeadsPage />} />
                 <Route path="leads/:id" element={<LeadDetailsPage />} />
 
-                {/* Role-Guarded: Employees (Admin, Manager, SuperAdmin) */}
+                {/* Role-Guarded: Employees (Admin only) */}
                 <Route
                   path="employees"
                   element={
-                    <RoleRoute allowedRoles={['SUPER_ADMIN', 'ADMIN', 'MANAGER']}>
+                    <RoleRoute allowedRoles={['ADMIN']}>
                       <EmployeesPage />
+                    </RoleRoute>
+                  }
+                />
+
+                {/* Role-Guarded: Teams (Admin & Manager) */}
+                <Route
+                  path="teams"
+                  element={
+                    <RoleRoute allowedRoles={['ADMIN', 'MANAGER']}>
+                      <TeamsPage />
+                    </RoleRoute>
+                  }
+                />
+                <Route
+                  path="teams/:id"
+                  element={
+                    <RoleRoute allowedRoles={['ADMIN', 'MANAGER']}>
+                      <TeamDetailsPage />
                     </RoleRoute>
                   }
                 />

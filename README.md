@@ -45,13 +45,27 @@ business-crm/
 │   │   │   │   │   ├── auth.routes.js
 │   │   │   │   │   ├── auth.service.js
 │   │   │   │   │   └── auth.validation.js
-│   │   │   │   └── leads/               # Lead Management module (Phase 5)
-│   │   │   │       ├── leads.constants.js
-│   │   │   │       ├── leads.controller.js
-│   │   │   │       ├── leads.repository.js
-│   │   │   │       ├── leads.routes.js
-│   │   │   │       ├── leads.service.js
-│   │   │   │       └── leads.validation.js
+│   │   │   │   ├── employees/           # Employee Directory module (Phase 6)
+│   │   │   │   │   ├── employees.constants.js
+│   │   │   │   │   ├── employees.controller.js
+│   │   │   │   │   ├── employees.repository.js
+│   │   │   │   │   ├── employees.routes.js
+│   │   │   │   │   ├── employees.service.js
+│   │   │   │   │   └── employees.validation.js
+│   │   │   │   ├── leads/               # Lead Management module (Phase 5)
+│   │   │   │   │   ├── leads.constants.js
+│   │   │   │   │   ├── leads.controller.js
+│   │   │   │   │   ├── leads.repository.js
+│   │   │   │   │   ├── leads.routes.js
+│   │   │   │   │   ├── leads.service.js
+│   │   │   │   │   └── leads.validation.js
+│   │   │   │   └── teams/               # Sales Team Management module (Phase 6)
+│   │   │   │       ├── teams.constants.js
+│   │   │   │       ├── teams.controller.js
+│   │   │   │       ├── teams.repository.js
+│   │   │   │       ├── teams.routes.js
+│   │   │   │       ├── teams.service.js
+│   │   │   │       └── teams.validation.js
 │   │   │   ├── repositories/            # Raw SQL repository layer
 │   │   │   │   ├── auth.repository.js
 │   │   │   │   ├── refresh-token.repository.js
@@ -61,7 +75,9 @@ business-crm/
 │   │   │   └── server.js                # Server entry point & graceful shutdown
 │   │   ├── tests/
 │   │   │   ├── auth.test.js             # 17-point automated auth & RBAC test suite
-│   │   │   └── leads.test.js            # 18-point automated lead lifecycle test suite
+│   │   │   ├── leads.test.js            # 18-point automated lead lifecycle test suite
+│   │   │   ├── employees.test.js        # 13-point automated employee administration test suite
+│   │   │   └── teams.test.js            # 10-point automated team & manager boundary test suite
 │   │   └── package.json
 │   │
 │   └── web/                              # Frontend React + Vite Application
@@ -80,20 +96,43 @@ business-crm/
 │       │   │   │   │   └── LoginPage.jsx
 │       │   │   │   └── services/
 │       │   │   │       └── auth.service.js
-│       │   │   └── leads/               # Frontend Leads feature module (Phase 5)
+│       │   │   ├── employees/           # Frontend Employees Directory module (Phase 6)
+│       │   │   │   ├── components/
+│       │   │   │   │   ├── EmployeeTable.jsx
+│       │   │   │   │   ├── CreateEmployeeModal.jsx
+│       │   │   │   │   ├── EditEmployeeModal.jsx
+│       │   │   │   │   └── ChangeRoleModal.jsx
+│       │   │   │   ├── hooks/
+│       │   │   │   │   └── useEmployees.js
+│       │   │   │   └── services/
+│       │   │   │       └── employees.service.js
+│       │   │   ├── leads/               # Frontend Leads feature module (Phase 5)
+│       │   │   │   ├── components/
+│       │   │   │   │   ├── LeadActivityTimeline.jsx
+│       │   │   │   │   ├── LeadFilters.jsx
+│       │   │   │   │   ├── LeadForm.jsx
+│       │   │   │   │   ├── LeadStatusBadge.jsx
+│       │   │   │   │   └── LeadTable.jsx
+│       │   │   │   ├── hooks/
+│       │   │   │   │   └── useLeads.js
+│       │   │   │   ├── pages/
+│       │   │   │   │   ├── LeadDetailsPage.jsx
+│       │   │   │   │   └── LeadsPage.jsx
+│       │   │   │   └── services/
+│       │   │   │       └── leads.service.js
+│       │   │   └── teams/               # Frontend Teams feature module (Phase 6)
 │       │   │       ├── components/
-│       │   │       │   ├── LeadActivityTimeline.jsx
-│       │   │       │   ├── LeadFilters.jsx
-│       │   │       │   ├── LeadForm.jsx
-│       │   │       │   ├── LeadStatusBadge.jsx
-│       │   │       │   └── LeadTable.jsx
+│       │   │       │   ├── TeamCard.jsx
+│       │   │       │   ├── CreateTeamModal.jsx
+│       │   │       │   ├── EditTeamModal.jsx
+│       │   │       │   └── ManageMembersModal.jsx
 │       │   │       ├── hooks/
-│       │   │       │   └── useLeads.js
+│       │   │       │   └── useTeams.js
 │       │   │       ├── pages/
-│       │   │       │   ├── LeadDetailsPage.jsx
-│       │   │       │   └── LeadsPage.jsx
+│       │   │       │   ├── TeamsPage.jsx
+│       │   │       │   └── TeamDetailsPage.jsx
 │       │   │       └── services/
-│       │   │           └── leads.service.js
+│       │   │           └── teams.service.js
 │       │   ├── layouts/
 │       │   │   └── AppLayout.jsx        # Top navbar & authenticated user status
 │       │   ├── pages/

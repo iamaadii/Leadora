@@ -34,3 +34,4 @@ router.patch('/:id/restore', authorizeRoles('ADMIN'), leadsController.restoreLea
 router.get('/:id/activities', leadsController.getLeadActivities);
 
 export const leadsRouter = router;
+
