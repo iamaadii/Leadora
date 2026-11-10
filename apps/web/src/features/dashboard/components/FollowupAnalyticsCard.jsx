@@ -46,7 +46,7 @@ export function FollowupAnalyticsCard({ data = null, isLoading = false }) {
           <h3 className="text-sm font-bold text-slate-900">Follow-up & Task Health</h3>
         </div>
         <Link
-          to="/followups"
+          to="/follow-ups"
           className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center space-x-1"
         >
           <span>View all</span>
