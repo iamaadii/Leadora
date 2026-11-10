@@ -74,14 +74,14 @@ export function LeadsKanbanPage() {
     setSearchParams(new URLSearchParams());
   };
 
-  const handleStatusChange = async (leadId, newStatus) => {
+  const handleStatusChange = async (leadId, newStatus, additionalData = {}) => {
     if (filters.isArchived) {
       toast.warning('Stage updates are disabled on archived leads. Restore the lead first to make changes.');
       return;
     }
     await updateLeadMutation.mutateAsync({
       id: leadId,
-      data: { status: newStatus },
+      data: { status: newStatus, ...additionalData },
     });
   };
 
