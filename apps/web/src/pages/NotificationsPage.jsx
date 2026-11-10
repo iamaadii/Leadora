@@ -20,6 +20,10 @@ import {
   useMarkNotificationAsRead,
   useMarkAllNotificationsAsRead,
 } from '../features/notifications/hooks/useNotifications.js';
+import {
+  getNotificationRedirectUrl,
+  getNotificationEntityLabel,
+} from '../features/notifications/utils/notification-navigation.js';
 
 export function NotificationsPage() {
   const { user } = useAuth();
@@ -57,15 +61,12 @@ export function NotificationsPage() {
   };
 
   const handleNotificationClick = async (notif) => {
-    if (!notif.is_read) {
+    const isUnread = !(notif.isRead ?? notif.is_read);
+    if (isUnread) {
       await handleMarkRead(notif.id);
     }
-
-    if (notif.entity_type === 'LEAD' && notif.entity_id) {
-      navigate(isDemo ? `/demo/leads/${notif.entity_id}` : `/leads/${notif.entity_id}`);
-    } else if (notif.entity_type === 'FOLLOW_UP') {
-      navigate(isDemo ? '/demo/follow-ups' : '/follow-ups');
-    }
+    const destination = getNotificationRedirectUrl(notif, isDemo);
+    navigate(destination);
   };
 
   const notifications = data?.data || [];
@@ -174,64 +175,68 @@ export function NotificationsPage() {
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs divide-y divide-slate-100 overflow-hidden">
-          {notifications.map((notif) => (
-            <div
-              key={notif.id}
-              onClick={() => handleNotificationClick(notif)}
-              className={`p-4 sm:p-5 flex items-start justify-between gap-4 transition cursor-pointer hover:bg-slate-50 ${
-                !notif.is_read ? 'bg-blue-50/40' : ''
-              }`}
-            >
-              <div className="flex items-start space-x-3.5 min-w-0">
-                <div className="p-2.5 rounded-xl bg-slate-100 shrink-0">
-                  {getNotificationIcon(notif.notification_type || notif.type)}
-                </div>
-                <div className="space-y-1 min-w-0">
-                  <div className="flex items-center space-x-2">
-                    <h4
-                      className={`text-sm tracking-tight ${
-                        !notif.is_read ? 'font-bold text-slate-900' : 'font-semibold text-slate-700'
-                      }`}
-                    >
-                      {notif.title}
-                    </h4>
-                    {!notif.is_read && (
-                      <span className="w-2 h-2 rounded-full bg-blue-600 shrink-0" />
-                    )}
+          {notifications.map((notif) => {
+            const isUnread = !(notif.isRead ?? notif.is_read);
+            const entityLabel = getNotificationEntityLabel(notif);
+            return (
+              <div
+                key={notif.id}
+                onClick={() => handleNotificationClick(notif)}
+                className={`p-4 sm:p-5 flex items-start justify-between gap-4 transition cursor-pointer hover:bg-slate-50 ${
+                  isUnread ? 'bg-blue-50/40' : ''
+                }`}
+              >
+                <div className="flex items-start space-x-3.5 min-w-0">
+                  <div className="p-2.5 rounded-xl bg-slate-100 shrink-0">
+                    {getNotificationIcon(notif.notificationType || notif.notification_type || notif.type)}
                   </div>
-                  <p className="text-xs text-slate-600 leading-relaxed break-words">
-                    {notif.message}
-                  </p>
-                  <div className="flex items-center space-x-3 text-[11px] text-slate-400 pt-1">
-                    <span>{formatRelativeTime(notif.created_at)}</span>
-                    {notif.entity_type && (
-                      <>
-                        <span>•</span>
-                        <span className="inline-flex items-center space-x-1 font-medium text-blue-600">
-                          <span>View {notif.entity_type === 'LEAD' ? 'Lead' : 'Task'}</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </span>
-                      </>
-                    )}
+                  <div className="space-y-1 min-w-0">
+                    <div className="flex items-center space-x-2">
+                      <h4
+                        className={`text-sm tracking-tight ${
+                          isUnread ? 'font-bold text-slate-900' : 'font-semibold text-slate-700'
+                        }`}
+                      >
+                        {notif.title}
+                      </h4>
+                      {isUnread && (
+                        <span className="w-2 h-2 rounded-full bg-blue-600 shrink-0" />
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-600 leading-relaxed line-clamp-2 sm:line-clamp-none">
+                      {notif.message}
+                    </p>
+                    <div className="flex items-center space-x-3 text-[11px] text-slate-400 pt-1">
+                      <span>{formatRelativeTime(notif.createdAt || notif.created_at)}</span>
+                      {entityLabel && (
+                        <>
+                          <span>•</span>
+                          <span className="inline-flex items-center space-x-1 font-medium text-blue-600">
+                            <span>View {entityLabel}</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </span>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex items-center space-x-2 shrink-0">
-                {!notif.is_read && (
-                  <Button
-                    variant="ghost"
-                    size="xs"
-                    onClick={(e) => handleMarkRead(notif.id, e)}
-                    title="Mark as read"
-                    leftIcon={Check}
-                  >
-                    Mark read
-                  </Button>
-                )}
+                <div className="flex items-center space-x-2 shrink-0">
+                  {isUnread && (
+                    <Button
+                      variant="ghost"
+                      size="xs"
+                      onClick={(e) => handleMarkRead(notif.id, e)}
+                      title="Mark as read"
+                      leftIcon={Check}
+                    >
+                      Mark read
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           {/* Pagination Controls */}
           {meta.totalPages > 1 && (

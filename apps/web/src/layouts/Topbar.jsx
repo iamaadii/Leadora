@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth/hooks/useAuth.js';
-import { BrandLogo } from '../components/brand/BrandLogo.jsx';
+import { DemoBanner } from '../components/demo/DemoBanner.jsx';
 import {
   Menu,
   Bell,
@@ -26,13 +26,17 @@ import {
   useMarkNotificationAsRead,
   useMarkAllNotificationsAsRead,
 } from '../features/notifications/hooks/useNotifications.js';
+import {
+  getNotificationRedirectUrl,
+  getNotificationEntityLabel,
+} from '../features/notifications/utils/notification-navigation.js';
 
 const ROUTE_TITLES = {
   '/dashboard': 'Dashboard',
   '/leads': 'Leads Pipeline',
   '/leads/kanban': 'Leads Kanban',
   '/employees': 'Employees & Teams',
-  '/teams': 'Team Management',
+  '/teams': 'Teams',
   '/follow-ups': 'Follow-ups & Tasks',
   '/activities': 'Activity Feed',
   '/notifications': 'Notifications',
@@ -40,15 +44,15 @@ const ROUTE_TITLES = {
   '/settings': 'Organization Settings',
   '/platform/organizations': 'Platform Organizations',
   '/profile': 'User Profile',
-  '/demo': 'Demo Dashboard',
-  '/demo/leads': 'Leads Pipeline (Demo)',
-  '/demo/leads/kanban': 'Leads Kanban (Demo)',
-  '/demo/employees': 'Employees & Teams (Demo)',
-  '/demo/teams': 'Team Management (Demo)',
-  '/demo/follow-ups': 'Follow-ups & Tasks (Demo)',
-  '/demo/activities': 'Activity Feed (Demo)',
-  '/demo/notifications': 'Notifications (Demo)',
-  '/demo/reports': 'Analytics & Reports (Demo)',
+  '/demo': 'Dashboard',
+  '/demo/leads': 'Leads Pipeline',
+  '/demo/leads/kanban': 'Leads Kanban',
+  '/demo/employees': 'Employees & Teams',
+  '/demo/teams': 'Teams',
+  '/demo/follow-ups': 'Follow-ups & Tasks',
+  '/demo/activities': 'Activity Feed',
+  '/demo/notifications': 'Notifications',
+  '/demo/reports': 'Analytics & Reports',
 };
 
 function formatRelativeTime(timestamp) {
@@ -109,17 +113,13 @@ export function Topbar({ onToggleMobileSidebar }) {
   };
 
   const handleNotificationItemClick = async (notif) => {
-    if (!notif.is_read) {
-      await markReadMutation.mutateAsync(notif.id);
+    const isUnread = !(notif.isRead ?? notif.is_read);
+    if (isUnread) {
+      markReadMutation.mutate(notif.id);
     }
     setIsNotifOpen(false);
-    if (notif.entity_type === 'LEAD' && notif.entity_id) {
-      navigate(isDemo ? `/demo/leads/${notif.entity_id}` : `/leads/${notif.entity_id}`);
-    } else if (notif.entity_type === 'FOLLOW_UP') {
-      navigate(isDemo ? '/demo/follow-ups' : '/follow-ups');
-    } else {
-      navigate(isDemo ? '/demo/notifications' : '/notifications');
-    }
+    const destination = getNotificationRedirectUrl(notif, isDemo);
+    navigate(destination);
   };
 
   const getNotificationIcon = (type) => {
@@ -139,9 +139,11 @@ export function Topbar({ onToggleMobileSidebar }) {
   const canAccessSettings = ['SUPER_ADMIN', 'ADMIN'].includes(userRole);
 
   return (
-    <header className="sticky top-0 z-20 h-16 bg-white/95 backdrop-blur-xs border-b border-slate-200/80 px-3 sm:px-6 flex items-center justify-between">
-      {/* Left: Mobile Toggle, Mobile Brand Logo & Page Title */}
-      <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
+    <div className="sticky top-0 z-30 w-full">
+      {isDemo && <DemoBanner />}
+      <header className="h-16 bg-white/95 backdrop-blur-md border-b border-slate-200/90 px-3 sm:px-6 flex items-center justify-between shadow-xs transition-shadow">
+      {/* Left: Mobile Toggle & Page Title */}
+      <div className="flex items-center space-x-2.5 sm:space-x-3.5 min-w-0">
         <button
           type="button"
           onClick={onToggleMobileSidebar}
@@ -151,27 +153,19 @@ export function Topbar({ onToggleMobileSidebar }) {
           <Menu className="w-5 h-5" />
         </button>
 
-        {/* Mobile & Tablet Brand Identity */}
-        <Link
-          to={isDemo ? '/demo' : '/dashboard'}
-          className="lg:hidden flex items-center space-x-2 shrink-0 group focus:outline-hidden"
-          aria-label="Go to dashboard"
-        >
-          <BrandLogo variant="icon" size="xs" />
-          <span className="font-extrabold text-sm text-slate-900 tracking-tight hidden xs:inline">
-            Lead<span className="text-blue-600">ora</span>
-          </span>
-        </Link>
-
-        {/* Divider on mobile */}
-        <div className="hidden xs:block lg:hidden h-4 w-px bg-slate-200" />
-
         <div className="flex items-center space-x-2 min-w-0">
-          <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight truncate">
+          <h2 className="lg:hidden text-sm sm:text-base font-bold text-slate-900 tracking-tight truncate">
             {currentTitle}
           </h2>
+
+          <div className="hidden lg:flex items-center space-x-2 text-xs font-medium text-slate-500">
+            <span className="text-slate-400">Workspace</span>
+            <span className="text-slate-300">/</span>
+            <span className="text-slate-700 font-semibold">{currentTitle}</span>
+          </div>
+
           {user?.organization && (
-            <span className="hidden lg:inline-flex items-center space-x-1 text-xs text-slate-600 font-medium bg-slate-100/80 px-2 py-0.5 rounded-md border border-slate-200/60">
+            <span className="hidden md:inline-flex items-center space-x-1 text-xs text-slate-600 font-medium bg-slate-100/80 px-2 py-0.5 rounded-md border border-slate-200/60">
               <Building className="w-3 h-3 text-slate-400" />
               <span>{user.organization.name || user.organizationName}</span>
             </span>
@@ -262,7 +256,8 @@ export function Topbar({ onToggleMobileSidebar }) {
                   </div>
                 ) : (
                   recentNotifications.map((n) => {
-                    const isUnread = !n.is_read;
+                    const isUnread = !(n.isRead ?? n.is_read);
+                    const entityLabel = getNotificationEntityLabel(n);
                     return (
                       <div
                         key={n.id}
@@ -276,7 +271,7 @@ export function Topbar({ onToggleMobileSidebar }) {
                             isUnread ? 'bg-white shadow-xs border border-blue-100' : 'bg-slate-100'
                           }`}
                         >
-                          {getNotificationIcon(n.notification_type || n.type)}
+                          {getNotificationIcon(n.notificationType || n.notification_type || n.type)}
                         </div>
 
                         <div className="min-w-0 flex-1">
@@ -292,8 +287,8 @@ export function Topbar({ onToggleMobileSidebar }) {
                               <button
                                 type="button"
                                 onClick={(e) => {
-                                  e.stopPropagation();
-                                  markReadMutation.mutate(n.id);
+                                   e.stopPropagation();
+                                   markReadMutation.mutate(n.id);
                                 }}
                                 className="text-slate-400 hover:text-blue-600 hover:bg-blue-50 p-1 rounded-md transition shrink-0"
                                 title="Mark read"
@@ -308,12 +303,12 @@ export function Topbar({ onToggleMobileSidebar }) {
                           </p>
 
                           <div className="flex items-center space-x-2 text-[10px] text-slate-400 font-medium mt-1.5">
-                            <span>{formatRelativeTime(n.created_at)}</span>
-                            {n.entity_type && (
+                            <span>{formatRelativeTime(n.createdAt || n.created_at)}</span>
+                            {entityLabel && (
                               <>
                                 <span>&bull;</span>
                                 <span className="font-semibold text-blue-600">
-                                  {n.entity_type === 'LEAD' ? 'Lead' : 'Follow-up'}
+                                  {entityLabel}
                                 </span>
                               </>
                             )}
@@ -418,5 +413,6 @@ export function Topbar({ onToggleMobileSidebar }) {
         </Dropdown>
       </div>
     </header>
+  </div>
   );
 }
