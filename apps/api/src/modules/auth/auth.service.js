@@ -75,6 +75,8 @@ export const authService = {
       organizationId: user.organization_id || null,
       organizationName: user.organization_name || null,
       organizationSlug: user.organization_slug || null,
+      organizationCurrency: user.organization_currency || 'USD',
+      organizationTimezone: user.organization_timezone || 'America/New_York',
       firstName: user.first_name,
       lastName: user.last_name,
       email: user.email,
@@ -233,6 +235,8 @@ export const authService = {
       organizationId: user.organization_id || null,
       organizationName: user.organization_name || null,
       organizationSlug: user.organization_slug || null,
+      organizationCurrency: user.organization_currency || 'USD',
+      organizationTimezone: user.organization_timezone || 'America/New_York',
       isActive: user.is_active,
       lastLoginAt: user.last_login_at,
       createdAt: user.created_at,
@@ -247,7 +251,7 @@ export const authService = {
   async createDemoSession() {
     // 1. Find demo organization
     const orgRes = await pool.query(
-      `SELECT id, name, slug, is_active FROM organizations WHERE slug = 'leadora-demo' LIMIT 1;`,
+      `SELECT id, name, slug, currency, timezone, is_active FROM organizations WHERE slug = 'leadora-demo' LIMIT 1;`,
     );
 
     if (orgRes.rows.length === 0 || !orgRes.rows[0].is_active) {
@@ -288,6 +292,8 @@ export const authService = {
         organizationId: demoOrg.id,
         organizationName: demoOrg.name,
         organizationSlug: demoOrg.slug,
+        organizationCurrency: demoOrg.currency || 'USD',
+        organizationTimezone: demoOrg.timezone || 'America/New_York',
         firstName: demoUser.first_name,
         lastName: demoUser.last_name,
         email: demoUser.email,

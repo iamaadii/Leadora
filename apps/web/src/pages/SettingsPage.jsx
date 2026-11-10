@@ -12,7 +12,7 @@ import {
 } from '../features/organization/hooks/useOrganization.js';
 
 export function SettingsPage() {
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, updateOrganizationSettings } = useAuth();
   const { toast } = useToast();
 
   const userRole = user?.role || 'EMPLOYEE';
@@ -52,6 +52,13 @@ export function SettingsPage() {
         timezone,
       });
       toast.success('Organization settings saved successfully.');
+      if (updateOrganizationSettings) {
+        updateOrganizationSettings({
+          currency,
+          timezone,
+          name: companyName.trim(),
+        });
+      }
       if (refreshUser) {
         refreshUser();
       }

@@ -2,8 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Skeleton } from '../../../components/ui/Skeleton.jsx';
 import { Activity, ArrowUpRight, ExternalLink } from 'lucide-react';
+import { useAuth } from '../../auth/hooks/useAuth.js';
+import { formatDateTime } from '../../../utils/dateTime.js';
 
 export function RecentActivityFeed({ activities = [], isLoading = false }) {
+  const { organizationTimezone } = useAuth();
   if (isLoading) {
     return (
       <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
@@ -27,14 +30,7 @@ export function RecentActivityFeed({ activities = [], isLoading = false }) {
   }
 
   const formatTime = (isoString) => {
-    if (!isoString) return '';
-    const date = new Date(isoString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    return formatDateTime(isoString, organizationTimezone);
   };
 
   return (

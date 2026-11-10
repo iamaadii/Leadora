@@ -23,7 +23,9 @@ export const userRepository = {
         u.updated_at,
         o.name AS organization_name,
         o.slug AS organization_slug,
-        o.is_active AS organization_is_active
+        o.is_active AS organization_is_active,
+        o.currency AS organization_currency,
+        o.timezone AS organization_timezone
       FROM users u
       LEFT JOIN organizations o ON u.organization_id = o.id
       WHERE u.id = $1;
@@ -70,7 +72,9 @@ export const userRepository = {
         u.last_login_at,
         o.name AS organization_name,
         o.slug AS organization_slug,
-        o.is_active AS organization_is_active
+        o.is_active AS organization_is_active,
+        o.currency AS organization_currency,
+        o.timezone AS organization_timezone
       FROM users u
       JOIN organizations o ON u.organization_id = o.id
       WHERE LOWER(u.email) = LOWER($1) AND o.slug = $2;

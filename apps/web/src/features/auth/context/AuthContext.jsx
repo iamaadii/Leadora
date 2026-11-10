@@ -103,16 +103,31 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  const updateOrganizationSettings = useCallback(({ currency, timezone, name }) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        organizationCurrency: currency || prev.organizationCurrency,
+        organizationTimezone: timezone || prev.organizationTimezone,
+        organizationName: name || prev.organizationName,
+      };
+    });
+  }, []);
+
   const value = {
     user,
     accessToken,
     isLoading,
     isAuthenticated: !!user && !!accessToken,
     isDemo: !!user?.isDemo || user?.role === 'DEMO',
+    organizationCurrency: user?.organizationCurrency || 'USD',
+    organizationTimezone: user?.organizationTimezone || 'America/New_York',
     login,
     startDemoSession,
     logout,
     refreshUser,
+    updateOrganizationSettings,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

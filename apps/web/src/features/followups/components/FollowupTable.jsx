@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../auth/hooks/useAuth.js';
+import { formatDateTime } from '../../../utils/dateTime.js';
 import { FollowupTypeIcon, FollowupTypeLabel } from './FollowupTypeIcon.jsx';
 import { FollowupStatusBadge } from './FollowupStatusBadge.jsx';
 import { FollowupPriorityBadge } from './FollowupPriorityBadge.jsx';
@@ -30,6 +32,7 @@ export function FollowupTable({
   onEditClick,
   onCancelClick,
 }) {
+  const { organizationTimezone } = useAuth();
   const [expandedId, setExpandedId] = useState(null);
 
   const toggleExpand = (id) => {
@@ -70,14 +73,7 @@ export function FollowupTable({
 
   const formatDueDate = (isoString) => {
     if (!isoString) return 'Not scheduled';
-    const date = new Date(isoString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    return formatDateTime(isoString, organizationTimezone);
   };
 
   return (
