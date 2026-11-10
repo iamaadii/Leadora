@@ -11,6 +11,7 @@ import { EmployeeTable } from '../features/employees/components/EmployeeTable.js
 import { CreateEmployeeModal } from '../features/employees/components/CreateEmployeeModal.jsx';
 import { EditEmployeeModal } from '../features/employees/components/EditEmployeeModal.jsx';
 import { ChangeRoleModal } from '../features/employees/components/ChangeRoleModal.jsx';
+import { ConfirmationDialog } from '../components/ui/ConfirmationDialog.jsx';
 import {
   Users,
   UserPlus,
@@ -46,6 +47,7 @@ export function EmployeesPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [changingRoleEmployee, setChangingRoleEmployee] = useState(null);
+  const [confirmToggleEmp, setConfirmToggleEmp] = useState(null);
 
   // Fetch employees
   const { data, isLoading } = useEmployees({
@@ -76,7 +78,7 @@ export function EmployeesPage() {
   const managerCount = employees.filter((e) => e.role === 'MANAGER' && e.is_active).length;
   const employeeCount = employees.filter((e) => e.role === 'EMPLOYEE' && e.is_active).length;
 
-  const handleToggleActive = async (emp) => {
+  const handleToggleActive = (emp) => {
     if (isDemo) {
       toast.warning(
         'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
@@ -84,12 +86,19 @@ export function EmployeesPage() {
       );
       return;
     }
-    if (emp.is_active) {
-      if (window.confirm(`Are you sure you want to deactivate ${emp.first_name} ${emp.last_name}? Their active sessions will be terminated immediately.`)) {
-        await deactivateEmployee(emp.id);
+    setConfirmToggleEmp(emp);
+  };
+
+  const handleConfirmToggleActive = async () => {
+    if (!confirmToggleEmp) return;
+    try {
+      if (confirmToggleEmp.is_active) {
+        await deactivateEmployee(confirmToggleEmp.id);
+      } else {
+        await activateEmployee(confirmToggleEmp.id);
       }
-    } else {
-      await activateEmployee(emp.id);
+    } finally {
+      setConfirmToggleEmp(null);
     }
   };
 
@@ -338,6 +347,22 @@ export function EmployeesPage() {
         employee={changingRoleEmployee}
         onSubmit={changeRole}
         isSubmitting={isChangingRole}
+      />
+
+      {/* Center Confirmation Dialog with Background Blur & Scroll Lock */}
+      <ConfirmationDialog
+        isOpen={Boolean(confirmToggleEmp)}
+        onClose={() => setConfirmToggleEmp(null)}
+        onConfirm={handleConfirmToggleActive}
+        title={confirmToggleEmp?.is_active ? 'Deactivate Employee?' : 'Reactivate Employee?'}
+        message={
+          confirmToggleEmp?.is_active
+            ? `Are you sure you want to deactivate ${confirmToggleEmp.first_name} ${confirmToggleEmp.last_name}? Their active sessions will be terminated immediately and they will be logged out.`
+            : `Are you sure you want to reactivate ${confirmToggleEmp?.first_name} ${confirmToggleEmp?.last_name}? They will be permitted to log in to the workspace again.`
+        }
+        confirmText={confirmToggleEmp?.is_active ? 'Deactivate Employee' : 'Reactivate Employee'}
+        isDestructive={Boolean(confirmToggleEmp?.is_active)}
+        isLoading={isUpdating}
       />
     </div>
   );

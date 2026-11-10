@@ -3,10 +3,11 @@ import { useAuth } from '../features/auth/hooks/useAuth.js';
 import { PageHeader } from '../components/ui/PageHeader.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Input } from '../components/ui/Input.jsx';
+import { PhoneInput } from '../components/ui/PhoneInput.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
 import { useToast } from '../components/ui/Toast.jsx';
 import { authService } from '../features/auth/services/auth.service.js';
-import { User, Lock, KeyRound, ShieldCheck, Mail, Building, Phone, Save } from 'lucide-react';
+import { User, Lock, KeyRound, ShieldCheck, Mail, Building, Save, Eye, EyeOff } from 'lucide-react';
 
 export function ProfilePage() {
   const { user, logout, refreshUser } = useAuth();
@@ -22,6 +23,7 @@ export function ProfilePage() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPasswords, setShowPasswords] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordError, setPasswordError] = useState(null);
 
@@ -213,12 +215,11 @@ export function ProfilePage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input
+                <PhoneInput
                   label="Phone Number"
+                  name="phone"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+1 (555) 000-0000"
-                  leftIcon={Phone}
                 />
                 <Input
                   label="Email Address"
@@ -252,9 +253,19 @@ export function ProfilePage() {
 
           {/* Change Password */}
           <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
-            <div className="flex items-center space-x-2.5 pb-3 border-b border-slate-100">
-              <KeyRound className="w-4 h-4 text-slate-500" />
-              <h3 className="text-sm font-bold text-slate-900">Change Password</h3>
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center space-x-2.5">
+                <KeyRound className="w-4 h-4 text-slate-500" />
+                <h3 className="text-sm font-bold text-slate-900">Change Password</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowPasswords((prev) => !prev)}
+                className="text-xs font-semibold text-slate-500 hover:text-slate-800 inline-flex items-center space-x-1.5 focus:outline-hidden"
+              >
+                {showPasswords ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                <span>{showPasswords ? 'Hide passwords' : 'Show passwords'}</span>
+              </button>
             </div>
 
             {passwordError && (
@@ -266,7 +277,7 @@ export function ProfilePage() {
             <form onSubmit={handleChangePassword} className="space-y-4">
               <Input
                 label="Current Password"
-                type="password"
+                type={showPasswords ? 'text' : 'password'}
                 placeholder="••••••••"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
@@ -277,7 +288,7 @@ export function ProfilePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
                   label="New Password"
-                  type="password"
+                  type={showPasswords ? 'text' : 'password'}
                   placeholder="At least 8 chars"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
@@ -286,7 +297,7 @@ export function ProfilePage() {
                 />
                 <Input
                   label="Confirm New Password"
-                  type="password"
+                  type={showPasswords ? 'text' : 'password'}
                   placeholder="••••••••"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}

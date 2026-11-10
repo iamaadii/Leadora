@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth.js';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Lock, Mail, Building, AlertCircle, ArrowRight, Sparkles } from 'lucide-react';
+import {
+  Lock,
+  Mail,
+  Building,
+  AlertCircle,
+  ArrowRight,
+  Sparkles,
+  Eye,
+  EyeOff,
+} from 'lucide-react';
 
 export function LoginForm() {
   const { login } = useAuth();
@@ -12,6 +21,7 @@ export function LoginForm() {
   const [password, setPassword] = useState('');
   const [organizationSlug, setOrganizationSlug] = useState('acme-sales');
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -56,54 +66,54 @@ export function LoginForm() {
   return (
     <div className="space-y-6">
       {/* Demo Credentials Quick-Select Pill Bar */}
-      <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs space-y-2">
-        <div className="flex items-center space-x-1.5 text-slate-700 font-semibold">
-          <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+      <div className="bg-slate-900/70 border border-slate-700/80 rounded-2xl p-3.5 text-xs space-y-2.5">
+        <div className="flex items-center space-x-1.5 text-slate-200 font-bold">
+          <Sparkles className="w-4 h-4 text-blue-400 shrink-0" />
           <span>Quick Demo Presets:</span>
         </div>
-        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4 font-mono text-[11px]">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[11px]">
           <button
             type="button"
             onClick={() => applyPreset('admin@acme.com', 'acme-sales', false)}
-            className="p-1.5 bg-white border border-slate-200 rounded hover:border-blue-500 hover:text-blue-600 text-left transition"
+            className="p-2.5 bg-slate-800/90 border border-slate-700/80 rounded-xl hover:border-blue-500 hover:bg-slate-700/60 text-left transition shadow-2xs active:scale-[0.98] focus:outline-hidden"
           >
-            <strong>Admin</strong>
-            <span className="block text-[10px] text-slate-400">admin@acme</span>
+            <strong className="block text-white font-bold">Admin</strong>
+            <span className="block text-[10px] text-slate-400 truncate">admin@acme</span>
           </button>
           <button
             type="button"
             onClick={() => applyPreset('manager@acme.com', 'acme-sales', false)}
-            className="p-1.5 bg-white border border-slate-200 rounded hover:border-blue-500 hover:text-blue-600 text-left transition"
+            className="p-2.5 bg-slate-800/90 border border-slate-700/80 rounded-xl hover:border-blue-500 hover:bg-slate-700/60 text-left transition shadow-2xs active:scale-[0.98] focus:outline-hidden"
           >
-            <strong>Manager</strong>
-            <span className="block text-[10px] text-slate-400">manager@acme</span>
+            <strong className="block text-white font-bold">Manager</strong>
+            <span className="block text-[10px] text-slate-400 truncate">manager@acme</span>
           </button>
           <button
             type="button"
             onClick={() => applyPreset('alice@acme.com', 'acme-sales', false)}
-            className="p-1.5 bg-white border border-slate-200 rounded hover:border-blue-500 hover:text-blue-600 text-left transition"
+            className="p-2.5 bg-slate-800/90 border border-slate-700/80 rounded-xl hover:border-blue-500 hover:bg-slate-700/60 text-left transition shadow-2xs active:scale-[0.98] focus:outline-hidden"
           >
-            <strong>Employee</strong>
-            <span className="block text-[10px] text-slate-400">alice@acme</span>
+            <strong className="block text-white font-bold">Employee</strong>
+            <span className="block text-[10px] text-slate-400 truncate">alice@acme</span>
           </button>
           <button
             type="button"
             onClick={() => applyPreset('superadmin@platform.com', '', true)}
-            className="p-1.5 bg-white border border-slate-200 rounded hover:border-blue-500 hover:text-blue-600 text-left transition"
+            className="p-2.5 bg-slate-800/90 border border-slate-700/80 rounded-xl hover:border-blue-500 hover:bg-slate-700/60 text-left transition shadow-2xs active:scale-[0.98] focus:outline-hidden"
           >
-            <strong>Super Admin</strong>
-            <span className="block text-[10px] text-slate-400">superadmin@</span>
+            <strong className="block text-white font-bold">Super Admin</strong>
+            <span className="block text-[10px] text-slate-400 truncate">superadmin@</span>
           </button>
         </div>
       </div>
 
       {/* Error Message Alert */}
       {error && (
-        <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-700 flex items-start space-x-2">
-          <AlertCircle className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
-          <div>
-            <p className="font-semibold">Sign In Failed</p>
-            <p className="mt-0.5">{error}</p>
+        <div className="p-3.5 bg-rose-950/60 border border-rose-800/80 rounded-xl text-xs text-rose-300 flex items-start space-x-2.5 animate-in fade-in duration-150">
+          <AlertCircle className="w-4 h-4 text-rose-400 mt-0.5 shrink-0" />
+          <div className="min-w-0 flex-1">
+            <p className="font-bold text-rose-200">Sign In Failed</p>
+            <p className="mt-0.5 leading-snug break-words text-rose-300/90">{error}</p>
           </div>
         </div>
       )}
@@ -111,26 +121,26 @@ export function LoginForm() {
       {/* Main Login Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Organization Mode Toggle */}
-        <div className="flex items-center justify-between py-1 text-xs text-slate-600">
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={isSuperAdmin}
-              onChange={(e) => setIsSuperAdmin(e.target.checked)}
-              className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-3.5 h-3.5"
-            />
-            <span>I am a Platform Super Admin (no organization slug)</span>
-          </label>
-        </div>
+        <label className="flex items-start sm:items-center space-x-2.5 cursor-pointer p-3 rounded-xl bg-slate-900/70 hover:bg-slate-900/90 border border-slate-700/80 transition select-none text-xs text-slate-300">
+          <input
+            type="checkbox"
+            checked={isSuperAdmin}
+            onChange={(e) => setIsSuperAdmin(e.target.checked)}
+            className="rounded border-slate-600 bg-slate-800 text-blue-600 focus:ring-blue-500/30 w-4 h-4 mt-0.5 sm:mt-0 shrink-0"
+          />
+          <span className="font-medium leading-tight">
+            Platform Super Admin <span className="text-slate-400 font-normal">(no organization slug required)</span>
+          </span>
+        </label>
 
         {/* Organization Slug Field */}
         {!isSuperAdmin && (
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-slate-300">
               Organization Slug
             </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+            <div className="relative rounded-xl shadow-2xs">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
                 <Building className="w-4 h-4" />
               </div>
               <input
@@ -139,20 +149,20 @@ export function LoginForm() {
                 value={organizationSlug}
                 onChange={(e) => setOrganizationSlug(e.target.value)}
                 placeholder="acme-sales"
-                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                className="w-full pl-9 pr-3 py-2.5 sm:py-2.5 text-base sm:text-sm bg-slate-900/90 border border-slate-700 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition"
               />
             </div>
-            <p className="text-[11px] text-slate-400 mt-1">Example: acme-sales</p>
+            <p className="text-[11px] text-slate-500">Example: acme-sales</p>
           </div>
         )}
 
         {/* Email Address Field */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
+        <div className="space-y-1.5">
+          <label className="block text-xs font-semibold text-slate-300">
             Email Address
           </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+          <div className="relative rounded-xl shadow-2xs">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
               <Mail className="w-4 h-4" />
             </div>
             <input
@@ -161,46 +171,61 @@ export function LoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@company.com"
-              className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+              className="w-full pl-9 pr-3 py-2.5 sm:py-2.5 text-base sm:text-sm bg-slate-900/90 border border-slate-700 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition"
             />
           </div>
         </div>
 
-        {/* Password Field */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
+        {/* Password Field with Show/Hide Toggle */}
+        <div className="space-y-1.5">
+          <label className="block text-xs font-semibold text-slate-300">
             Password
           </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+          <div className="relative rounded-xl shadow-2xs">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
               <Lock className="w-4 h-4" />
             </div>
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••••••"
-              className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+              className="w-full pl-9 pr-10 py-2.5 sm:py-2.5 text-base sm:text-sm bg-slate-900/90 border border-slate-700 rounded-xl text-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none transition"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-200 transition focus:outline-hidden"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              tabIndex={-1}
+            >
+              {showPassword ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </button>
           </div>
         </div>
 
         {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-2.5 px-4 text-sm font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition flex items-center justify-center space-x-2 disabled:opacity-60 shadow-sm"
-        >
-          {loading ? (
-            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-          ) : (
-            <>
-              <span>Sign In</span>
-              <ArrowRight className="w-4 h-4" />
-            </>
-          )}
-        </button>
+        <div className="pt-2">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 px-4 text-sm font-bold rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white transition flex items-center justify-center space-x-2 disabled:opacity-60 shadow-lg shadow-blue-600/30 active:scale-[0.99] focus:outline-hidden"
+          >
+            {loading ? (
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <>
+                <span>Sign In</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from '../../../components/ui/Modal.jsx';
 import { Input } from '../../../components/ui/Input.jsx';
+import { PhoneInput } from '../../../components/ui/PhoneInput.jsx';
 import { Select } from '../../../components/ui/Select.jsx';
 import { Textarea } from '../../../components/ui/Textarea.jsx';
 import { Button } from '../../../components/ui/Button.jsx';
@@ -156,9 +157,9 @@ export function LeadForm({
             onChange={(e) => handleChange('email', e.target.value)}
             error={errors.email}
           />
-          <Input
+          <PhoneInput
             label="Phone Number"
-            placeholder="+1-555-0199"
+            name="phone"
             value={formData.phone}
             onChange={(e) => handleChange('phone', e.target.value)}
           />

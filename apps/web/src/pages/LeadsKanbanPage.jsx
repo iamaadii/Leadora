@@ -137,7 +137,7 @@ export function LeadsKanbanPage() {
           { label: 'Kanban Board' },
         ]}
         actions={
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80">
               <Button
                 variant="ghost"

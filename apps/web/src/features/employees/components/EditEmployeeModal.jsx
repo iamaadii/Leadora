@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from '../../../components/ui/Modal.jsx';
 import { Input } from '../../../components/ui/Input.jsx';
+import { PhoneInput } from '../../../components/ui/PhoneInput.jsx';
 import { Button } from '../../../components/ui/Button.jsx';
 
 export function EditEmployeeModal({ isOpen, onClose, employee, onSubmit, isSubmitting }) {
@@ -65,17 +66,12 @@ export function EditEmployeeModal({ isOpen, onClose, employee, onSubmit, isSubmi
           </div>
         </div>
 
-        <div>
-          <label className="block text-xs font-medium text-slate-700 mb-1">
-            Phone Number
-          </label>
-          <Input
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            placeholder="+1 (555) 000-0000"
-          />
-        </div>
+        <PhoneInput
+          label="Phone Number"
+          name="phone"
+          value={formData.phone}
+          onChange={handleChange}
+        />
 
         <div className="flex justify-end gap-2 pt-4 border-t border-slate-100">
           <Button type="button" variant="ghost" onClick={onClose}>

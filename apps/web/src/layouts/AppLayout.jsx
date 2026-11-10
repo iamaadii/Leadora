@@ -67,7 +67,7 @@ export function AppLayout() {
 
       {/* Footer */}
       <footer className="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400">
-        Leadora &bull; Pure JavaScript ES Modules &bull; JWT & Argon2 Auth
+        Leadora &bull; Intelligent Lead Management & CRM SaaS
       </footer>
     </div>
   );

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal } from '../../../components/ui/Modal.jsx';
 import { Input } from '../../../components/ui/Input.jsx';
+import { PhoneInput } from '../../../components/ui/PhoneInput.jsx';
 import { Select } from '../../../components/ui/Select.jsx';
 import { Button } from '../../../components/ui/Button.jsx';
 import { RefreshCw, KeyRound } from 'lucide-react';
@@ -86,17 +87,12 @@ export function CreateEmployeeModal({ isOpen, onClose, onSubmit, isSubmitting })
           />
         </div>
 
-        <div>
-          <label className="block text-xs font-medium text-slate-700 mb-1">
-            Phone Number
-          </label>
-          <Input
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            placeholder="+1 (555) 000-0000"
-          />
-        </div>
+        <PhoneInput
+          label="Phone Number"
+          name="phone"
+          value={formData.phone}
+          onChange={handleChange}
+        />
 
         <div>
           <label className="block text-xs font-medium text-slate-700 mb-1">

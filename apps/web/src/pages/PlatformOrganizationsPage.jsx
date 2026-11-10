@@ -15,6 +15,8 @@ import {
   Power,
   PowerOff,
   ShieldAlert,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import {
   usePlatformOrganizations,
@@ -27,6 +29,7 @@ export function PlatformOrganizationsPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
+  const [expandedOrgId, setExpandedOrgId] = useState(null);
 
   const { data, isLoading, error } = usePlatformOrganizations({
     search: search || undefined,
@@ -218,71 +221,174 @@ export function PlatformOrganizationsPage() {
             />
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-600 uppercase tracking-wider font-semibold">
-                <tr>
-                  <th className="py-3 px-4">Organization</th>
-                  <th className="py-3 px-4">Slug (Tenant ID)</th>
-                  <th className="py-3 px-4">Currency / Timezone</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">Created Date</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {organizations.map((org) => {
-                  const isActive = org.status === 'ACTIVE';
-                  return (
-                    <tr key={org.id} className="hover:bg-slate-50/60 transition">
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center space-x-2.5">
-                          <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0">
-                            {org.name?.[0] || 'O'}
-                          </div>
-                          <div>
-                            <span className="font-bold text-slate-900 block">
-                              {org.name}
-                            </span>
-                          </div>
+          <>
+            {/* Mobile View: Concise Summary Cards with Progressive Disclosure */}
+            <div className="sm:hidden divide-y divide-slate-100">
+              {organizations.map((org) => {
+                const isActive = org.status === 'ACTIVE';
+                const isExpanded = expandedOrgId === org.id;
+
+                return (
+                  <div key={org.id} className="p-4 space-y-3">
+                    <div
+                      onClick={() => setExpandedOrgId(isExpanded ? null : org.id)}
+                      className="flex items-center justify-between cursor-pointer gap-2"
+                    >
+                      <div className="flex items-center space-x-3 min-w-0">
+                        <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 shadow-xs border border-blue-100/60">
+                          {org.name?.[0] || 'O'}
                         </div>
-                      </td>
-                      <td className="py-3.5 px-4 font-mono text-slate-600">
-                        @{org.slug}
-                      </td>
-                      <td className="py-3.5 px-4 text-slate-600">
-                        <span className="font-semibold text-slate-800">{org.currency || 'USD'}</span>
-                        <span className="text-slate-400 text-[11px] block">{org.timezone || 'America/New_York'}</span>
-                      </td>
-                      <td className="py-3.5 px-4">
+                        <div className="min-w-0">
+                          <h4 className="text-sm font-bold text-slate-900 truncate">
+                            {org.name}
+                          </h4>
+                          <span className="text-xs font-mono text-slate-500">
+                            @{org.slug}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-2 shrink-0">
                         <Badge
                           variant={isActive ? 'success' : 'danger'}
-                          size="sm"
+                          size="xs"
                           dot
                         >
                           {org.status}
                         </Badge>
-                      </td>
-                      <td className="py-3.5 px-4 text-slate-500">
-                        {org.created_at ? new Date(org.created_at).toLocaleDateString() : '—'}
-                      </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <Button
-                          variant={isActive ? 'ghost' : 'outline'}
-                          size="xs"
-                          leftIcon={isActive ? PowerOff : Power}
-                          className={isActive ? 'text-rose-600 hover:text-rose-700 hover:bg-rose-50' : 'text-emerald-600 hover:text-emerald-700'}
-                          onClick={() => handleStatusToggle(org)}
+                        <button
+                          type="button"
+                          className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+                          aria-label={isExpanded ? 'Collapse details' : 'Expand details'}
                         >
-                          {isActive ? 'Suspend' : 'Reactivate'}
-                        </Button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                          {isExpanded ? (
+                            <ChevronUp className="w-4 h-4" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Progressive Disclosure: Revealed on Click */}
+                    {isExpanded && (
+                      <div className="pt-2.5 pb-1 border-t border-slate-100 space-y-3 text-xs animate-in fade-in duration-150">
+                        <div className="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                          <div>
+                            <span className="text-[10px] text-slate-400 font-semibold uppercase block">
+                              Currency
+                            </span>
+                            <span className="font-bold text-slate-800">
+                              {org.currency || 'USD'}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-400 font-semibold uppercase block">
+                              Timezone
+                            </span>
+                            <span className="font-medium text-slate-700 truncate block">
+                              {org.timezone || 'America/New_York'}
+                            </span>
+                          </div>
+                          <div className="col-span-2 pt-1 border-t border-slate-200/60">
+                            <span className="text-[10px] text-slate-400 font-semibold uppercase block">
+                              Provisioned On
+                            </span>
+                            <span className="text-slate-600 font-medium">
+                              {org.created_at ? new Date(org.created_at).toLocaleDateString() : '—'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-end pt-1">
+                          <Button
+                            variant={isActive ? 'ghost' : 'outline'}
+                            size="sm"
+                            leftIcon={isActive ? PowerOff : Power}
+                            className={`w-full justify-center ${
+                              isActive
+                                ? 'text-rose-600 hover:text-rose-700 hover:bg-rose-50 border border-rose-200'
+                                : 'text-emerald-600 hover:text-emerald-700'
+                            }`}
+                            onClick={() => handleStatusToggle(org)}
+                          >
+                            {isActive ? 'Suspend Organization' : 'Reactivate Organization'}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop View: Full Table */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-600 uppercase tracking-wider font-semibold">
+                  <tr>
+                    <th className="py-3 px-4">Organization</th>
+                    <th className="py-3 px-4">Slug (Tenant ID)</th>
+                    <th className="py-3 px-4">Currency / Timezone</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-4">Created Date</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {organizations.map((org) => {
+                    const isActive = org.status === 'ACTIVE';
+                    return (
+                      <tr key={org.id} className="hover:bg-slate-50/60 transition">
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center space-x-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0">
+                              {org.name?.[0] || 'O'}
+                            </div>
+                            <div>
+                              <span className="font-bold text-slate-900 block">
+                                {org.name}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4 font-mono text-slate-600">
+                          @{org.slug}
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-600">
+                          <span className="font-semibold text-slate-800">{org.currency || 'USD'}</span>
+                          <span className="text-slate-400 text-[11px] block">{org.timezone || 'America/New_York'}</span>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <Badge
+                            variant={isActive ? 'success' : 'danger'}
+                            size="sm"
+                            dot
+                          >
+                            {org.status}
+                          </Badge>
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-500">
+                          {org.created_at ? new Date(org.created_at).toLocaleDateString() : '—'}
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <Button
+                            variant={isActive ? 'ghost' : 'outline'}
+                            size="xs"
+                            leftIcon={isActive ? PowerOff : Power}
+                            className={isActive ? 'text-rose-600 hover:text-rose-700 hover:bg-rose-50' : 'text-emerald-600 hover:text-emerald-700'}
+                            onClick={() => handleStatusToggle(org)}
+                          >
+                            {isActive ? 'Suspend' : 'Reactivate'}
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
 
         {/* Pagination */}

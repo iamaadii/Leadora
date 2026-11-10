@@ -138,10 +138,11 @@ export function Sidebar({
   const isDemo = Boolean(isDemoProp || user?.isDemo || user?.role === 'DEMO');
   const userRole = isDemo ? 'DEMO' : user?.role || 'EMPLOYEE';
 
-  const organizationName =
-    user?.organization?.name ||
-    user?.organizationName ||
-    (userRole === 'SUPER_ADMIN' ? 'Platform Administration' : 'Leadora Workspace');
+  const organizationName = isDemo
+    ? 'Demo Workspace'
+    : user?.organization?.name ||
+      user?.organizationName ||
+      (userRole === 'SUPER_ADMIN' ? 'Platform Administration' : 'Leadora Workspace');
 
   // Filter navigation items based on current authenticated role or demo status
   const visibleNavItems = isDemo
@@ -151,14 +152,18 @@ export function Sidebar({
   const sidebarContent = (
     <div className="flex flex-col h-full bg-white border-r border-slate-200 select-none">
       {/* Brand Header */}
-      <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200/80 shrink-0">
+      <div
+        className={`h-16 flex items-center border-b border-slate-200/80 shrink-0 ${
+          isCollapsed ? 'justify-center px-2' : 'justify-between px-4'
+        }`}
+      >
         <Link
           to={isDemo ? '/demo' : '/dashboard'}
           className="flex items-center overflow-hidden group min-w-0"
           onClick={() => setIsMobileOpen?.(false)}
         >
           {isCollapsed ? (
-            <BrandLogo variant="icon" size="sm" />
+            <BrandLogo variant="icon" size="md" />
           ) : (
             <BrandLogo
               variant="full"
@@ -193,6 +198,8 @@ export function Sidebar({
             <NavLink
               key={item.name}
               to={item.href}
+              end={item.href === '/demo' || item.href === '/dashboard'}
+              aria-label={item.name}
               onClick={() => setIsMobileOpen?.(false)}
               className={({ isActive }) =>
                 `flex items-center rounded-xl text-xs font-semibold transition-all duration-150 ${
@@ -230,7 +237,7 @@ export function Sidebar({
 
           if (isCollapsed) {
             return (
-              <Tooltip key={item.name} content={item.name} position="right">
+              <Tooltip key={item.name} content={item.name} position="right" className="w-full justify-center">
                 {navLink}
               </Tooltip>
             );
@@ -243,17 +250,28 @@ export function Sidebar({
       {/* Bottom Profile Preview & Collapse Toggle */}
       <div className="p-3 border-t border-slate-200/80 bg-slate-50/50 space-y-2 shrink-0">
         {/* User Mini Summary */}
-        <Link
-          to="/profile"
-          onClick={() => setIsMobileOpen?.(false)}
-          className={`flex items-center rounded-xl p-2 transition hover:bg-white border border-transparent hover:border-slate-200 ${
-            isCollapsed ? 'justify-center' : 'space-x-3'
-          }`}
-        >
-          <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs shrink-0">
-            {user?.firstName?.[0] || <User className="w-4 h-4" />}
-          </div>
-          {!isCollapsed && (
+        {isCollapsed ? (
+          <Tooltip content="My Profile" position="right" className="w-full justify-center">
+            <Link
+              to="/profile"
+              onClick={() => setIsMobileOpen?.(false)}
+              className="flex items-center justify-center rounded-xl p-2 transition hover:bg-white border border-transparent hover:border-slate-200"
+              aria-label="My Profile"
+            >
+              <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs shrink-0">
+                {user?.firstName?.[0] || <User className="w-4 h-4" />}
+              </div>
+            </Link>
+          </Tooltip>
+        ) : (
+          <Link
+            to="/profile"
+            onClick={() => setIsMobileOpen?.(false)}
+            className="flex items-center rounded-xl p-2 transition hover:bg-white border border-transparent hover:border-slate-200 space-x-3"
+          >
+            <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs shrink-0">
+              {user?.firstName?.[0] || <User className="w-4 h-4" />}
+            </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-slate-900 truncate">
                 {user?.firstName} {user?.lastName}
@@ -263,26 +281,33 @@ export function Sidebar({
                 <span className="truncate">{userRole}</span>
               </div>
             </div>
-          )}
-        </Link>
+          </Link>
+        )}
 
         {/* Desktop Collapse Toggle Button */}
         <div className="hidden lg:flex justify-end">
-          <button
-            type="button"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="w-full flex items-center justify-center p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-white hover:border hover:border-slate-200 transition text-xs font-medium space-x-1"
-            title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            {isCollapsed ? (
-              <ChevronRight className="w-4 h-4" />
-            ) : (
-              <>
-                <ChevronLeft className="w-4 h-4" />
-                <span className="text-[11px] text-slate-500">Collapse</span>
-              </>
-            )}
-          </button>
+          {isCollapsed ? (
+            <Tooltip content="Expand sidebar" position="right" className="w-full justify-center">
+              <button
+                type="button"
+                onClick={() => setIsCollapsed(false)}
+                className="w-full flex items-center justify-center p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-white hover:border hover:border-slate-200 transition text-xs font-medium"
+                aria-label="Expand sidebar"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </Tooltip>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsCollapsed(true)}
+              className="w-full flex items-center justify-center p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-white hover:border hover:border-slate-200 transition text-xs font-medium space-x-1"
+              aria-label="Collapse sidebar"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span className="text-[11px] text-slate-500">Collapse</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Skeleton } from '../../../components/ui/Skeleton.jsx';
 import { Avatar } from '../../../components/ui/Avatar.jsx';
-import { UserCheck } from 'lucide-react';
+import { UserCheck, ChevronDown, ChevronUp } from 'lucide-react';
 
 export function EmployeePerformanceTable({ employees = [], isLoading = false }) {
+  const [expandedEmpId, setExpandedEmpId] = useState(null);
   if (isLoading) {
     return (
       <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
@@ -33,7 +34,90 @@ export function EmployeePerformanceTable({ employees = [], isLoading = false }) 
         <span className="text-xs text-slate-400 font-medium">{employees.length} member(s)</span>
       </div>
 
-      <div className="overflow-x-auto">
+      {/* Mobile Progressive Disclosure Card View */}
+      <div className="sm:hidden divide-y divide-slate-100">
+        {employees.map((emp) => {
+          const nameParts = (emp.name || 'User').split(' ');
+          const fName = nameParts[0] || 'U';
+          const lName = nameParts[1] || '';
+          const isExpanded = expandedEmpId === emp.employeeId;
+
+          return (
+            <div key={emp.employeeId} className="p-4 space-y-2.5">
+              <div
+                onClick={() => setExpandedEmpId(isExpanded ? null : emp.employeeId)}
+                className="flex items-center justify-between cursor-pointer gap-2"
+              >
+                <div className="flex items-center space-x-2.5 min-w-0">
+                  <Avatar firstName={fName} lastName={lName} size="xs" />
+                  <div className="min-w-0">
+                    <div className="font-bold text-slate-900 text-sm truncate">{emp.name}</div>
+                    <div className="text-[11px] text-slate-500 truncate flex items-center gap-1.5">
+                      <span className="px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 font-medium text-[10px]">
+                        {emp.teamName}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2 shrink-0">
+                  <span className="font-bold text-xs text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-100">
+                    {emp.conversionRate}%
+                  </span>
+                  <button
+                    type="button"
+                    className="p-1 rounded-lg text-slate-400 hover:text-slate-700 transition"
+                    aria-label={isExpanded ? 'Collapse' : 'Expand'}
+                  >
+                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {isExpanded && (
+                <div className="pt-2.5 border-t border-slate-100 space-y-2.5 text-xs animate-in fade-in duration-150">
+                  <p className="text-slate-400 text-[11px] truncate">
+                    {emp.email}
+                  </p>
+
+                  <div className="grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
+                    <div>
+                      <span className="text-[10px] text-slate-400 uppercase font-semibold block">Active Leads</span>
+                      <span className="font-bold text-blue-600 text-sm">{emp.activeLeads}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 uppercase font-semibold block">Won Deals</span>
+                      <span className="font-bold text-emerald-600 text-sm">{emp.convertedLeads}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 uppercase font-semibold block">Lost</span>
+                      <span className="font-bold text-slate-400 text-sm">{emp.lostLeads}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs px-1 text-slate-600">
+                    <span>
+                      Pending Tasks:{' '}
+                      <strong className="text-slate-800">{emp.pendingFollowups}</strong>
+                      {emp.overdueFollowups > 0 && (
+                        <span className="ml-1 text-[10px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded-full border border-rose-100">
+                          {emp.overdueFollowups} overdue
+                        </span>
+                      )}
+                    </span>
+                    <span>
+                      Completed: <strong className="text-blue-600 font-mono">{emp.completedFollowupsInPeriod}</strong>
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop Full Table View */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
             <tr className="bg-slate-50/70 border-b border-slate-100 text-slate-500 font-semibold uppercase text-[10px] tracking-wider">

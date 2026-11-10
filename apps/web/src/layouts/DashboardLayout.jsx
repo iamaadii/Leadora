@@ -3,7 +3,6 @@ import { Outlet } from 'react-router-dom';
 import { useAuth } from '../features/auth/hooks/useAuth.js';
 import { Sidebar } from './Sidebar.jsx';
 import { Topbar } from './Topbar.jsx';
-import { DemoBanner } from '../components/demo/DemoBanner.jsx';
 import { ErrorBoundary } from '../components/feedback/ErrorBoundary.jsx';
 
 export function DashboardLayout() {
@@ -14,7 +13,6 @@ export function DashboardLayout() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      {isDemo && <DemoBanner />}
       <div className="flex-1 flex min-h-0">
         {/* Sidebar Navigation */}
         <Sidebar
@@ -26,8 +24,8 @@ export function DashboardLayout() {
         />
 
         {/* Main Layout Container */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
-          {/* Top Header Bar */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Top Header Bar - Sticky Top-0 Header */}
           <Topbar onToggleMobileSidebar={() => setIsMobileOpen(true)} />
 
           {/* Page Content Viewport */}

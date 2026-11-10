@@ -11,6 +11,7 @@ import { TeamCard } from '../components/TeamCard.jsx';
 import { CreateTeamModal } from '../components/CreateTeamModal.jsx';
 import { EditTeamModal } from '../components/EditTeamModal.jsx';
 import { ManageMembersModal } from '../components/ManageMembersModal.jsx';
+import { ConfirmationDialog } from '../../../components/ui/ConfirmationDialog.jsx';
 import {
   Users2,
   Plus,
@@ -36,6 +37,7 @@ export function TeamsPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingTeam, setEditingTeam] = useState(null);
   const [managingMembersTeam, setManagingMembersTeam] = useState(null);
+  const [confirmToggleTeam, setConfirmToggleTeam] = useState(null);
 
   // Query teams
   const { data, isLoading } = useTeams({
@@ -63,13 +65,20 @@ export function TeamsPage() {
   const totalMembers = teams.reduce((acc, t) => acc + (t.member_count || 0), 0);
   const totalTeamLeads = teams.reduce((acc, t) => acc + (t.active_leads_count || 0), 0);
 
-  const handleToggleActive = async (team) => {
-    if (team.is_active) {
-      if (window.confirm(`Are you sure you want to deactivate team "${team.name}"? Active members will be unassigned.`)) {
-        await deactivateTeam(team.id);
+  const handleToggleActive = (team) => {
+    setConfirmToggleTeam(team);
+  };
+
+  const handleConfirmToggleActive = async () => {
+    if (!confirmToggleTeam) return;
+    try {
+      if (confirmToggleTeam.is_active) {
+        await deactivateTeam(confirmToggleTeam.id);
+      } else {
+        await activateTeam(confirmToggleTeam.id);
       }
-    } else {
-      await activateTeam(team.id);
+    } finally {
+      setConfirmToggleTeam(null);
     }
   };
 
@@ -267,6 +276,22 @@ export function TeamsPage() {
           />
         </>
       )}
+
+      {/* Team Deactivation / Reactivation Confirmation Dialog with Centered Blur */}
+      <ConfirmationDialog
+        isOpen={Boolean(confirmToggleTeam)}
+        onClose={() => setConfirmToggleTeam(null)}
+        onConfirm={handleConfirmToggleActive}
+        title={confirmToggleTeam?.is_active ? 'Deactivate Team?' : 'Reactivate Team?'}
+        message={
+          confirmToggleTeam?.is_active
+            ? `Are you sure you want to deactivate team "${confirmToggleTeam.name}"? Active members will be unassigned from this team.`
+            : `Are you sure you want to reactivate team "${confirmToggleTeam?.name}"?`
+        }
+        confirmText={confirmToggleTeam?.is_active ? 'Deactivate Team' : 'Reactivate Team'}
+        isDestructive={Boolean(confirmToggleTeam?.is_active)}
+        isLoading={isUpdating}
+      />
     </div>
   );
 }

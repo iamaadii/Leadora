@@ -27,6 +27,11 @@ export function ActivitiesPage() {
   const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
   const [filterType, setFilterType] = useState('');
   const [page, setPage] = useState(1);
+  const [expandedId, setExpandedId] = useState(null);
+
+  const toggleExpand = (id) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  };
 
   const { data, isLoading, isFetching, refetch } = useActivities({
     type: filterType || undefined,
@@ -45,19 +50,28 @@ export function ActivitiesPage() {
   const getActivityIcon = (type) => {
     switch (type) {
       case 'CALL_LOGGED':
+      case 'CALL':
         return <Phone className="w-4 h-4 text-emerald-600" />;
       case 'EMAIL_SENT':
+      case 'EMAIL':
         return <Mail className="w-4 h-4 text-blue-600" />;
       case 'NOTE_ADDED':
+      case 'NOTE':
         return <FileText className="w-4 h-4 text-amber-600" />;
       case 'STATUS_CHANGED':
+      case 'STATUS_CHANGE':
+      case 'LEAD_STATUS_CHANGED':
         return <GitCommit className="w-4 h-4 text-purple-600" />;
       case 'FOLLOWUP_CREATED':
+      case 'FOLLOWUP_UPDATED':
+      case 'FOLLOWUP_RESCHEDULED':
         return <Clock className="w-4 h-4 text-indigo-600" />;
       case 'FOLLOWUP_COMPLETED':
         return <CheckCircle2 className="w-4 h-4 text-emerald-600" />;
       case 'LEAD_CREATED':
       case 'LEAD_ASSIGNED':
+      case 'LEAD_UPDATED':
+      case 'LEAD_RESTORED':
         return <Target className="w-4 h-4 text-blue-600" />;
       default:
         return <Activity className="w-4 h-4 text-slate-600" />;
@@ -115,14 +129,14 @@ export function ActivitiesPage() {
           className="w-full sm:w-60"
         >
           <option value="">All Activity Types</option>
-          <option value="STATUS_CHANGED">Stage Changes</option>
-          <option value="NOTE_ADDED">Notes Added</option>
-          <option value="CALL_LOGGED">Calls Logged</option>
-          <option value="EMAIL_SENT">Emails Sent</option>
-          <option value="FOLLOWUP_CREATED">Tasks Scheduled</option>
-          <option value="FOLLOWUP_COMPLETED">Tasks Completed</option>
+          <option value="LEAD_STATUS_CHANGED">Stage Changes</option>
           <option value="LEAD_CREATED">Leads Created</option>
           <option value="LEAD_ASSIGNED">Leads Reassigned</option>
+          <option value="FOLLOWUP_CREATED">Tasks Scheduled</option>
+          <option value="FOLLOWUP_COMPLETED">Tasks Completed</option>
+          <option value="CALL_LOGGED">Calls Logged</option>
+          <option value="EMAIL_SENT">Emails Sent</option>
+          <option value="NOTE_ADDED">Notes Added</option>
         </Select>
       </div>
 
@@ -143,9 +157,11 @@ export function ActivitiesPage() {
         ) : (
           <div className="divide-y divide-slate-100">
             {activities.map((act) => {
-              const actorName = act.performed_by_name || act.user_name || 'System';
-              const leadName = act.lead_name || 'Direct Contact';
-              const leadId = act.lead_id;
+              const actorName = act.actorName || act.actor_name || act.performed_by_name || act.user_name || 'System';
+              const leadName = act.leadName || act.lead_name || 'Direct Contact';
+              const leadId = act.leadId || act.lead_id;
+              const description = act.description || act.details || '';
+              const createdAt = act.createdAt || act.created_at;
 
               return (
                 <div
@@ -153,7 +169,7 @@ export function ActivitiesPage() {
                   className="p-4 sm:p-5 hover:bg-slate-50/70 transition flex items-start space-x-3.5"
                 >
                   <div className="p-2.5 rounded-xl bg-slate-100 shrink-0 mt-0.5">
-                    {getActivityIcon(act.activity_type || act.type)}
+                    {getActivityIcon(act.activityType || act.activity_type || act.type)}
                   </div>
 
                   <div className="flex-1 min-w-0 space-y-1">
@@ -165,7 +181,7 @@ export function ActivitiesPage() {
 
                       <span>•</span>
                       <span className="font-semibold text-slate-700 capitalize">
-                        {(act.activity_type || act.type || 'activity').toLowerCase().replace(/_/g, ' ')}
+                        {(act.activityType || act.activity_type || act.type || 'activity').toLowerCase().replace(/_/g, ' ')}
                       </span>
 
                       {leadId && (
@@ -181,14 +197,30 @@ export function ActivitiesPage() {
                       )}
                     </div>
 
-                    {act.details && (
-                      <p className="text-xs text-slate-700 leading-relaxed font-sans bg-slate-50/80 p-2.5 rounded-xl border border-slate-100 max-w-2xl break-words">
-                        {act.details}
-                      </p>
+                    {description && (
+                      <div>
+                        <div
+                          onClick={() => toggleExpand(act.id)}
+                          className={`text-xs text-slate-700 leading-relaxed font-sans bg-slate-50/80 p-2.5 rounded-xl border border-slate-100 max-w-2xl break-words cursor-pointer transition ${
+                            expandedId === act.id ? '' : 'line-clamp-2 sm:line-clamp-none'
+                          }`}
+                        >
+                          {description}
+                        </div>
+                        {description.length > 80 && (
+                          <button
+                            type="button"
+                            onClick={() => toggleExpand(act.id)}
+                            className="text-[11px] font-bold text-blue-600 hover:text-blue-800 sm:hidden mt-0.5"
+                          >
+                            {expandedId === act.id ? 'Show less' : 'View all details'}
+                          </button>
+                        )}
+                      </div>
                     )}
 
                     <div className="text-[11px] text-slate-400 pt-0.5">
-                      {formatActivityDate(act.created_at)}
+                      {formatActivityDate(createdAt)}
                     </div>
                   </div>
                 </div>

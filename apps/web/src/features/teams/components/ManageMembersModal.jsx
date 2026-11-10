@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Modal } from '../../../components/ui/Modal.jsx';
+import { ConfirmationDialog } from '../../../components/ui/ConfirmationDialog.jsx';
 import { Select } from '../../../components/ui/Select.jsx';
 import { Button } from '../../../components/ui/Button.jsx';
 import { useTeamRoster, useTeamMutations } from '../hooks/useTeams.js';
@@ -8,6 +9,7 @@ import { UserPlus, UserMinus, Users2 } from 'lucide-react';
 
 export function ManageMembersModal({ isOpen, onClose, team }) {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
+  const [memberToRemove, setMemberToRemove] = useState(null);
   const { data: rosterData, isLoading: isLoadingRoster } = useTeamRoster(team?.id);
   const { addMember, isAddingMember, removeMember, isRemovingMember } = useTeamMutations();
 
@@ -123,8 +125,7 @@ export function ManageMembersModal({ isOpen, onClose, team }) {
                     variant="ghost"
                     size="sm"
                     className="text-rose-600 hover:text-rose-700 hover:bg-rose-50"
-                    onClick={() => handleRemoveMember(member.id)}
-                    isLoading={isRemovingMember}
+                    onClick={() => setMemberToRemove(member)}
                     title="Remove from team"
                   >
                     <UserMinus className="w-4 h-4" />
@@ -141,6 +142,25 @@ export function ManageMembersModal({ isOpen, onClose, team }) {
           </Button>
         </div>
       </div>
+
+      {/* Remove Member Confirmation Dialog with Centered Blur */}
+      <ConfirmationDialog
+        isOpen={Boolean(memberToRemove)}
+        onClose={() => setMemberToRemove(null)}
+        onConfirm={async () => {
+          if (!memberToRemove) return;
+          try {
+            await handleRemoveMember(memberToRemove.id);
+          } finally {
+            setMemberToRemove(null);
+          }
+        }}
+        title="Remove Team Member?"
+        message={`Are you sure you want to remove ${memberToRemove?.first_name} ${memberToRemove?.last_name} from "${team?.name}"?`}
+        confirmText="Remove Member"
+        isDestructive
+        isLoading={isRemovingMember}
+      />
     </Modal>
   );
 }

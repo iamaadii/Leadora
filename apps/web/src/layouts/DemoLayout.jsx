@@ -3,7 +3,6 @@ import { Outlet, Link } from 'react-router-dom';
 import { useAuth } from '../features/auth/hooks/useAuth.js';
 import { Sidebar } from './Sidebar.jsx';
 import { Topbar } from './Topbar.jsx';
-import { DemoBanner } from '../components/demo/DemoBanner.jsx';
 import { ErrorBoundary } from '../components/feedback/ErrorBoundary.jsx';
 import { BrandLogo } from '../components/brand/BrandLogo.jsx';
 import { RefreshCw, AlertCircle, ArrowLeft } from 'lucide-react';
@@ -124,9 +123,6 @@ export function DemoLayout() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      {/* High-visibility persistent Demo Mode banner */}
-      <DemoBanner />
-
       <div className="flex-1 flex min-h-0">
         {/* Sidebar Navigation configured for Demo */}
         <Sidebar
@@ -138,8 +134,8 @@ export function DemoLayout() {
         />
 
         {/* Main Layout Container */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
-          {/* Top Header Bar */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Top Header Bar - Sticky Top-0 Header */}
           <Topbar onToggleMobileSidebar={() => setIsMobileOpen(true)} />
 
           {/* Page Content Viewport */}

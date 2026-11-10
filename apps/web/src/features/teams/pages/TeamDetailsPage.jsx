@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/hooks/useAuth.js';
 import { PageHeader } from '../../../components/ui/PageHeader.jsx';
@@ -13,6 +13,8 @@ import {
   Phone,
   Layers,
   Percent,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 
 export function TeamDetailsPage() {
@@ -20,6 +22,7 @@ export function TeamDetailsPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
+  const [expandedMemberId, setExpandedMemberId] = useState(null);
 
   const { data: teamData, isLoading: isLoadingTeam } = useTeam(id);
   const { data: rosterData } = useTeamRoster(id);
@@ -187,87 +190,176 @@ export function TeamDetailsPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-600">
-            <thead className="bg-slate-50/80 border-b border-slate-200/80 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              <tr>
-                <th className="px-6 py-3.5">Member</th>
-                <th className="px-4 py-3.5 text-center">Total</th>
-                <th className="px-4 py-3.5 text-center">New</th>
-                <th className="px-4 py-3.5 text-center">Contacted</th>
-                <th className="px-4 py-3.5 text-center">Interested</th>
-                <th className="px-4 py-3.5 text-center">Qualified</th>
-                <th className="px-4 py-3.5 text-center">Proposal</th>
-                <th className="px-4 py-3.5 text-center">Won</th>
-                <th className="px-4 py-3.5 text-center">Lost</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {isLoadingWorkload ? (
-                <tr>
-                  <td colSpan={9} className="px-6 py-8 text-center text-xs text-slate-400">
-                    Loading workload breakdown...
-                  </td>
-                </tr>
-              ) : workloadMembers.length === 0 ? (
-                <tr>
-                  <td colSpan={9} className="px-6 py-8 text-center text-xs text-slate-400">
-                    No active members in this team.
-                  </td>
-                </tr>
-              ) : (
-                workloadMembers.map((m) => (
-                  <tr key={m.employee_id} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="px-6 py-3.5">
-                      <div className="font-medium text-slate-900">
-                        {m.first_name} {m.last_name}
+        {isLoadingWorkload ? (
+          <div className="p-8 text-center text-xs text-slate-400">
+            Loading workload breakdown...
+          </div>
+        ) : workloadMembers.length === 0 ? (
+          <div className="p-8 text-center text-xs text-slate-400">
+            No active members in this team.
+          </div>
+        ) : (
+          <>
+            {/* Mobile View: Concise Progressive Disclosure Cards */}
+            <div className="sm:hidden divide-y divide-slate-100">
+              {workloadMembers.map((m) => {
+                const isExpanded = expandedMemberId === m.employee_id;
+
+                return (
+                  <div key={m.employee_id} className="p-4 space-y-2.5">
+                    <div
+                      onClick={() => setExpandedMemberId(isExpanded ? null : m.employee_id)}
+                      className="flex items-center justify-between cursor-pointer gap-2"
+                    >
+                      <div className="min-w-0">
+                        <div className="font-bold text-slate-900 text-sm truncate">
+                          {m.first_name} {m.last_name}
+                        </div>
+                        <div className="text-[11px] text-slate-500 truncate mt-0.5">
+                          {m.email}
+                        </div>
                       </div>
-                      <div className="text-xs text-slate-400">{m.email}</div>
-                    </td>
-                    <td className="px-4 py-3.5 text-center font-bold text-slate-900">
-                      {m.total_leads}
-                    </td>
-                    <td className="px-4 py-3.5 text-center">
-                      <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">
-                        {m.new_leads}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5 text-center">
-                      <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-indigo-50 text-indigo-700">
-                        {m.contacted_leads}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5 text-center">
-                      <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-cyan-50 text-cyan-700">
-                        {m.interested_leads}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5 text-center">
-                      <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700">
-                        {m.qualified_leads}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5 text-center">
-                      <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-amber-50 text-amber-700">
-                        {m.proposal_leads}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5 text-center">
-                      <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-emerald-700">
-                        {m.won_leads}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5 text-center">
-                      <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700">
-                        {m.lost_leads}
-                      </span>
-                    </td>
+
+                      <div className="flex items-center space-x-2 shrink-0">
+                        <span className="font-bold text-xs text-blue-700 bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-100">
+                          {m.total_leads} leads
+                        </span>
+                        <button
+                          type="button"
+                          className="p-1 rounded-lg text-slate-400 hover:text-slate-700 transition"
+                          aria-label={isExpanded ? 'Collapse breakdown' : 'Expand breakdown'}
+                        >
+                          {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {isExpanded && (
+                      <div className="pt-2.5 border-t border-slate-100 space-y-2 text-xs animate-in fade-in duration-150">
+                        <span className="text-[10px] text-slate-400 uppercase font-semibold block">
+                          Stage Distribution Breakdown
+                        </span>
+                        <div className="grid grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-500 text-[11px]">New:</span>
+                            <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-100">
+                              {m.new_leads}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-500 text-[11px]">Contacted:</span>
+                            <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                              {m.contacted_leads}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-500 text-[11px]">Interested:</span>
+                            <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-cyan-50 text-cyan-700 border border-cyan-100">
+                              {m.interested_leads}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-500 text-[11px]">Qualified:</span>
+                            <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-100">
+                              {m.qualified_leads}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-500 text-[11px]">Proposal:</span>
+                            <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-100">
+                              {m.proposal_leads}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-500 text-[11px]">Won:</span>
+                            <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                              {m.won_leads}
+                            </span>
+                          </div>
+                          <div className="col-span-2 flex items-center justify-between pt-1 border-t border-slate-200/60">
+                            <span className="text-rose-600 text-[11px] font-medium">Lost Deals:</span>
+                            <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-100">
+                              {m.lost_leads}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop View: Full 9-Column Table */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full text-left text-sm text-slate-600">
+                <thead className="bg-slate-50/80 border-b border-slate-200/80 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  <tr>
+                    <th className="px-6 py-3.5">Member</th>
+                    <th className="px-4 py-3.5 text-center">Total</th>
+                    <th className="px-4 py-3.5 text-center">New</th>
+                    <th className="px-4 py-3.5 text-center">Contacted</th>
+                    <th className="px-4 py-3.5 text-center">Interested</th>
+                    <th className="px-4 py-3.5 text-center">Qualified</th>
+                    <th className="px-4 py-3.5 text-center">Proposal</th>
+                    <th className="px-4 py-3.5 text-center">Won</th>
+                    <th className="px-4 py-3.5 text-center">Lost</th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {workloadMembers.map((m) => (
+                    <tr key={m.employee_id} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="px-6 py-3.5">
+                        <div className="font-medium text-slate-900">
+                          {m.first_name} {m.last_name}
+                        </div>
+                        <div className="text-xs text-slate-400">{m.email}</div>
+                      </td>
+                      <td className="px-4 py-3.5 text-center font-bold text-slate-900">
+                        {m.total_leads}
+                      </td>
+                      <td className="px-4 py-3.5 text-center">
+                        <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">
+                          {m.new_leads}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5 text-center">
+                        <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-indigo-50 text-indigo-700">
+                          {m.contacted_leads}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5 text-center">
+                        <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-cyan-50 text-cyan-700">
+                          {m.interested_leads}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5 text-center">
+                        <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700">
+                          {m.qualified_leads}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5 text-center">
+                        <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-amber-50 text-amber-700">
+                          {m.proposal_leads}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5 text-center">
+                        <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-emerald-700">
+                          {m.won_leads}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5 text-center">
+                        <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700">
+                          {m.lost_leads}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Active Team Roster */}

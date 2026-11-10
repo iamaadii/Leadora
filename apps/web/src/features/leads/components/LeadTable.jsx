@@ -79,8 +79,64 @@ export function LeadTable({
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col">
-      {/* Table responsive viewport */}
-      <div className="overflow-x-auto">
+      {/* ------------------------------------------------------------- */}
+      {/* Mobile View: Concise Clickable Cards (Progressive Disclosure) */}
+      {/* ------------------------------------------------------------- */}
+      <div className="sm:hidden divide-y divide-slate-100">
+        {leads.map((lead) => {
+          const dealValueFormatted = lead.estimated_value || lead.estimated_deal_value
+            ? `$${Number(lead.estimated_value || lead.estimated_deal_value).toLocaleString()}`
+            : null;
+
+          return (
+            <div
+              key={lead.id}
+              onClick={() => onView(lead.id)}
+              className="p-3.5 flex items-center justify-between gap-3 active:bg-blue-50/50 hover:bg-slate-50 transition cursor-pointer group"
+              role="button"
+              tabIndex={0}
+              aria-label={`View details for ${lead.name}`}
+            >
+              <div className="flex items-center space-x-3 min-w-0 flex-1">
+                <Avatar name={lead.name} size="sm" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-bold text-xs text-slate-900 truncate group-hover:text-blue-600 transition">
+                      {lead.name}
+                    </span>
+                    <LeadStatusBadge status={lead.status} />
+                  </div>
+
+                  <div className="flex items-center space-x-2 text-[11px] text-slate-500 mt-0.5 truncate">
+                    {lead.company ? (
+                      <span className="truncate font-medium text-slate-600">{lead.company}</span>
+                    ) : (
+                      <span className="text-slate-400 italic">No company</span>
+                    )}
+
+                    {dealValueFormatted && (
+                      <>
+                        <span className="text-slate-300">&bull;</span>
+                        <span className="font-bold text-emerald-600 shrink-0">
+                          {dealValueFormatted}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Action indicator arrow */}
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition shrink-0" />
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ------------------------------------------------------------- */}
+      {/* Desktop View: Full Data Table with All Columns                */}
+      {/* ------------------------------------------------------------- */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
             <tr className="bg-slate-50/75 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
@@ -229,8 +285,8 @@ export function LeadTable({
       </div>
 
       {/* Pagination Bar */}
-      <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-        <div>
+      <div className="p-3.5 sm:p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+        <div className="text-center sm:text-left">
           Showing <span className="font-semibold text-slate-800">{startRecord}</span> to{' '}
           <span className="font-semibold text-slate-800">{endRecord}</span> of{' '}
           <span className="font-semibold text-slate-800">{total}</span> leads
@@ -263,4 +319,3 @@ export function LeadTable({
     </div>
   );
 }
-

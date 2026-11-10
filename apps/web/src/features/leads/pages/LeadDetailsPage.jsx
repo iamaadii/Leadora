@@ -306,7 +306,7 @@ export function LeadDetailsPage() {
 
       {/* Archived Alert Banner */}
       {lead.archived_at && (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center justify-between text-xs text-amber-800">
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-amber-800">
           <div className="flex items-center space-x-2">
             <Archive className="w-4 h-4 text-amber-600 shrink-0" />
             <span>

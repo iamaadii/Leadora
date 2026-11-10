@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/hooks/useAuth.js';
 import {
   Building2,
@@ -9,6 +9,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { useToast } from '../../../components/ui/Toast.jsx';
+import { Select } from '../../../components/ui/Select.jsx';
 
 export const KANBAN_STAGES = [
   {
@@ -78,6 +79,7 @@ export function LeadKanbanBoard({
 }) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
 
   const [draggedLeadId, setDraggedLeadId] = useState(null);
@@ -313,8 +315,13 @@ export function LeadKanbanBoard({
                           draggable={!isArchived}
                           onDragStart={(e) => handleDragStart(e, lead.id)}
                           onDragEnd={handleDragEnd}
-                          className={`group bg-white rounded-xl border border-slate-200 p-3.5 shadow-xs hover:shadow-md transition space-y-2.5 ${
-                            !isArchived ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
+                          onClick={(e) => {
+                            if (e.target.tagName !== 'SELECT' && e.target.tagName !== 'BUTTON' && !e.target.closest('select, button')) {
+                              navigate(isDemo ? `/demo/leads/${lead.id}` : `/leads/${lead.id}`);
+                            }
+                          }}
+                          className={`group bg-white rounded-xl border border-slate-200 p-3.5 shadow-xs hover:shadow-md transition space-y-2.5 cursor-pointer ${
+                            !isArchived ? 'active:cursor-grabbing' : ''
                           } ${
                             isBeingDragged ? 'opacity-30 border-dashed border-blue-500 scale-95' : ''
                           }`}
@@ -384,21 +391,17 @@ export function LeadKanbanBoard({
 
                           {/* Quick Stage Mover or Restore Action */}
                           {!isArchived ? (
-                            <div className="pt-1 flex items-center justify-between gap-1 text-[11px]">
-                              <span className="text-[10px] text-slate-400 font-medium">Stage:</span>
-                              <select
+                            <div className="pt-1 flex items-center justify-between gap-1.5 text-[11px]">
+                              <span className="text-[10px] text-slate-400 font-medium shrink-0">Stage:</span>
+                              <Select
+                                size="sm"
                                 value={lead.status || 'NEW'}
                                 onChange={(e) => handleSelectStageChange(lead, e.target.value)}
                                 disabled={isUpdating}
-                                aria-label="Change pipeline stage"
-                                className="text-[11px] font-medium bg-slate-50 border border-slate-200 rounded-md px-1.5 py-0.5 text-slate-700 cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500 max-w-[160px]"
-                              >
-                                {KANBAN_STAGES.map((s) => (
-                                  <option key={s.id} value={s.id}>
-                                    {s.label}
-                                  </option>
-                                ))}
-                              </select>
+                                options={KANBAN_STAGES.map((s) => ({ value: s.id, label: s.label }))}
+                                containerClassName="flex-1 min-w-0"
+                                className="w-full text-[11px]"
+                              />
                             </div>
                           ) : onRestoreLead ? (
                             <div className="pt-1 flex justify-end">
