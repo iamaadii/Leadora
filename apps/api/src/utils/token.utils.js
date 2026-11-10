@@ -18,6 +18,7 @@ export function generateAccessToken(user, customClaims = {}) {
     env.JWT_ACCESS_SECRET,
     {
       expiresIn: env.ACCESS_TOKEN_EXPIRES_IN,
+      algorithm: 'HS256',
     },
   );
 }
@@ -28,7 +29,7 @@ export function generateAccessToken(user, customClaims = {}) {
  * @returns {object} Decoded token payload
  */
 export function verifyAccessToken(token) {
-  return jwt.verify(token, env.JWT_ACCESS_SECRET);
+  return jwt.verify(token, env.JWT_ACCESS_SECRET, { algorithms: ['HS256'] });
 }
 
 /**

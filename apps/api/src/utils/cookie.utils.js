@@ -3,7 +3,7 @@ import { env } from '../config/env.js';
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: env.NODE_ENV === 'production',
-  sameSite: 'lax',
+  sameSite: env.COOKIE_SAME_SITE || 'lax',
   path: '/api/v1/auth',
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
 };
@@ -25,7 +25,7 @@ export function clearRefreshTokenCookie(res) {
   res.clearCookie(env.COOKIE_NAME, {
     httpOnly: true,
     secure: env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: env.COOKIE_SAME_SITE || 'lax',
     path: '/api/v1/auth',
   });
 }

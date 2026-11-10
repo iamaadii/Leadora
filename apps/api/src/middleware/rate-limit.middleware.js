@@ -1,16 +1,17 @@
 import { AppError } from '../errors/app-error.js';
+import { env } from '../config/env.js';
 
 /**
- * Creates an in-memory rate limiting middleware for sensitive endpoints like login.
- * @param {object} options
- * @param {number} [options.windowMs=900000] - Time window in milliseconds (default 15 minutes)
- * @param {number} [options.max=10] - Maximum requests allowed per window
- * @param {string} [options.message='Too many attempts, please try again later']
+ * Creates an in-memory rate limiting middleware for sensitive endpoints.
+ * @param {object} [options]
+ * @param {number} [options.windowMs] - Time window in milliseconds
+ * @param {number} [options.max] - Maximum requests allowed per window
+ * @param {string} [options.message]
  */
 export function rateLimiter({
-  windowMs = 15 * 60 * 1000,
-  max = 10,
-  message = 'Too many requests from this IP, please try again after 15 minutes.',
+  windowMs = env?.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000,
+  max = env?.RATE_LIMIT_AUTH_MAX || 10,
+  message = 'Too many requests from this IP, please try again later.',
 } = {}) {
   const requests = new Map();
 
@@ -24,8 +25,9 @@ export function rateLimiter({
     }
   }, 5 * 60 * 1000).unref();
 
-  return (req, _res, next) => {
-    const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+  return (req, res, next) => {
+    const forwarded = req.headers['x-forwarded-for'];
+    const ip = req.ip || (typeof forwarded === 'string' ? forwarded.split(',')[0].trim() : null) || req.socket?.remoteAddress || 'unknown';
     const now = Date.now();
 
     const record = requests.get(ip);
@@ -41,9 +43,13 @@ export function rateLimiter({
     record.count += 1;
 
     if (record.count > max) {
+      const retryAfterSeconds = Math.max(1, Math.ceil((record.startTime + windowMs - now) / 1000));
+      if (res && typeof res.setHeader === 'function') {
+        res.setHeader('Retry-After', retryAfterSeconds);
+      }
       return next(
         new AppError(message, 429, 'RATE_LIMIT_EXCEEDED', {
-          retryAfterSeconds: Math.ceil((record.startTime + windowMs - now) / 1000),
+          retryAfterSeconds,
         }),
       );
     }

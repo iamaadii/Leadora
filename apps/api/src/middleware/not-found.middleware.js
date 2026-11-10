@@ -4,6 +4,7 @@ export function notFoundMiddleware(req, res) {
     error: {
       code: 'NOT_FOUND',
       message: `Cannot ${req.method} ${req.path}`,
+      requestId: req.id || null,
       timestamp: new Date().toISOString(),
     },
   });

@@ -3,12 +3,20 @@ import { env } from './env.js';
 
 const { Pool } = pg;
 
-export const pool = new Pool({
+const poolConfig = {
   connectionString: env.DATABASE_URL,
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
-});
+};
+
+if (env.DATABASE_SSL) {
+  poolConfig.ssl = {
+    rejectUnauthorized: env.DATABASE_SSL_REJECT_UNAUTHORIZED,
+  };
+}
+
+export const pool = new Pool(poolConfig);
 
 pool.on('error', (err) => {
   console.error('Unexpected PostgreSQL client error on idle client:', err.message);
@@ -45,7 +53,11 @@ export async function withTransaction(callback) {
     await client.query('COMMIT');
     return result;
   } catch (err) {
-    await client.query('ROLLBACK');
+    try {
+      await client.query('ROLLBACK');
+    } catch (rollbackErr) {
+      console.error('Failed to rollback transaction:', rollbackErr.message);
+    }
     throw err;
   } finally {
     client.release();

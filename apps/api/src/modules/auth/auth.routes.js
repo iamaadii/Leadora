@@ -4,14 +4,24 @@ import { validate, loginSchema, changePasswordSchema } from './auth.validation.j
 import { authenticate } from '../../middleware/authenticate.middleware.js';
 import { authorizeRoles } from '../../middleware/authorize.middleware.js';
 import { rateLimiter } from '../../middleware/rate-limit.middleware.js';
+import { env } from '../../config/env.js';
 
 const router = Router();
 
 // Public routes
-router.post('/login', rateLimiter({ max: 10 }), validate(loginSchema), authController.login);
+router.post(
+  '/login',
+  rateLimiter({ max: env.RATE_LIMIT_AUTH_MAX, windowMs: env.RATE_LIMIT_WINDOW_MS }),
+  validate(loginSchema),
+  authController.login,
+);
 router.post('/refresh', authController.refresh);
 router.post('/logout', authController.logout);
-router.post('/demo-session', rateLimiter({ max: 30 }), authController.createDemoSession);
+router.post(
+  '/demo-session',
+  rateLimiter({ max: 30, windowMs: env.RATE_LIMIT_WINDOW_MS }),
+  authController.createDemoSession,
+);
 
 // Protected routes (require valid JWT access token)
 router.get('/me', authenticate, authController.getMe);

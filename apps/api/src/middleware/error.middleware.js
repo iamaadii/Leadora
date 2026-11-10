@@ -2,6 +2,8 @@ import { ZodError } from 'zod';
 
 export function errorMiddleware(err, req, res, _next) {
   const timestamp = new Date().toISOString();
+  const requestId = req.id || null;
+  const isProduction = process.env.NODE_ENV === 'production';
 
   // Handle Zod validation errors
   if (err instanceof ZodError) {
@@ -11,6 +13,7 @@ export function errorMiddleware(err, req, res, _next) {
       error: {
         code: 'VALIDATION_ERROR',
         details: err.flatten().fieldErrors,
+        requestId,
         timestamp,
       },
     });
@@ -25,7 +28,8 @@ export function errorMiddleware(err, req, res, _next) {
         message: 'A record with this unique value already exists',
         error: {
           code: 'CONFLICT',
-          details: err.detail,
+          details: isProduction ? null : err.detail,
+          requestId,
           timestamp,
         },
       });
@@ -38,7 +42,8 @@ export function errorMiddleware(err, req, res, _next) {
         message: 'Referenced entity does not exist',
         error: {
           code: 'FOREIGN_KEY_VIOLATION',
-          details: err.detail,
+          details: isProduction ? null : err.detail,
+          requestId,
           timestamp,
         },
       });
@@ -49,12 +54,12 @@ export function errorMiddleware(err, req, res, _next) {
   const statusCode = err.statusCode || 500;
   const errorCode = err.code || (statusCode >= 500 ? 'INTERNAL_SERVER_ERROR' : 'BAD_REQUEST');
   const message =
-    statusCode >= 500 && process.env.NODE_ENV === 'production'
+    statusCode >= 500 && isProduction
       ? 'An unexpected internal server error occurred'
       : err.message || 'Internal server error';
 
   if (statusCode >= 500) {
-    console.error(`[ERROR] ${req.method} ${req.path}:`, err);
+    console.error(`[ERROR] [${requestId || 'NO_REQ_ID'}] ${req.method} ${req.path}:`, err);
   }
 
   res.status(statusCode).json({
@@ -62,7 +67,8 @@ export function errorMiddleware(err, req, res, _next) {
     message,
     error: {
       code: errorCode,
-      details: err.details || null,
+      details: isProduction && statusCode >= 500 ? null : (err.details || null),
+      requestId,
       timestamp,
     },
   });
