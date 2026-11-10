@@ -83,7 +83,12 @@ export function useEmployeeMutations() {
   });
 
   const deactivateEmployeeMutation = useMutation({
-    mutationFn: (id) => employeesService.deactivateEmployee(id),
+    mutationFn: (args) => {
+      if (typeof args === 'object' && args !== null && 'id' in args) {
+        return employeesService.deactivateEmployee(args.id, args.payload || {});
+      }
+      return employeesService.deactivateEmployee(args);
+    },
     onSuccess: () => {
       invalidate();
       toast.success('Employee deactivated and active sessions revoked', 'Deactivated');

@@ -116,6 +116,12 @@ export const changeRoleSchema = z.object({
   }),
 });
 
+export const deactivateEmployeeSchema = z.object({
+  reassignLeadsToId: z.string().uuid('Invalid reassignLeadsToId UUID format').optional().nullable(),
+  reassignFollowupsToId: z.string().uuid('Invalid reassignFollowupsToId UUID format').optional().nullable(),
+  leaveUnassigned: z.boolean().optional().default(false),
+});
+
 export const queryEmployeesSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(10),

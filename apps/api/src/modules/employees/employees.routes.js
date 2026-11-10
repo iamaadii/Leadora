@@ -6,6 +6,7 @@ import {
   createEmployeeSchema,
   updateEmployeeSchema,
   changeRoleSchema,
+  deactivateEmployeeSchema,
   queryEmployeesSchema,
 } from './employees.validation.js';
 import { authenticate } from '../../middleware/authenticate.middleware.js';
@@ -23,9 +24,10 @@ router.post('/', validateBody(createEmployeeSchema), employeesController.createE
 
 // Single employee resource routes
 router.get('/:id', employeesController.getEmployeeById);
+router.get('/:id/workload', employeesController.getEmployeeWorkload);
 router.patch('/:id', validateBody(updateEmployeeSchema), employeesController.updateEmployee);
 router.patch('/:id/role', validateBody(changeRoleSchema), employeesController.changeRole);
-router.patch('/:id/deactivate', employeesController.deactivateEmployee);
+router.patch('/:id/deactivate', validateBody(deactivateEmployeeSchema), employeesController.deactivateEmployee);
 router.patch('/:id/activate', employeesController.activateEmployee);
 
 export default router;

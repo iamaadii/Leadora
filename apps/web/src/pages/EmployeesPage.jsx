@@ -11,6 +11,7 @@ import { EmployeeTable } from '../features/employees/components/EmployeeTable.js
 import { CreateEmployeeModal } from '../features/employees/components/CreateEmployeeModal.jsx';
 import { EditEmployeeModal } from '../features/employees/components/EditEmployeeModal.jsx';
 import { ChangeRoleModal } from '../features/employees/components/ChangeRoleModal.jsx';
+import { DeactivateEmployeeModal } from '../features/employees/components/DeactivateEmployeeModal.jsx';
 import { ConfirmationDialog } from '../components/ui/ConfirmationDialog.jsx';
 import {
   Users,
@@ -89,14 +90,19 @@ export function EmployeesPage() {
     setConfirmToggleEmp(emp);
   };
 
-  const handleConfirmToggleActive = async () => {
+  const handleConfirmDeactivate = async (reassignmentPayload) => {
     if (!confirmToggleEmp) return;
     try {
-      if (confirmToggleEmp.is_active) {
-        await deactivateEmployee(confirmToggleEmp.id);
-      } else {
-        await activateEmployee(confirmToggleEmp.id);
-      }
+      await deactivateEmployee({ id: confirmToggleEmp.id, payload: reassignmentPayload });
+    } finally {
+      setConfirmToggleEmp(null);
+    }
+  };
+
+  const handleConfirmReactivate = async () => {
+    if (!confirmToggleEmp) return;
+    try {
+      await activateEmployee(confirmToggleEmp.id);
     } finally {
       setConfirmToggleEmp(null);
     }
@@ -349,19 +355,25 @@ export function EmployeesPage() {
         isSubmitting={isChangingRole}
       />
 
-      {/* Center Confirmation Dialog with Background Blur & Scroll Lock */}
-      <ConfirmationDialog
-        isOpen={Boolean(confirmToggleEmp)}
+      {/* Deactivate Employee Modal with Workload Inspection & Reassignment */}
+      <DeactivateEmployeeModal
+        isOpen={Boolean(confirmToggleEmp && confirmToggleEmp.is_active)}
         onClose={() => setConfirmToggleEmp(null)}
-        onConfirm={handleConfirmToggleActive}
-        title={confirmToggleEmp?.is_active ? 'Deactivate Employee?' : 'Reactivate Employee?'}
-        message={
-          confirmToggleEmp?.is_active
-            ? `Are you sure you want to deactivate ${confirmToggleEmp.first_name} ${confirmToggleEmp.last_name}? Their active sessions will be terminated immediately and they will be logged out.`
-            : `Are you sure you want to reactivate ${confirmToggleEmp?.first_name} ${confirmToggleEmp?.last_name}? They will be permitted to log in to the workspace again.`
-        }
-        confirmText={confirmToggleEmp?.is_active ? 'Deactivate Employee' : 'Reactivate Employee'}
-        isDestructive={Boolean(confirmToggleEmp?.is_active)}
+        employee={confirmToggleEmp}
+        allEmployees={employees}
+        onConfirm={handleConfirmDeactivate}
+        isLoading={isUpdating}
+      />
+
+      {/* Center Confirmation Dialog for Reactivation */}
+      <ConfirmationDialog
+        isOpen={Boolean(confirmToggleEmp && !confirmToggleEmp.is_active)}
+        onClose={() => setConfirmToggleEmp(null)}
+        onConfirm={handleConfirmReactivate}
+        title="Reactivate Employee?"
+        message={`Are you sure you want to reactivate ${confirmToggleEmp?.first_name} ${confirmToggleEmp?.last_name}? They will be permitted to log in to the workspace again.`}
+        confirmText="Reactivate Employee"
+        isDestructive={false}
         isLoading={isUpdating}
       />
     </div>

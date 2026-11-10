@@ -367,5 +367,108 @@ export const employeesRepository = {
     ];
     await db.query(query, values);
   },
+
+  /**
+   * Retrieve workload metrics for an employee prior to deactivation
+   */
+  async getWorkload(employeeId, organizationId, db = pool) {
+    const leadsQuery = `
+      SELECT 
+        COUNT(*)::int AS total_active_leads,
+        COUNT(*) FILTER (WHERE status NOT IN ('CONVERTED', 'LOST'))::int AS open_pipeline_leads
+      FROM leads
+      WHERE assigned_to_id = $1 AND organization_id = $2 AND archived_at IS NULL;
+    `;
+    const followupsQuery = `
+      SELECT 
+        COUNT(*)::int AS total_pending_followups,
+        COUNT(*) FILTER (WHERE due_at < NOW())::int AS overdue_followups
+      FROM followups
+      WHERE assigned_to_id = $1 AND organization_id = $2 AND status = 'PENDING';
+    `;
+    const teamsQuery = `
+      SELECT t.id, t.name
+      FROM team_members tm
+      JOIN teams t ON tm.team_id = t.id
+      WHERE tm.employee_id = $1 AND t.organization_id = $2 AND tm.removed_at IS NULL AND t.is_active = TRUE;
+    `;
+    const ledTeamsQuery = `
+      SELECT id, name
+      FROM teams
+      WHERE manager_id = $1 AND organization_id = $2 AND is_active = TRUE;
+    `;
+
+    const [leadsRes, followupsRes, teamsRes, ledTeamsRes] = await Promise.all([
+      db.query(leadsQuery, [employeeId, organizationId]),
+      db.query(followupsQuery, [employeeId, organizationId]),
+      db.query(teamsQuery, [employeeId, organizationId]),
+      db.query(ledTeamsQuery, [employeeId, organizationId]),
+    ]);
+
+    return {
+      activeLeadsCount: leadsRes.rows[0]?.total_active_leads || 0,
+      openPipelineLeadsCount: leadsRes.rows[0]?.open_pipeline_leads || 0,
+      pendingFollowupsCount: followupsRes.rows[0]?.total_pending_followups || 0,
+      overdueFollowupsCount: followupsRes.rows[0]?.overdue_followups || 0,
+      activeTeams: teamsRes.rows,
+      ledTeams: ledTeamsRes.rows,
+    };
+  },
+
+  /**
+   * Reassign all active leads from one employee to another
+   */
+  async reassignLeads(fromEmployeeId, toEmployeeId, organizationId, db = pool) {
+    const query = `
+      UPDATE leads
+      SET assigned_to_id = $1, updated_at = NOW()
+      WHERE assigned_to_id = $2 AND organization_id = $3 AND archived_at IS NULL
+      RETURNING id, name;
+    `;
+    const res = await db.query(query, [toEmployeeId, fromEmployeeId, organizationId]);
+    return res.rows;
+  },
+
+  /**
+   * Unassign all active leads from an employee
+   */
+  async unassignLeads(fromEmployeeId, organizationId, db = pool) {
+    const query = `
+      UPDATE leads
+      SET assigned_to_id = NULL, updated_at = NOW()
+      WHERE assigned_to_id = $1 AND organization_id = $2 AND archived_at IS NULL
+      RETURNING id, name;
+    `;
+    const res = await db.query(query, [fromEmployeeId, organizationId]);
+    return res.rows;
+  },
+
+  /**
+   * Reassign all pending follow-up tasks from one employee to another
+   */
+  async reassignFollowups(fromEmployeeId, toEmployeeId, organizationId, db = pool) {
+    const query = `
+      UPDATE followups
+      SET assigned_to_id = $1, updated_at = NOW()
+      WHERE assigned_to_id = $2 AND organization_id = $3 AND status = 'PENDING'
+      RETURNING id, title;
+    `;
+    const res = await db.query(query, [toEmployeeId, fromEmployeeId, organizationId]);
+    return res.rows;
+  },
+
+  /**
+   * Cancel pending follow-ups for deactivated employee when unassign is chosen
+   */
+  async cancelFollowups(fromEmployeeId, organizationId, reason = 'Cancelled due to employee deactivation', db = pool) {
+    const query = `
+      UPDATE followups
+      SET status = 'CANCELLED', completion_notes = $1, updated_at = NOW()
+      WHERE assigned_to_id = $2 AND organization_id = $3 AND status = 'PENDING'
+      RETURNING id, title;
+    `;
+    const res = await db.query(query, [reason, fromEmployeeId, organizationId]);
+    return res.rows;
+  },
 };
 

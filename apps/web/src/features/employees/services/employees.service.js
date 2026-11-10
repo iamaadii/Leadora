@@ -49,11 +49,21 @@ export const employeesService = {
   },
 
   /**
-   * Deactivate employee
+   * Fetch employee workload details
    * @param {string} id
    */
-  async deactivateEmployee(id) {
-    const res = await apiClient.patch(`/v1/employees/${id}/deactivate`);
+  async getEmployeeWorkload(id) {
+    const res = await apiClient.get(`/v1/employees/${id}/workload`);
+    return res.data;
+  },
+
+  /**
+   * Deactivate employee with atomic workload reassignment
+   * @param {string} id
+   * @param {object} payload
+   */
+  async deactivateEmployee(id, payload = {}) {
+    const res = await apiClient.patch(`/v1/employees/${id}/deactivate`, payload);
     return res.data;
   },
 

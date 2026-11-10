@@ -100,6 +100,21 @@ export const employeesController = {
   },
 
   /**
+   * GET /api/v1/employees/:id/workload
+   */
+  async getEmployeeWorkload(req, res, next) {
+    try {
+      const workload = await employeesService.getEmployeeWorkload(req.user, req.params.id);
+      res.status(200).json({
+        success: true,
+        data: workload,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
    * PATCH /api/v1/employees/:id/deactivate
    */
   async deactivateEmployee(req, res, next) {
@@ -107,6 +122,7 @@ export const employeesController = {
       const employee = await employeesService.deactivateEmployee(
         req.user,
         req.params.id,
+        req.body,
         req.ip || req.socket.remoteAddress,
       );
       res.status(200).json({
