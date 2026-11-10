@@ -33,7 +33,17 @@ const envSchema = z
       .union([z.string(), z.number()])
       .transform((val) => (typeof val === 'string' ? parseInt(val, 10) : val))
       .default(5000),
-    FRONTEND_URL: z.string().url().default('http://localhost:5173'),
+    FRONTEND_URL: z
+      .string()
+      .default('http://localhost:5173')
+      .transform((val) => {
+        if (!val || val.trim() === '' || val === '*') return val;
+        const trimmed = val.trim();
+        if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+          return `https://${trimmed}`;
+        }
+        return trimmed;
+      }),
     CORS_ORIGIN: z.string().optional(),
     DATABASE_URL: z
       .string()
