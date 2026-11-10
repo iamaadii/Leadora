@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../features/auth/hooks/useAuth.js';
 import {
   useFollowups,
@@ -30,17 +31,36 @@ import {
   RotateCcw,
 } from 'lucide-react';
 
+const VALID_TABS = ['PENDING', 'OVERDUE', 'DUE_TODAY', 'COMPLETED', 'CANCELLED', 'ALL'];
+
 export function FollowupsPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
 
+  const [searchParams] = useSearchParams();
+  const urlTab = searchParams.get('tab');
+  const initialTab = urlTab && VALID_TABS.includes(urlTab.toUpperCase()) ? urlTab.toUpperCase() : 'PENDING';
+  const initialSearch = searchParams.get('search') || '';
+
   // State
-  const [activeTab, setActiveTab] = useState('PENDING');
-  const [search, setSearch] = useState('');
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const [search, setSearch] = useState(initialSearch);
   const [typeFilter, setTypeFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
   const [page, setPage] = useState(1);
+
+  // Sync state if URL query params change (e.g. from notification clicks)
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam && VALID_TABS.includes(tabParam.toUpperCase())) {
+      setActiveTab(tabParam.toUpperCase());
+    }
+    const sParam = searchParams.get('search');
+    if (sParam !== null) {
+      setSearch(sParam);
+    }
+  }, [searchParams]);
 
   // Modals state
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -305,46 +325,11 @@ export function FollowupsPage() {
         </div>
       </div>
 
-      {/* Tabs and Filter Bar */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-4">
-        {/* Navigation Tabs */}
-        <div className="flex items-center space-x-1 border-b border-slate-200 overflow-x-auto pb-1">
-          {[
-            { id: 'PENDING', label: 'Pending', count: summary.pending },
-            { id: 'OVERDUE', label: 'Overdue', count: summary.overdue, isDanger: true },
-            { id: 'DUE_TODAY', label: 'Due Today', count: summary.dueToday || summary.due_today },
-            { id: 'COMPLETED', label: 'Completed', count: summary.completed },
-            { id: 'CANCELLED', label: 'Cancelled', count: summary.cancelled },
-            { id: 'ALL', label: 'All Tasks', count: summary.total },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => handleTabChange(tab.id)}
-              className={`px-3 py-2 text-xs font-semibold border-b-2 whitespace-nowrap transition flex items-center space-x-1.5 ${
-                activeTab === tab.id
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              <span>{tab.label}</span>
-              <span
-                className={`px-1.5 py-0.5 rounded-full text-[10px] ${
-                  tab.isDanger && tab.count > 0
-                    ? 'bg-rose-100 text-rose-700 font-bold'
-                    : 'bg-slate-100 text-slate-600'
-                }`}
-              >
-                {tab.count}
-              </span>
-            </button>
-          ))}
-        </div>
-
-        {/* Search & Select Filters */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 items-center">
-          {/* Search by task title */}
-          <div className="sm:col-span-2 lg:col-span-1">
+      {/* Single-Row Filter Bar */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-4 shadow-xs">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
+          {/* Search by task title or description */}
+          <div className="flex-1 min-w-0">
             <Input
               placeholder="Search by task title or description..."
               value={search}
@@ -356,8 +341,8 @@ export function FollowupsPage() {
             />
           </div>
 
-          {/* Type filter */}
-          <div>
+          {/* Activity Type filter */}
+          <div className="w-full md:w-52 shrink-0">
             <Select
               value={typeFilter}
               onChange={(e) => {
@@ -375,7 +360,7 @@ export function FollowupsPage() {
           </div>
 
           {/* Priority filter */}
-          <div>
+          <div className="w-full md:w-48 shrink-0">
             <Select
               value={priorityFilter}
               onChange={(e) => {
@@ -390,20 +375,20 @@ export function FollowupsPage() {
               ]}
             />
           </div>
-        </div>
 
-        {(search || typeFilter || priorityFilter || activeTab !== 'PENDING') && (
-          <div className="flex justify-end pt-2 border-t border-slate-100">
+          {/* Reset Filters Button (Inline on same row) */}
+          {(search || typeFilter || priorityFilter || activeTab !== 'PENDING') && (
             <Button
               variant="ghost"
               size="sm"
               onClick={handleResetFilters}
               leftIcon={RotateCcw}
+              className="shrink-0 text-slate-500 hover:text-slate-800 self-center"
             >
               Reset Filters
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Main Table */}

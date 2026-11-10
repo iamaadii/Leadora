@@ -131,6 +131,14 @@ export const followupsService = {
             title: 'New Follow-up Assigned',
             message: `You were assigned a ${created.type} task: "${created.title}" for lead "${lead.name}".`,
             notification_type: 'FOLLOWUP_ASSIGNED',
+            entity_type: 'FOLLOWUP',
+            entity_id: created.id,
+            metadata: {
+              followupId: created.id,
+              leadId: lead.id,
+              leadName: lead.name,
+              taskTitle: created.title,
+            },
           },
           client,
         );
@@ -330,6 +338,13 @@ export const followupsService = {
             title: 'Follow-up Reassigned to You',
             message: `Follow-up task "${existing.title}" has been reassigned to you.`,
             notification_type: 'FOLLOWUP_REASSIGNED',
+            entity_type: 'FOLLOWUP',
+            entity_id: existing.id,
+            metadata: {
+              followupId: existing.id,
+              leadId: existing.lead_id,
+              taskTitle: existing.title,
+            },
           },
           client,
         );

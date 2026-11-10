@@ -496,9 +496,12 @@ export const followupsRepository = {
         user_id,
         title,
         message,
-        notification_type
+        notification_type,
+        entity_type,
+        entity_id,
+        metadata
       )
-      VALUES ($1, $2, $3, $4, $5)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING id, created_at;
     `;
     const values = [
@@ -507,6 +510,9 @@ export const followupsRepository = {
       notification.title,
       notification.message,
       notification.notification_type || 'FOLLOWUP_ASSIGNED',
+      notification.entity_type || 'FOLLOWUP',
+      notification.entity_id || null,
+      JSON.stringify(notification.metadata || {}),
     ];
     const res = await db.query(query, values);
     return res.rows[0];
