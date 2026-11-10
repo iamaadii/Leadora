@@ -13,6 +13,7 @@ notificationsRouter.use(authenticate);
 notificationsRouter.use(authorizeRoles('ADMIN', 'MANAGER', 'EMPLOYEE'));
 
 notificationsRouter.get('/', notificationsController.getNotifications);
+notificationsRouter.get('/stream', notificationsController.streamNotifications);
 notificationsRouter.get('/unread-count', notificationsController.getUnreadCount);
 notificationsRouter.patch('/read-all', notificationsController.markAllAsRead);
 notificationsRouter.patch('/:id/read', notificationsController.markAsRead);

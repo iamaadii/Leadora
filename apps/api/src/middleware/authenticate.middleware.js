@@ -8,12 +8,18 @@ import { AppError } from '../errors/app-error.js';
  */
 export async function authenticate(req, res, next) {
   try {
+    let token = null;
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1];
+    } else if (req.query?.token) {
+      token = req.query.token;
+    }
+
+    if (!token) {
       throw AppError.unauthorized('Authentication token is missing', 'TOKEN_MISSING');
     }
 
-    const token = authHeader.split(' ')[1];
     let decoded;
 
     try {

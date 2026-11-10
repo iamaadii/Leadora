@@ -2,6 +2,7 @@
 // Phase 10: In-App Notification Business Logic
 
 import { notificationsRepository } from './notifications.repository.js';
+import { sseRegistry } from './sse.registry.js';
 import { AppError } from '../../errors/app-error.js';
 import { NOTIFICATION_TYPES, NOTIFICATION_ENTITY_TYPES } from './notifications.constants.js';
 
@@ -82,6 +83,12 @@ export const notificationsService = {
       throw AppError.notFound('Notification not found', 'NOTIFICATION_NOT_FOUND');
     }
 
+    // Broadcast SSE event to user
+    sseRegistry.broadcastToUser(user.id, user.organizationId, 'notification.read', {
+      id: updated.id,
+      readAt: updated.read_at,
+    });
+
     return {
       id: updated.id,
       isRead: updated.is_read,
@@ -102,6 +109,12 @@ export const notificationsService = {
       user.organizationId,
     );
 
+    // Broadcast SSE event to user
+    sseRegistry.broadcastToUser(user.id, user.organizationId, 'notification.all_read', {
+      updatedCount,
+      timestamp: new Date().toISOString(),
+    });
+
     return { updatedCount };
   },
 
@@ -121,7 +134,7 @@ export const notificationsService = {
       ? `${actorName} reassigned lead "${lead.name}" (${lead.company || 'Private'}) to you.`
       : `${actorName} assigned a new lead "${lead.name}" (${lead.company || 'Private'}) to you.`;
 
-    return await notificationsRepository.createNotification(
+    const created = await notificationsRepository.createNotification(
       {
         organization_id: actorUser.organizationId,
         user_id: newAssigneeId,
@@ -139,5 +152,16 @@ export const notificationsService = {
       },
       client,
     );
+
+    if (created) {
+      sseRegistry.broadcastToUser(
+        newAssigneeId,
+        actorUser.organizationId,
+        'notification.created',
+        created,
+      );
+    }
+
+    return created;
   },
 };

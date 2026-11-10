@@ -1,5 +1,6 @@
 import { followupsRepository } from './followups.repository.js';
 import { leadsRepository } from '../leads/leads.repository.js';
+import { sseRegistry } from '../notifications/sse.registry.js';
 import { withTransaction } from '../../config/database.js';
 import { AppError } from '../../errors/app-error.js';
 import { FOLLOWUP_ACTIVITY_TYPES } from './followups.constants.js';
@@ -124,7 +125,7 @@ export const followupsService = {
 
       // 3. Create in-app notification if assigned to another user
       if (targetAssigneeId !== user.id) {
-        await followupsRepository.createNotification(
+        const notif = await followupsRepository.createNotification(
           {
             organization_id: user.organizationId,
             user_id: targetAssigneeId,
@@ -142,6 +143,9 @@ export const followupsService = {
           },
           client,
         );
+        if (notif) {
+          sseRegistry.broadcastToUser(targetAssigneeId, user.organizationId, 'notification.created', notif);
+        }
       }
 
       return await followupsRepository.findById(created.id, user.organizationId, client);
@@ -331,7 +335,7 @@ export const followupsService = {
 
       // Notify new assignee if reassigned
       if (isReassigned && fieldsToUpdate.assigned_to_id !== user.id) {
-        await followupsRepository.createNotification(
+        const notif = await followupsRepository.createNotification(
           {
             organization_id: user.organizationId,
             user_id: fieldsToUpdate.assigned_to_id,
@@ -348,6 +352,9 @@ export const followupsService = {
           },
           client,
         );
+        if (notif) {
+          sseRegistry.broadcastToUser(fieldsToUpdate.assigned_to_id, user.organizationId, 'notification.created', notif);
+        }
       }
 
       return await followupsRepository.findById(id, user.organizationId, client);

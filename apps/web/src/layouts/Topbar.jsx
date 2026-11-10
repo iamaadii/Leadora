@@ -26,6 +26,7 @@ import {
   useMarkNotificationAsRead,
   useMarkAllNotificationsAsRead,
 } from '../features/notifications/hooks/useNotifications.js';
+import { useNotificationStream } from '../features/notifications/hooks/useNotificationStream.js';
 import {
   getNotificationRedirectUrl,
   getNotificationEntityLabel,
@@ -77,6 +78,9 @@ export function Topbar({ onToggleMobileSidebar }) {
 
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const notifRef = useRef(null);
+
+  // Real-time Server-Sent Events stream for instantaneous notifications
+  useNotificationStream();
 
   const { data: countData } = useUnreadNotificationCount();
   const unreadCount = countData?.data?.unreadCount || 0;
