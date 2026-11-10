@@ -1,196 +1,272 @@
 # Leadora — Business CRM & Lead Management SaaS
 
-> **Every Lead. Every Opportunity. One Platform.**
+<p align="center">
+  <img src="apps/web/public/brand/logo.svg" alt="Leadora Logo" width="220" />
+</p>
 
-**Leadora** is a clean, modern CRM platform for small and medium-sized businesses. It helps sales teams track prospective buyers, move deals through a visual 7-stage sales board, schedule follow-up calls, and download executive reports.
+<p align="center">
+  **Every Lead. Every Opportunity. One Platform.**
+</p>
 
-Multiple companies can use Leadora at the same time. Each company's data is completely separated, private, and secure.
+<p align="center">
+  A modern multi-tenant CRM platform designed to help businesses manage leads, organize sales teams, track follow-ups, and monitor performance.
+</p>
 
----
+<p align="center">
+  <a href="https://leadora-18.vercel.app">Live Application</a> ·
+  <a href="https://leadora-18.vercel.app/demo">Explore Demo</a>
+</p>
 
-## 1. Quickstart Guide (Run Locally in 4 Steps)
+<p align="center">
+  <img src="https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React" />
+  <img src="https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js" />
+  <img src="https://img.shields.io/badge/Express-000000?style=flat-square&logo=express&logoColor=white" alt="Express.js" />
+  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker" />
+</p>
 
-### Step 1: Install Required Software
-Ensure you have installed on your computer:
-- **Node.js**: v20 or higher
-- **npm**: v10 or higher
-- **Docker Desktop**: With Docker Compose running
-- **Git**
+<br>
 
-### Step 2: Install Project Dependencies
-In your terminal, run:
+## 🚀 Interactive Product Showcase
+
+<p align="center">
+  <a href="https://leadora-18.vercel.app/demo" target="_blank" rel="noopener noreferrer">
+    <img src="docs/assets/leadora-showcase.gif" alt="Leadora Interactive Showcase - Click to open live demo" width="100%" />
+  </a>
+</p>
+
+<p align="center">
+  <em>⚡ Click the showcase above to launch the <strong><a href="https://leadora-18.vercel.app/demo">Live Interactive Demo</a></strong> (no sign-in required).</em>
+</p>
+
+<br>
+
+## 📸 Product Preview
+
+### 1. Landing Page
+
+A modern public-facing landing page introducing Leadora's capabilities, features, and platform access.
+
+<p align="center">
+  <img src="docs/assets/landing-preview.png" alt="Leadora Landing Page" width="100%" />
+</p>
+
+### 2. Sales Pipeline — Kanban Board
+
+Track leads through the seven-stage sales lifecycle with drag-and-drop interactions and controlled stage transitions.
+
+<p align="center">
+  <img src="docs/assets/kanban-board.png" alt="Leadora Kanban Board" width="100%" />
+</p>
+
+### 3. Executive Dashboard
+
+Monitor business performance through KPI cards, pipeline analytics, conversion trends, follow-up health, and team performance.
+
+<p align="center">
+  <img src="docs/assets/dashboard.png" alt="Leadora Dashboard" width="100%" />
+</p>
+
+### 4. Leads Management
+
+Manage customer prospects using searchable tables, filters, assignments, priority indicators, and lead status tracking.
+
+<p align="center">
+  <img src="docs/assets/leads-table.png" alt="Leadora Leads Management" width="100%" />
+</p>
+
+### 5. Reports & Data Export
+
+Generate business reports and export structured data in CSV, Excel, and PDF formats.
+
+<p align="center">
+  <img src="docs/assets/reports-export.png" alt="Leadora Reports and Exports" width="100%" />
+</p>
+
+### 6. Authentication & Security
+
+A protected login experience with secure session management and role-based access control.
+
+<p align="center">
+  <img src="docs/assets/login-preview.png" alt="Leadora Login Page" width="100%" />
+</p>
+
+<br>
+
+## ✨ Key Features
+
+| Feature | Description |
+|---|---|
+| Multi-Tenant Architecture | Isolated organization data and access boundaries |
+| Role-Based Access Control | Super Admin, Admin, Manager, and Employee roles |
+| Lead Management | Create, update, assign, filter, and track leads |
+| Sales Kanban | Visual seven-stage lead pipeline |
+| Follow-up Scheduling | Schedule, manage, and complete follow-up tasks |
+| Team Management | Organize employees and sales teams |
+| Dashboard & Analytics | Track KPIs, conversions, and team performance |
+| Reports & Exports | Generate CSV, Excel, and PDF reports |
+| Activity Feed | Maintain a history of important CRM events |
+| Notifications | In-app notifications with real-time SSE updates |
+| Demo Workspace | Interactive, read-only product demonstration |
+| Localization | Organization-level currency and timezone formatting |
+
+
+
+<br>
+
+## 🏛️ Architecture & Project Structure
+
+Leadora follows a modular monorepo architecture with a layered backend design.
+
+```text
+Leadora/
+├── apps/
+│   ├── api/
+│   │   ├── src/
+│   │   │   ├── config/
+│   │   │   ├── database/
+│   │   │   ├── middleware/
+│   │   │   ├── modules/
+│   │   │   └── server.js
+│   │   └── tests/
+│   │
+│   └── web/
+│       ├── public/
+│       │   └── brand/
+│       └── src/
+│           ├── components/
+│           ├── features/
+│           ├── pages/
+│           └── services/
+│
+├── docs/
+│   ├── api/
+│   ├── architecture/
+│   ├── assets/
+│   ├── database/
+│   ├── features/
+│   ├── frontend/
+│   ├── operations/
+│   └── security/
+│
+├── infrastructure/
+│   └── docker/
+│
+├── .env.example
+├── package.json
+└── README.md
+```
+
+<br>
+
+## 🛡️ Security & Reliability
+
+- **Multi-Tenant Isolation:** Organization-scoped database queries and tenant-aware constraints.
+- **Secure Authentication:** JWT-based authentication with HttpOnly cookies.
+- **Password Protection:** Argon2 password hashing.
+- **Role-Based Authorization:** Access permissions enforced on the backend.
+- **Parameterized SQL:** Protects database operations against SQL injection.
+- **Atomic Transactions:** Critical operations, including employee workload reassignment, use database transactions.
+- **Real-Time Notifications:** Server-Sent Events with an Nginx configuration supporting streaming.
+- **Read-Only Demo:** Backend-enforced restrictions protect the demonstration workspace.
+
+<br>
+
+## 🧪 Testing & Code Quality
+
+The backend includes automated tests covering authentication, authorization, tenant isolation, and core business workflows.
+
+```bash
+# Run lint checks
+npm run lint
+
+# Run backend tests
+npm --workspace=apps/api test
+
+# Build the frontend
+npm run build:web
+```
+
+**Latest reported test results:** 166 passing tests across 13 test suites.
+
+<br>
+
+## ⚙️ Getting Started
+
+### Prerequisites
+
+- Node.js
+- npm
+- Docker Desktop
+- Git
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/iamaadii/Leadora.git
+
+cd Leadora
+```
+
+### 2. Install Dependencies
+
 ```bash
 npm install
 ```
 
-### Step 3: Start the Database & Seed Sample Data
+### 3. Configure Environment Variables
+
+Copy the example environment file and configure the required database, authentication, and application settings.
+
 ```bash
-# 1. Start the PostgreSQL database container
+cp .env.example .env
+```
+
+### 4. Start PostgreSQL
+
+```bash
 npm run db:up
+```
 
-# 2. Run database migrations
+### 5. Run Database Migrations and Seeds
+
+```bash
 npm run db:migrate
-
-# 3. Add sample demo accounts, leads, and follow-ups
 npm run db:seed
 ```
 
-### Step 4: Start the Applications
+### 6. Start the Application
+
 ```bash
 npm run dev
 ```
-- **Web App:** Open [http://localhost:5173](http://localhost:5173) in your browser.
-- **Backend API:** Running at [http://localhost:5000](http://localhost:5000).
+
+The application will be available at:
+
+| Service | Local URL |
+|---|---|
+| Frontend | http://localhost:5173 |
+| Backend API | http://localhost:5000 |
+
+
+<br>
+
+## 👥 User Roles
+
+| Role | Responsibilities |
+|---|---|
+| Super Admin | Platform-level organization and user governance |
+| Admin | Organization, employee, team, and CRM administration |
+| Manager | Team-scoped lead and follow-up management |
+| Employee | Assigned lead management and personal follow-ups |
+
+
+
 
 ---
 
-## 2. Sample Demo Accounts
-
-The seed script creates ready-to-use demo accounts:
-
-| Role | Email | Password | What You Can See |
-| :--- | :--- | :--- | :--- |
-| **Super Admin** | `superadmin@platform.com` | `Password123!` | Manages all tenant companies on the platform. |
-| **Admin** | `admin@acme.com` | `Password123!` | Full company access (employees, teams, leads, settings). |
-| **Manager** | `manager@acme.com` | `Password123!` | Oversees the sales team, leads, and member workloads. |
-| **Employee** | `alice@acme.com` | `Password123!` | Works on their own assigned leads and tasks. |
-| **Employee** | `bob@acme.com` | `Password123!` | Works on their own assigned leads and tasks. |
-
-You can also test the system without logging in by opening the free **Interactive Live Demo** at [http://localhost:5173/demo](http://localhost:5173/demo).
-
----
-
-## 3. Project Structure
-
-```
-business-crm/
-├── apps/
-│   ├── api/             # Backend Express server (Node.js ES Modules)
-│   │   ├── src/
-│   │   │   ├── config/  # Database connection and environment validation
-│   │   │   ├── database/# SQL migrations and seed scripts
-│   │   │   ├── modules/ # Business modules (auth, leads, teams, reports, etc.)
-│   │   │   └── server.js# API entry point
-│   │   └── tests/       # 13 automated test suites (166 passing tests)
-│   │
-│   └── web/             # Frontend React app (Vite + Tailwind CSS)
-│       └── src/
-│           ├── components/ # Reusable buttons, cards, modals, tables
-│           ├── features/   # Feature components and state
-│           ├── pages/      # Application screens (Kanban, Leads, Teams)
-│           └── services/   # API communication (Axios)
-│
-├── docs/                # Organized Documentation Directory
-│   ├── architecture/    # System design, requirements, and branding
-│   ├── database/        # Tables, ERD diagram, and backup runbook
-│   ├── api/             # API reference, endpoints, and workflows
-│   ├── features/        # Leads, Kanban, Teams, Reports, Notifications
-│   ├── frontend/        # Design system, pages map, and UI audit
-│   ├── security/        # Role permissions matrix and hardening guide
-│   └── operations/      # Deployment checklist and audit report
-│
-├── infrastructure/      # Docker Compose setup for PostgreSQL
-├── .env.example         # Template for environment settings
-├── package.json         # Root workspace scripts
-└── README.md            # This quickstart guide
-```
-
----
-
-## 4. Key Features Explained
-
-1. **Leads & 7-Stage Kanban Board:** Move opportunities from `New` to `Won` with simple drag-and-drop or dropdown menus.
-2. **Follow-ups & Task Scheduling:** Schedule phone calls, meetings, demos, and tasks with automatic due-today and overdue badges.
-3. **Teams & Workload Balancing:** Group sales reps into teams with dedicated managers to ensure fair lead distribution.
-4. **Dashboard & Analytics:** Real-time KPI summary cards, win rates, and pipeline conversion trends.
-5. **1-Click File Downloads:** Instant report downloads in **CSV**, **Excel (.xlsx)**, and **PDF** formats.
-6. **In-App Notifications:** Real-time bell alerts when leads are assigned or follow-ups are due today.
-7. **Company Settings:** Easily configure your company name, currency symbol (`$`, `€`, `£`, `₹`), and timezone.
-
----
-
-## 5. Security Highlights
-
-- **Multi-Tenant Privacy:** Every database query strictly filters by the user's verified company ID. One company can never see another company's data.
-- **Protected Cookies:** Login sessions are stored in `HttpOnly` cookies so browser JavaScript cannot steal them.
-- **Argon2 Passwords:** Passwords are never saved in plain text.
-- **SQL Injection Defense:** All queries use safe parameterized placeholders (`$1, $2`).
-- **Instant Cut-Off:** Deactivating an employee ends their active login session immediately.
-
----
-
-## 6. Testing & Quality Checks
-
-Run all automated checks with these commands:
-
-```bash
-# 1. Check code quality and formatting
-npm run lint
-
-# 2. Run the complete backend test suite (166 tests)
-npm --workspace=apps/api test
-
-# 3. Test building the frontend for production
-npm run build:web
-```
-
----
-
-## 7. Documentation Directory
-
-Detailed technical guides are organized in the [`docs/`](docs/README.md) folder:
-
-- **Architecture:**
-  - [System Architecture](docs/architecture/overview.md)
-  - [Functional Requirements](docs/architecture/functional-requirements.md)
-  - [Brand Identity & Style Guide](docs/architecture/branding.md)
-- **Database:**
-  - [Database Design & Schema](docs/database/database-design.md)
-  - [Entity-Relationship Diagram (ERD)](docs/database/database-erd.md)
-  - [Database Backup & Recovery Runbook](docs/database/backup-and-recovery.md)
-- **API:**
-  - [API Design & Conventions](docs/api/api-design.md)
-  - [Complete API Endpoint Reference](docs/api/api-documentation.md)
-  - [Application Workflows](docs/api/application-workflows.md)
-- **Features:**
-  - [Leads & Kanban Board](docs/features/lead-kanban.md)
-  - [Follow-ups & Tasks](docs/features/followup-management.md)
-  - [Teams & Employees](docs/features/team-management.md)
-  - [Activity History](docs/features/activity-management.md)
-  - [Dashboard & Analytics](docs/features/dashboard-analytics.md)
-  - [Reports & Data Exports](docs/features/reporting-and-exports.md)
-  - [In-App Notifications](docs/features/notifications.md)
-  - [Organization Settings](docs/features/organization-settings.md)
-  - [Platform Super Admin Management](docs/features/platform-management.md)
-  - [Public Live Demo](docs/features/public-demo-environment.md)
-- **Frontend:**
-  - [Frontend Design System](docs/frontend/design-system.md)
-  - [Frontend Pages & Navigation](docs/frontend/pages.md)
-  - [UI & Accessibility Audit](docs/frontend/ui-audit.md)
-- **Security:**
-  - [Role Permissions Matrix](docs/security/role-permissions.md)
-  - [Security Hardening Guide](docs/security/security-hardening.md)
-- **Operations:**
-  - [Environment Configuration Guide](docs/operations/environment-configuration.md)
-  - [Production Deployment Checklist](docs/operations/production-deployment-checklist.md)
-  - [Production Readiness Audit](docs/operations/production-readiness-audit.md)
-
----
-
-## 8. Resetting the Database
-
-If you ever want to completely reset and start fresh with sample data:
-
-```bash
-# 1. Stop and remove the database container and volume
-docker compose -f infrastructure/docker/docker-compose.yml down -v
-
-# 2. Start a fresh database container
-npm run db:up
-
-# 3. Apply all SQL migrations
-npm run db:migrate
-
-# 4. Seed demo accounts and sample data
-npm run db:seed
-```
+<p align="center">
+  **Leadora — Every Lead. Every Opportunity. One Platform.**
+</p>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 48" fill="none">
+  <defs>
+    <linearGradient id="leadora-vibrant-bg" x1="2" y1="2" x2="46" y2="46" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2563EB" />
+      <stop offset="50%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#4F46E5" />
+    </linearGradient>
+    <linearGradient id="leadora-accent-mint" x1="26" y1="18" x2="38" y2="6" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#A7F3D0" />
+      <stop offset="100%" stop-color="#34D399" />
+    </linearGradient>
+  </defs>
+  <!-- Symbol -->
+  <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#leadora-vibrant-bg)" />
+  <rect x="2.5" y="2.5" width="43" height="43" rx="11.5" stroke="#FFFFFF" stroke-width="1" stroke-opacity="0.3" />
+  <path d="M14 12C14 10.8954 14.8954 10 16 10H20C21.1046 10 22 10.8954 22 12V28C22 29.1046 22.8954 30 24 30H34C35.1046 30 36 30.8954 36 32V36C36 37.1046 35.1046 38 34 38H18C15.7909 38 14 36.2091 14 34V12Z" fill="#FFFFFF" />
+  <path d="M26 18L37 7M37 7H29M37 7V15" stroke="url(#leadora-accent-mint)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="37" cy="7" r="2.75" fill="#34D399" />
+  <!-- Typography Wordmark -->
+  <text x="56" y="28" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="22" font-weight="900" fill="#0F172A" letter-spacing="-0.5">Lead<tspan fill="#2563EB">ora</tspan></text>
+  <text x="56.5" y="40" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8" font-weight="700" fill="#475569" letter-spacing="1.2">CRM &amp; PIPELINE PLATFORM</text>
+</svg>
