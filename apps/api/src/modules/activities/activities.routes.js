@@ -2,6 +2,7 @@
 // Phase 10: Standalone Activities Feed REST Route
 
 import { Router } from 'express';
+import { z } from 'zod';
 import { reportsRepository } from '../reports/reports.repository.js';
 import { authenticate } from '../../middleware/authenticate.middleware.js';
 import { authorizeRoles } from '../../middleware/authorize.middleware.js';
@@ -12,6 +13,15 @@ const activitiesRouter = Router();
 activitiesRouter.use(authenticate);
 activitiesRouter.use(authorizeRoles('ADMIN', 'MANAGER', 'EMPLOYEE'));
 
+const activityFeedQuerySchema = z.object({
+  type: z.string().max(50).optional(),
+  actorId: z.string().uuid().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+
 activitiesRouter.get('/', async (req, res, next) => {
   try {
     if (req.user.role === 'SUPER_ADMIN' || !req.user.organizationId) {
@@ -21,14 +31,15 @@ activitiesRouter.get('/', async (req, res, next) => {
       );
     }
 
-    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
-    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 20));
+    const query = activityFeedQuerySchema.parse(req.query);
+    const { page, limit } = query;
     const offset = (page - 1) * limit;
 
     const filters = {
-      type: req.query.type,
-      startDate: req.query.startDate,
-      endDate: req.query.endDate,
+      type: query.type,
+      actorId: query.actorId,
+      startDate: query.startDate,
+      endDate: query.endDate,
     };
 
     const result = await reportsRepository.getActivityReport({

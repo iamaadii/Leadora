@@ -23,6 +23,13 @@ export const REPORT_COLUMNS = {
     { label: 'Phone', key: 'phone', width: 14 },
     { label: 'Source', key: 'source', width: 12 },
     { label: 'Status', key: 'status', width: 14 },
+    { label: 'Priority', key: 'priority', width: 12 },
+    {
+      label: 'Estimated Value',
+      key: 'estimatedValue',
+      width: 16,
+      format: (val) => (val !== null && val !== undefined ? Number(val).toLocaleString() : ''),
+    },
     { label: 'Assigned Rep', key: 'assignedTo', width: 18 },
     { label: 'Team', key: 'teamName', width: 15 },
     {
@@ -58,6 +65,13 @@ export const REPORT_COLUMNS = {
     { label: 'Company', key: 'company', width: 18 },
     { label: 'Email', key: 'email', width: 22 },
     { label: 'Source', key: 'source', width: 12 },
+    { label: 'Priority', key: 'priority', width: 12 },
+    {
+      label: 'Estimated Value',
+      key: 'estimatedValue',
+      width: 16,
+      format: (val) => (val !== null && val !== undefined ? Number(val).toLocaleString() : ''),
+    },
     { label: 'Assigned Rep', key: 'assignedTo', width: 18 },
     { label: 'Team', key: 'teamName', width: 15 },
     {

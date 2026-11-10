@@ -36,12 +36,16 @@ export function ReportsPage() {
   });
 
   // Query Hooks (Tenant vs Platform)
+  const isCustomRangeIncomplete =
+    filters.range === 'custom' &&
+    (!filters.startDate || !filters.endDate || new Date(filters.startDate) > new Date(filters.endDate));
+
   const tenantQuery = useReport(activeCategory, filters, {
-    enabled: !isSuperAdmin,
+    enabled: !isSuperAdmin && !isCustomRangeIncomplete,
   });
 
   const platformQuery = usePlatformReport(activeCategory, filters, {
-    enabled: isSuperAdmin,
+    enabled: isSuperAdmin && !isCustomRangeIncomplete,
   });
 
   // Export Mutations
@@ -73,6 +77,11 @@ export function ReportsPage() {
   };
 
   const handleExport = (format) => {
+    if (isCustomRangeIncomplete) {
+      toast.error('Please specify a valid start and end date for custom date range.', 'Invalid Date Range');
+      return;
+    }
+
     if (isDemo) {
       toast.warning(
         'Action disabled in Demo Mode: Exporting CRM data is disabled in the live product demo.',

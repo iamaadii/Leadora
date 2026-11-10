@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/ui/PageHeader.jsx';
 import { Button } from '../components/ui/Button.jsx';
@@ -16,25 +16,65 @@ import {
   GitCommit,
   Clock,
   User,
+  Filter,
+  RotateCcw,
+  AlertCircle,
 } from 'lucide-react';
 import { useToast } from '../components/ui/Toast.jsx';
 import { useAuth } from '../features/auth/hooks/useAuth.js';
 import { useActivities } from '../features/activities/hooks/useActivities.js';
+import { useEmployees } from '../features/employees/hooks/useEmployees.js';
+import { formatDateTime } from '../utils/dateTime.js';
 
 export function ActivitiesPage() {
-  const { user } = useAuth();
+  const { user, organizationTimezone } = useAuth();
   const { toast } = useToast();
   const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
+
   const [filterType, setFilterType] = useState('');
+  const [actorId, setActorId] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [dateError, setDateError] = useState('');
   const [page, setPage] = useState(1);
   const [expandedId, setExpandedId] = useState(null);
+
+  // Fetch employees for actor filter dropdown
+  const { data: employeesData } = useEmployees({ limit: 100 });
+  const employeesList = employeesData?.data || [];
 
   const toggleExpand = (id) => {
     setExpandedId((prev) => (prev === id ? null : id));
   };
 
+  useEffect(() => {
+    if (startDate && endDate) {
+      if (new Date(startDate) > new Date(endDate)) {
+        setDateError('Start date cannot be after end date');
+      } else {
+        setDateError('');
+      }
+    } else {
+      setDateError('');
+    }
+  }, [startDate, endDate]);
+
+  const hasActiveFilters = Boolean(filterType || actorId || startDate || endDate);
+
+  const handleResetFilters = () => {
+    setFilterType('');
+    setActorId('');
+    setStartDate('');
+    setEndDate('');
+    setDateError('');
+    setPage(1);
+  };
+
   const { data, isLoading, isFetching, refetch } = useActivities({
     type: filterType || undefined,
+    actorId: actorId || undefined,
+    startDate: startDate && !dateError ? `${startDate}T00:00:00.000Z` : undefined,
+    endDate: endDate && !dateError ? `${endDate}T23:59:59.999Z` : undefined,
     page,
     limit: 20,
   });
@@ -80,14 +120,7 @@ export function ActivitiesPage() {
 
   const formatActivityDate = (timestamp) => {
     if (!timestamp) return '';
-    const date = new Date(timestamp);
-    return date.toLocaleString(undefined, {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    return formatDateTime(timestamp, organizationTimezone);
   };
 
   return (
@@ -112,32 +145,114 @@ export function ActivitiesPage() {
         }
       />
 
-      {/* Filter Bar */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-            Filter Timeline
-          </span>
-          <p className="text-xs text-slate-400 mt-0.5">Showing interactions across your permissions scope</p>
+      {/* Advanced Filter Bar */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-slate-500" />
+            <span className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+              Filter Activity Stream
+            </span>
+            {hasActiveFilters && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                Filters active
+              </span>
+            )}
+          </div>
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              size="xs"
+              leftIcon={RotateCcw}
+              onClick={handleResetFilters}
+              className="text-xs text-slate-500 hover:text-slate-900"
+            >
+              Reset Filters
+            </Button>
+          )}
         </div>
-        <Select
-          value={filterType}
-          onChange={(e) => {
-            setFilterType(e.target.value);
-            setPage(1);
-          }}
-          className="w-full sm:w-60"
-        >
-          <option value="">All Activity Types</option>
-          <option value="LEAD_STATUS_CHANGED">Stage Changes</option>
-          <option value="LEAD_CREATED">Leads Created</option>
-          <option value="LEAD_ASSIGNED">Leads Reassigned</option>
-          <option value="FOLLOWUP_CREATED">Tasks Scheduled</option>
-          <option value="FOLLOWUP_COMPLETED">Tasks Completed</option>
-          <option value="CALL_LOGGED">Calls Logged</option>
-          <option value="EMAIL_SENT">Emails Sent</option>
-          <option value="NOTE_ADDED">Notes Added</option>
-        </Select>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* Type Filter */}
+          <div>
+            <label className="block text-[11px] font-medium text-slate-500 mb-1">Activity Type</label>
+            <Select
+              value={filterType}
+              onChange={(e) => {
+                setFilterType(e.target.value);
+                setPage(1);
+              }}
+              className="w-full"
+            >
+              <option value="">All Activity Types</option>
+              <option value="LEAD_STATUS_CHANGED">Stage Changes</option>
+              <option value="LEAD_CREATED">Leads Created</option>
+              <option value="LEAD_ASSIGNED">Leads Reassigned</option>
+              <option value="FOLLOWUP_CREATED">Tasks Scheduled</option>
+              <option value="FOLLOWUP_COMPLETED">Tasks Completed</option>
+              <option value="CALL_LOGGED">Calls Logged</option>
+              <option value="EMAIL_SENT">Emails Sent</option>
+              <option value="NOTE_ADDED">Notes Added</option>
+            </Select>
+          </div>
+
+          {/* Actor Filter */}
+          <div>
+            <label className="block text-[11px] font-medium text-slate-500 mb-1">Actor / Rep</label>
+            <Select
+              value={actorId}
+              onChange={(e) => {
+                setActorId(e.target.value);
+                setPage(1);
+              }}
+              className="w-full"
+            >
+              <option value="">All Team Members</option>
+              {employeesList.map((emp) => (
+                <option key={emp.id} value={emp.id}>
+                  {emp.first_name} {emp.last_name} ({emp.role})
+                </option>
+              ))}
+            </Select>
+          </div>
+
+          {/* Date Range Start */}
+          <div>
+            <label className="block text-[11px] font-medium text-slate-500 mb-1">From Date</label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+                setPage(1);
+              }}
+              className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700"
+            />
+          </div>
+
+          {/* Date Range End */}
+          <div>
+            <label className="block text-[11px] font-medium text-slate-500 mb-1">To Date</label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+                setPage(1);
+              }}
+              className={`w-full px-3 py-2 text-xs bg-white border ${
+                dateError ? 'border-rose-400 bg-rose-50/20' : 'border-slate-200'
+              } rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700`}
+            />
+          </div>
+        </div>
+
+        {dateError && (
+          <div className="flex items-center gap-1.5 text-xs text-rose-600 font-medium pt-1">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+            <span>{dateError}</span>
+          </div>
+        )}
       </div>
 
       {/* Timeline Stream */}

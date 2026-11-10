@@ -129,7 +129,8 @@ export const reportsRepository = {
         COUNT(*) FILTER (WHERE l.status = 'QUALIFIED')::int AS qualified_leads,
         COUNT(*) FILTER (WHERE l.status = 'PROPOSAL_SENT')::int AS proposal_leads,
         COUNT(*) FILTER (WHERE l.status = 'CONVERTED')::int AS converted_leads,
-        COUNT(*) FILTER (WHERE l.status = 'LOST')::int AS lost_leads
+        COUNT(*) FILTER (WHERE l.status = 'LOST')::int AS lost_leads,
+        COALESCE(SUM(l.estimated_value), 0)::numeric(14,2) AS total_pipeline_value
       FROM leads l
       WHERE ${whereClause};
     `;
@@ -153,6 +154,8 @@ export const reportsRepository = {
         l.company,
         l.source,
         l.status,
+        l.priority,
+        l.estimated_value,
         l.created_at,
         l.updated_at,
         u.id AS assigned_to_id,
@@ -193,6 +196,7 @@ export const reportsRepository = {
         proposalLeads: summaryRow.proposal_leads || 0,
         convertedLeads: summaryRow.converted_leads || 0,
         lostLeads: summaryRow.lost_leads || 0,
+        totalPipelineValue: summaryRow.total_pipeline_value ? parseFloat(summaryRow.total_pipeline_value) : 0,
       },
       rows: dataRes.rows.map((r) => ({
         id: r.id,
@@ -202,6 +206,8 @@ export const reportsRepository = {
         company: r.company || '',
         source: r.source,
         status: r.status,
+        priority: r.priority || 'MEDIUM',
+        estimatedValue: r.estimated_value ? parseFloat(r.estimated_value) : null,
         assignedTo: r.assigned_to_name ? r.assigned_to_name.trim() : 'Unassigned',
         assignedToEmail: r.assigned_to_email || '',
         teamName: r.team_name || 'Unassigned',
@@ -278,6 +284,10 @@ export const reportsRepository = {
         l.email,
         l.company,
         l.source,
+        l.priority,
+        l.estimated_value,
+        l.loss_reason,
+        l.loss_notes,
         l.created_at,
         l.updated_at AS converted_at,
         ROUND(EXTRACT(EPOCH FROM (l.updated_at - l.created_at)) / 86400.0, 1) AS days_to_convert,
@@ -397,6 +407,10 @@ export const reportsRepository = {
         l.email,
         l.company,
         l.source,
+        l.priority,
+        l.estimated_value,
+        l.loss_reason,
+        l.loss_notes,
         l.created_at,
         l.updated_at AS lost_at,
         CONCAT(u.first_name, ' ', u.last_name) AS rep_name,
@@ -448,11 +462,15 @@ export const reportsRepository = {
         email: r.email || '',
         company: r.company || '',
         source: r.source,
+        priority: r.priority || 'MEDIUM',
+        estimatedValue: r.estimated_value ? parseFloat(r.estimated_value) : null,
         assignedTo: r.rep_name ? r.rep_name.trim() : 'Unassigned',
         teamName: r.team_name || 'Unassigned',
         createdAt: r.created_at,
         lostAt: r.lost_at,
-        lossNote: r.status_note || 'Closed without specific reason',
+        lossNote: r.loss_reason
+          ? `${r.loss_reason}${r.loss_notes ? ` - ${r.loss_notes}` : ''}`
+          : r.status_note || 'Legacy lead (closed without recorded reason)',
       })),
     };
   },
@@ -912,6 +930,11 @@ export const reportsRepository = {
       paramIndex++;
     }
 
+    if (filters.actorId) {
+      conditions.push(`a.actor_user_id = $${paramIndex}`);
+      values.push(filters.actorId);
+      paramIndex++;
+    }
     if (filters.startDate) {
       conditions.push(`a.created_at >= $${paramIndex}`);
       values.push(filters.startDate);

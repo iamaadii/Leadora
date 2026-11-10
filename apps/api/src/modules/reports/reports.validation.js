@@ -4,10 +4,10 @@
 import { z } from 'zod';
 import { REPORT_TYPES, PLATFORM_REPORT_TYPES, EXPORT_FORMATS } from './reports.constants.js';
 
-export const reportQuerySchema = z.object({
+const baseReportQuerySchema = z.object({
   range: z.enum(['today', '7d', '30d', '90d', 'this_month', 'prev_month', 'custom']).optional(),
-  startDate: z.string().datetime({ offset: true }).optional().or(z.string().regex(/^\d{4}-\d{2}-\d{2}/).optional()),
-  endDate: z.string().datetime({ offset: true }).optional().or(z.string().regex(/^\d{4}-\d{2}-\d{2}/).optional()),
+  startDate: z.string().optional().refine((val) => !val || !isNaN(Date.parse(val)), { message: 'Invalid startDate format' }),
+  endDate: z.string().optional().refine((val) => !val || !isNaN(Date.parse(val)), { message: 'Invalid endDate format' }),
   status: z.string().max(50).optional(),
   stage: z.string().max(50).optional(),
   source: z.string().max(50).optional(),
@@ -21,9 +21,48 @@ export const reportQuerySchema = z.object({
   sortOrder: z.enum(['asc', 'desc', 'ASC', 'DESC']).default('desc'),
 });
 
-export const reportExportSchema = reportQuerySchema.extend({
-  format: z.enum([EXPORT_FORMATS.CSV, EXPORT_FORMATS.EXCEL, EXPORT_FORMATS.PDF]).default(EXPORT_FORMATS.CSV),
-});
+function refineDateRange(schema) {
+  return schema
+    .refine(
+      (data) => {
+        if (data.range === 'custom') {
+          return Boolean(
+            data.startDate &&
+              data.endDate &&
+              String(data.startDate).trim() !== '' &&
+              String(data.endDate).trim() !== '',
+          );
+        }
+        return true;
+      },
+      {
+        message: 'startDate and endDate are required when range is set to custom',
+        path: ['startDate'],
+      },
+    )
+    .refine(
+      (data) => {
+        if (data.startDate && data.endDate) {
+          const start = new Date(data.startDate);
+          const end = new Date(data.endDate);
+          return start.getTime() <= end.getTime();
+        }
+        return true;
+      },
+      {
+        message: 'startDate cannot be after endDate',
+        path: ['startDate'],
+      },
+    );
+}
+
+export const reportQuerySchema = refineDateRange(baseReportQuerySchema);
+
+export const reportExportSchema = refineDateRange(
+  baseReportQuerySchema.extend({
+    format: z.enum([EXPORT_FORMATS.CSV, EXPORT_FORMATS.EXCEL, EXPORT_FORMATS.PDF]).default(EXPORT_FORMATS.CSV),
+  }),
+);
 
 export const reportTypeParamSchema = z.object({
   reportType: z.enum([
