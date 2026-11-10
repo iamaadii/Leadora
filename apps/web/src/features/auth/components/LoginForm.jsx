@@ -7,7 +7,6 @@ import {
   Building,
   AlertCircle,
   ArrowRight,
-  Sparkles,
   Eye,
   EyeOff,
 } from 'lucide-react';
@@ -19,7 +18,7 @@ export function LoginForm() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [organizationSlug, setOrganizationSlug] = useState('acme-sales');
+  const [organizationSlug, setOrganizationSlug] = useState('');
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -52,61 +51,8 @@ export function LoginForm() {
     }
   };
 
-  // Quick preset helper for rapid local testing
-  const applyPreset = (presetEmail, presetSlug, isSuper = false) => {
-    setEmail(presetEmail);
-    setPassword('Password123!');
-    setIsSuperAdmin(isSuper);
-    if (!isSuper) {
-      setOrganizationSlug(presetSlug);
-    }
-    setError(null);
-  };
-
   return (
     <div className="space-y-6">
-      {/* Demo Credentials Quick-Select Pill Bar */}
-      <div className="bg-slate-900/70 border border-slate-700/80 rounded-2xl p-3.5 text-xs space-y-2.5">
-        <div className="flex items-center space-x-1.5 text-slate-200 font-bold">
-          <Sparkles className="w-4 h-4 text-blue-400 shrink-0" />
-          <span>Quick Demo Presets:</span>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[11px]">
-          <button
-            type="button"
-            onClick={() => applyPreset('admin@acme.com', 'acme-sales', false)}
-            className="p-2.5 bg-slate-800/90 border border-slate-700/80 rounded-xl hover:border-blue-500 hover:bg-slate-700/60 text-left transition shadow-2xs active:scale-[0.98] focus:outline-hidden"
-          >
-            <strong className="block text-white font-bold">Admin</strong>
-            <span className="block text-[10px] text-slate-400 truncate">admin@acme</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => applyPreset('manager@acme.com', 'acme-sales', false)}
-            className="p-2.5 bg-slate-800/90 border border-slate-700/80 rounded-xl hover:border-blue-500 hover:bg-slate-700/60 text-left transition shadow-2xs active:scale-[0.98] focus:outline-hidden"
-          >
-            <strong className="block text-white font-bold">Manager</strong>
-            <span className="block text-[10px] text-slate-400 truncate">manager@acme</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => applyPreset('alice@acme.com', 'acme-sales', false)}
-            className="p-2.5 bg-slate-800/90 border border-slate-700/80 rounded-xl hover:border-blue-500 hover:bg-slate-700/60 text-left transition shadow-2xs active:scale-[0.98] focus:outline-hidden"
-          >
-            <strong className="block text-white font-bold">Employee</strong>
-            <span className="block text-[10px] text-slate-400 truncate">alice@acme</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => applyPreset('superadmin@platform.com', '', true)}
-            className="p-2.5 bg-slate-800/90 border border-slate-700/80 rounded-xl hover:border-blue-500 hover:bg-slate-700/60 text-left transition shadow-2xs active:scale-[0.98] focus:outline-hidden"
-          >
-            <strong className="block text-white font-bold">Super Admin</strong>
-            <span className="block text-[10px] text-slate-400 truncate">superadmin@</span>
-          </button>
-        </div>
-      </div>
-
       {/* Error Message Alert */}
       {error && (
         <div className="p-3.5 bg-rose-950/60 border border-rose-800/80 rounded-xl text-xs text-rose-300 flex items-start space-x-2.5 animate-in fade-in duration-150">
