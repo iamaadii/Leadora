@@ -49,7 +49,7 @@ export function ReportFilterBar({
 
           {/* Custom Date Range Inputs */}
           {isCustomRange && (
-            <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1">
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 w-full sm:w-auto">
               <input
                 type="date"
                 value={filters.startDate ? filters.startDate.substring(0, 10) : ''}

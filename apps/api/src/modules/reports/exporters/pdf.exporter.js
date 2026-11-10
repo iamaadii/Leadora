@@ -17,7 +17,7 @@ import PDFDocument from 'pdfkit';
  */
 export function generatePdf({
   title,
-  orgName = 'Business CRM',
+  orgName = 'Leadora CRM',
   dateRange = {},
   summary = {},
   columns = [],
@@ -138,11 +138,37 @@ export function generatePdf({
       currentY += 20;
 
       // --- Data Rows ---
-      const rowHeight = 18;
+      const bottomLimit = pageHeight - 45;
 
       data.forEach((row, rowIndex) => {
+        // Pre-compute formatted cell values
+        const cellValues = columns.map((col) => {
+          let val = row[col.key];
+          if (col.format && typeof col.format === 'function') {
+            val = col.format(val, row);
+          }
+          if (val === null || val === undefined) val = '-';
+          if (typeof val === 'object') val = JSON.stringify(val);
+          return String(val);
+        });
+
+        // Compute dynamic row height based on text wrap across all columns
+        doc.font('Helvetica').fontSize(8);
+        let maxTextHeight = 10;
+        columns.forEach((col, idx) => {
+          const text = cellValues[idx];
+          const availableWidth = colWidths[idx] - 8;
+          const textHeight = doc.heightOfString(text, { width: availableWidth });
+          if (textHeight > maxTextHeight) {
+            maxTextHeight = textHeight;
+          }
+        });
+
+        // Add 8pt padding (4pt top + 4pt bottom) and cap row height to 44pt (approx 3 lines) to prevent runaway rows
+        const calculatedRowHeight = Math.max(18, Math.min(Math.ceil(maxTextHeight + 8), 44));
+
         // If row will overflow page, create a new page
-        if (currentY + rowHeight > pageHeight - 45) {
+        if (currentY + calculatedRowHeight > bottomLimit) {
           doc.addPage();
           currentY = 36;
           renderHeaderRow(currentY);
@@ -152,25 +178,21 @@ export function generatePdf({
         // Alternating zebra background
         const isEven = rowIndex % 2 === 0;
         if (!isEven) {
-          doc.rect(36, currentY, contentWidth, rowHeight).fill('#F8FAFC');
+          doc.rect(36, currentY, contentWidth, calculatedRowHeight).fill('#F8FAFC');
         }
 
         let colX = 36;
         columns.forEach((col, idx) => {
-          let val = row[col.key];
-          if (col.format && typeof col.format === 'function') {
-            val = col.format(val, row);
-          }
-          if (val === null || val === undefined) val = '-';
-          if (typeof val === 'object') val = JSON.stringify(val);
-
+          const val = cellValues[idx];
           doc
             .font('Helvetica')
             .fontSize(8)
             .fillColor('#1E293B')
-            .text(String(val), colX + 4, currentY + 5, {
+            .text(val, colX + 4, currentY + 4, {
               width: colWidths[idx] - 8,
+              height: calculatedRowHeight - 8,
               ellipsis: true,
+              lineBreak: true,
             });
 
           colX += colWidths[idx];
@@ -180,27 +202,31 @@ export function generatePdf({
         doc
           .strokeColor('#E2E8F0')
           .lineWidth(0.5)
-          .moveTo(36, currentY + rowHeight)
-          .lineTo(pageWidth - 36, currentY + rowHeight)
+          .moveTo(36, currentY + calculatedRowHeight)
+          .lineTo(pageWidth - 36, currentY + calculatedRowHeight)
           .stroke();
 
-        currentY += rowHeight;
+        currentY += calculatedRowHeight;
       });
 
       // --- Page Footers: Page X of Y ---
       const range = doc.bufferedPageRange();
       for (let i = range.start; i < range.start + range.count; i++) {
         doc.switchToPage(i);
+        const prevBottomMargin = doc.page.margins.bottom;
+        // Temporarily clear bottom margin check to prevent PDFKit from triggering auto addPage()
+        doc.page.margins.bottom = 0;
         doc
           .font('Helvetica')
           .fontSize(8)
           .fillColor('#94A3B8')
           .text(
-            `Page ${i + 1} of ${range.count} | Business CRM Confidential`,
+            `Page ${i + 1} of ${range.count} | Leadora Confidential`,
             36,
-            pageHeight - 26,
-            { align: 'center', width: contentWidth }
+            pageHeight - 24,
+            { align: 'center', width: contentWidth, lineBreak: false }
           );
+        doc.page.margins.bottom = prevBottomMargin;
       }
 
       doc.end();

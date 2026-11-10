@@ -87,24 +87,24 @@ export function ReportSummaryCards({ category, summary = {} }) {
   if (cards.length === 0) return null;
 
   return (
-    <div className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-${Math.min(cards.length, 4)} gap-4`}>
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
       {cards.map((card, idx) => {
         const Icon = card.icon;
         return (
           <div
             key={idx}
-            className="bg-white rounded-xl border border-slate-200/80 p-4 shadow-2xs flex items-center justify-between"
+            className="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 shadow-2xs flex items-center justify-between"
           >
-            <div>
-              <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+            <div className="min-w-0 pr-2">
+              <p className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">
                 {card.label}
               </p>
-              <p className="text-xl font-bold text-slate-900 mt-1">
+              <p className="text-lg sm:text-xl font-bold text-slate-900 mt-0.5 sm:mt-1 truncate">
                 {card.val}
               </p>
             </div>
-            <div className={`p-2.5 rounded-lg ${card.color}`}>
-              <Icon className="w-5 h-5" />
+            <div className={`p-2 sm:p-2.5 rounded-xl shrink-0 ${card.color}`}>
+              <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
           </div>
         );

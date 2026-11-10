@@ -923,9 +923,19 @@ export const reportsRepository = {
       paramIndex++;
     }
     if (filters.type) {
-      conditions.push(`a.activity_type = $${paramIndex}`);
-      values.push(filters.type);
-      paramIndex++;
+      if (filters.type === 'STATUS_CHANGED' || filters.type === 'LEAD_STATUS_CHANGED') {
+        conditions.push(`a.activity_type IN ('LEAD_STATUS_CHANGED', 'STATUS_CHANGED', 'STATUS_CHANGE')`);
+      } else if (filters.type === 'CALL' || filters.type === 'CALL_LOGGED') {
+        conditions.push(`a.activity_type IN ('CALL', 'CALL_LOGGED')`);
+      } else if (filters.type === 'EMAIL' || filters.type === 'EMAIL_SENT') {
+        conditions.push(`a.activity_type IN ('EMAIL', 'EMAIL_SENT')`);
+      } else if (filters.type === 'NOTE' || filters.type === 'NOTE_ADDED') {
+        conditions.push(`a.activity_type IN ('NOTE', 'NOTE_ADDED')`);
+      } else {
+        conditions.push(`a.activity_type = $${paramIndex}`);
+        values.push(filters.type);
+        paramIndex++;
+      }
     }
 
     const whereClause = conditions.join(' AND ');
@@ -975,13 +985,20 @@ export const reportsRepository = {
       },
       rows: dataRes.rows.map((r) => ({
         id: r.id,
+        leadId: r.lead_id,
+        lead_id: r.lead_id,
         activityType: r.activity_type,
+        activity_type: r.activity_type,
         description: r.description,
-        leadName: r.lead_name || 'System / None',
+        details: r.description,
+        leadName: r.lead_name || 'Direct Contact',
+        lead_name: r.lead_name || 'Direct Contact',
         company: r.lead_company || '',
         actorName: r.actor_name ? r.actor_name.trim() : 'System',
+        actor_name: r.actor_name ? r.actor_name.trim() : 'System',
         actorEmail: r.actor_email || '',
         createdAt: r.created_at,
+        created_at: r.created_at,
       })),
     };
   },

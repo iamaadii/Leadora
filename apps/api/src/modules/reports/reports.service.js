@@ -15,7 +15,7 @@ import {
 } from './reports.constants.js';
 
 // Table column mappings for each report category
-const REPORT_COLUMNS = {
+export const REPORT_COLUMNS = {
   [REPORT_TYPES.LEADS]: [
     { label: 'Lead Name', key: 'name', width: 20 },
     { label: 'Company', key: 'company', width: 18 },
@@ -339,7 +339,7 @@ export const reportsService = {
 
     const exportOptions = {
       title: reportData.title,
-      orgName: user.organizationName || 'Business CRM',
+      orgName: user.organizationName || 'Leadora CRM',
       dateRange: reportData.dateRange,
       summary: reportData.summary,
       columns: reportData.columns,

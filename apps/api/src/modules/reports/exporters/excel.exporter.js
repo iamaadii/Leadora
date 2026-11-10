@@ -17,14 +17,14 @@ import ExcelJS from 'exceljs';
  */
 export async function generateExcel({
   title,
-  orgName = 'Business CRM',
+  orgName = 'Leadora CRM',
   dateRange = {},
   summary = {},
   columns = [],
   data = [],
 }) {
   const workbook = new ExcelJS.Workbook();
-  workbook.creator = 'Business CRM SaaS';
+  workbook.creator = 'Leadora CRM';
   workbook.created = new Date();
 
   const worksheet = workbook.addWorksheet('Report', {

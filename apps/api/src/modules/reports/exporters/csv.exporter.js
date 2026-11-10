@@ -43,27 +43,7 @@ export function sanitizeForCsv(value) {
 export function generateCsv({ columns, data, title, summary }) {
   const lines = [];
 
-  // Optional Title & Metadata Header
-  if (title) {
-    lines.push(sanitizeForCsv(title));
-    lines.push(sanitizeForCsv(`Exported At: ${new Date().toISOString()}`));
-    lines.push(''); // blank line
-  }
-
-  // Summary Metrics Block (if provided)
-  if (summary && Object.keys(summary).length > 0) {
-    lines.push(sanitizeForCsv('--- Summary Metrics ---'));
-    for (const [k, v] of Object.entries(summary)) {
-      if (typeof v === 'object' && v !== null) {
-        lines.push(`${sanitizeForCsv(k)},${sanitizeForCsv(JSON.stringify(v))}`);
-      } else {
-        lines.push(`${sanitizeForCsv(k)},${sanitizeForCsv(v)}`);
-      }
-    }
-    lines.push(''); // blank line
-  }
-
-  // Table Header Row
+  // Table Header Row - placed at top for standard CSV import and spreadsheet compatibility
   const headerRow = columns.map((col) => sanitizeForCsv(col.label)).join(',');
   lines.push(headerRow);
 
@@ -77,6 +57,28 @@ export function generateCsv({ columns, data, title, summary }) {
       return sanitizeForCsv(rawVal);
     });
     lines.push(rowValues.join(','));
+  }
+
+  // Summary Metrics & Metadata Block (appended at bottom so tabular headers are undisturbed)
+  if ((summary && Object.keys(summary).length > 0) || title) {
+    lines.push(''); // blank line
+    lines.push('Summary Metrics');
+    if (title) {
+      lines.push(`Report Title,${sanitizeForCsv(title)}`);
+      lines.push(`Exported At,${sanitizeForCsv(new Date().toISOString())}`);
+    }
+    if (summary) {
+      for (const [k, v] of Object.entries(summary)) {
+        const readableKey = k
+          .replace(/([A-Z])/g, ' $1')
+          .replace(/^./, (str) => str.toUpperCase());
+        if (typeof v === 'object' && v !== null) {
+          lines.push(`${sanitizeForCsv(readableKey)},${sanitizeForCsv(JSON.stringify(v))}`);
+        } else {
+          lines.push(`${sanitizeForCsv(readableKey)},${sanitizeForCsv(v)}`);
+        }
+      }
+    }
   }
 
   // Prepend UTF-8 BOM (\uFEFF)

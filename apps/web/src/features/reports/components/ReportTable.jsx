@@ -138,8 +138,8 @@ export function ReportTable({
       </div>
 
       {/* Pagination Footer */}
-      <div className="px-4 py-3 border-t border-slate-100 bg-white flex items-center justify-between">
-        <span className="text-xs text-slate-500">
+      <div className="px-4 py-3 border-t border-slate-100 bg-white flex flex-col sm:flex-row items-center justify-between gap-3">
+        <span className="text-xs text-slate-500 text-center sm:text-left">
           Showing <span className="font-medium text-slate-900">{startItem}</span> to{' '}
           <span className="font-medium text-slate-900">{endItem}</span> of{' '}
           <span className="font-medium text-slate-900">{totalItems}</span> records
