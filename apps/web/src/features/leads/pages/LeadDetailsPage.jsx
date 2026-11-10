@@ -6,6 +6,8 @@ import { PageHeader } from '../../../components/ui/PageHeader.jsx';
 import { Button } from '../../../components/ui/Button.jsx';
 import { Avatar } from '../../../components/ui/Avatar.jsx';
 import { LeadStatusBadge } from '../components/LeadStatusBadge.jsx';
+import { LeadPriorityBadge } from '../components/LeadPriorityBadge.jsx';
+import { MarkLeadAsLostModal } from '../components/MarkLeadAsLostModal.jsx';
 import { LeadActivityTimeline } from '../components/LeadActivityTimeline.jsx';
 import { LeadForm } from '../components/LeadForm.jsx';
 import { ConfirmationDialog } from '../../../components/ui/ConfirmationDialog.jsx';
@@ -13,6 +15,8 @@ import { Skeleton } from '../../../components/ui/Skeleton.jsx';
 import { ErrorState } from '../../../components/ui/ErrorState.jsx';
 import { useToast } from '../../../components/ui/Toast.jsx';
 import { LEAD_STATUSES } from '../leads.constants.js';
+import { formatCurrency } from '../../../utils/currency.js';
+import { formatDate, formatDateTime } from '../../../utils/dateTime.js';
 import {
   useLeadFollowups,
   useCreateFollowup,
@@ -40,13 +44,16 @@ import {
   CheckCircle2,
   Plus,
   XCircle,
+  DollarSign,
+  Flame,
+  AlertOctagon,
 } from 'lucide-react';
 import { Dropdown, DropdownItem } from '../../../components/ui/Dropdown.jsx';
 
 export function LeadDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, organizationCurrency, organizationTimezone } = useAuth();
   const { toast } = useToast();
   const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
 
@@ -68,6 +75,8 @@ export function LeadDetailsPage() {
   const [isScheduleFollowupOpen, setIsScheduleFollowupOpen] = useState(false);
   const [completingFollowup, setCompletingFollowup] = useState(null);
   const [cancellingFollowup, setCancellingFollowup] = useState(null);
+  const [isMarkLostOpen, setIsMarkLostOpen] = useState(false);
+  const [isSubmittingLoss, setIsSubmittingLoss] = useState(false);
 
   const lead = leadData?.data;
   const leadFollowups = followupsData?.data || [];
@@ -120,6 +129,11 @@ export function LeadDetailsPage() {
   const handleStatusChange = async (newStatus) => {
     if (!lead || lead.status === newStatus) return;
 
+    if (newStatus === 'LOST') {
+      setIsMarkLostOpen(true);
+      return;
+    }
+
     try {
       await updateLeadMutation.mutateAsync({
         id: lead.id,
@@ -131,6 +145,26 @@ export function LeadDetailsPage() {
         err.response?.data?.message || err.message || 'Failed to update status',
         'Update Failed',
       );
+    }
+  };
+
+  const handleConfirmLost = async (lossData) => {
+    if (!lead) return;
+    setIsSubmittingLoss(true);
+    try {
+      await updateLeadMutation.mutateAsync({
+        id: lead.id,
+        data: { status: 'LOST', ...lossData },
+      });
+      toast.success('Lead marked as Lost');
+      setIsMarkLostOpen(false);
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || err.message || 'Failed to update status',
+        'Update Failed',
+      );
+    } finally {
+      setIsSubmittingLoss(false);
     }
   };
 
@@ -207,18 +241,8 @@ export function LeadDetailsPage() {
     ? `${lead.created_by_first_name} ${lead.created_by_last_name}`
     : 'System';
 
-  const createdDate = new Date(lead.created_at).toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
-
-  const updatedDate = new Date(lead.updated_at).toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
+  const createdDate = formatDate(lead.created_at, organizationTimezone);
+  const updatedDate = formatDateTime(lead.updated_at, organizationTimezone);
 
   return (
     <div className="space-y-6 w-full">
@@ -231,7 +255,14 @@ export function LeadDetailsPage() {
           { label: 'Leads', href: isDemo ? '/demo/leads' : '/leads' },
           { label: lead.name },
         ]}
-        badge={<LeadStatusBadge status={lead.status} size="md" />}
+        badge={
+          <div className="flex items-center space-x-2">
+            <LeadStatusBadge status={lead.status} size="md" />
+            {lead.priority && (
+              <LeadPriorityBadge priority={lead.priority} size="md" />
+            )}
+          </div>
+        }
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Link to={isDemo ? '/demo/leads' : '/leads'}>
@@ -310,7 +341,7 @@ export function LeadDetailsPage() {
           <div className="flex items-center space-x-2">
             <Archive className="w-4 h-4 text-amber-600 shrink-0" />
             <span>
-              This lead was archived on {new Date(lead.archived_at).toLocaleString()}. It is hidden from normal active pipelines.
+              This lead was archived on {formatDate(lead.archived_at, organizationTimezone)}. It is hidden from normal active pipelines.
             </span>
           </div>
           {canArchive && (
@@ -318,6 +349,29 @@ export function LeadDetailsPage() {
               Restore Lead
             </Button>
           )}
+        </div>
+      )}
+
+      {/* Lost Lead Notice Banner */}
+      {lead.status === 'LOST' && (
+        <div className="bg-rose-50 border border-rose-200/90 rounded-2xl p-4 flex items-start space-x-3 text-xs text-rose-900 shadow-xs">
+          <AlertOctagon className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+          <div className="space-y-1 flex-1">
+            <div className="flex items-center justify-between">
+              <h4 className="font-bold text-rose-950 text-sm">Deal Marked as Lost</h4>
+              <span className="text-[11px] text-rose-600 font-medium">
+                {formatDate(lead.updated_at, organizationTimezone)}
+              </span>
+            </div>
+            <p className="text-rose-800">
+              <strong>Recorded Loss Reason:</strong> {lead.loss_reason || 'Legacy record (no reason recorded)'}
+            </p>
+            {lead.loss_notes && (
+              <p className="text-rose-700 text-[11px] bg-white/70 p-2.5 rounded-xl border border-rose-200/60 mt-1 whitespace-pre-wrap">
+                {lead.loss_notes}
+              </p>
+            )}
+          </div>
         </div>
       )}
 
@@ -366,6 +420,26 @@ export function LeadDetailsPage() {
                   ) : (
                     <span className="text-slate-400 italic">Not provided</span>
                   )}
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-2.5">
+                <DollarSign className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                <div>
+                  <span className="text-slate-400 block text-[11px]">Estimated Deal Value</span>
+                  <span className="font-extrabold text-emerald-700 text-sm">
+                    {formatCurrency(lead.estimated_value, organizationCurrency)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-2.5">
+                <Flame className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+                <div>
+                  <span className="text-slate-400 block text-[11px]">Deal Priority</span>
+                  <div className="mt-0.5">
+                    <LeadPriorityBadge priority={lead.priority} size="sm" />
+                  </div>
                 </div>
               </div>
 
@@ -618,6 +692,15 @@ export function LeadDetailsPage() {
         confirmText="Archive Lead"
         isDestructive
         isLoading={archiveLeadMutation.isPending}
+      />
+
+      {/* Mandatory Loss Reason Modal */}
+      <MarkLeadAsLostModal
+        isOpen={isMarkLostOpen}
+        onClose={() => setIsMarkLostOpen(false)}
+        onConfirm={handleConfirmLost}
+        leadName={lead.name}
+        isLoading={isSubmittingLoss}
       />
     </div>
   );

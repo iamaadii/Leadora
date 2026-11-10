@@ -16,11 +16,15 @@ export const leadsRepository = {
         company,
         source,
         status,
+        priority,
+        estimated_value,
+        loss_reason,
+        loss_notes,
         assigned_to_id,
         description,
         created_by_id
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
       RETURNING *;
     `;
     const values = [
@@ -31,6 +35,10 @@ export const leadsRepository = {
       lead.company || null,
       lead.source || 'WEBSITE',
       lead.status || 'NEW',
+      lead.priority || 'MEDIUM',
+      lead.estimated_value !== undefined ? lead.estimated_value : null,
+      lead.loss_reason || null,
+      lead.loss_notes || null,
       lead.assigned_to_id || null,
       lead.description || null,
       lead.created_by_id,
@@ -79,6 +87,7 @@ export const leadsRepository = {
       limit = 10,
       search,
       status,
+      priority,
       source,
       assigned_to_id,
       startDate,
@@ -127,6 +136,13 @@ export const leadsRepository = {
     if (status) {
       conditions.push(`l.status = $${paramIndex}`);
       values.push(status);
+      paramIndex++;
+    }
+
+    // Priority filter
+    if (priority) {
+      conditions.push(`l.priority = $${paramIndex}`);
+      values.push(priority);
       paramIndex++;
     }
 

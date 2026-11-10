@@ -1,10 +1,14 @@
 import React from 'react';
 import { LeadStatusBadge } from './LeadStatusBadge.jsx';
+import { LeadPriorityBadge } from './LeadPriorityBadge.jsx';
 import { Avatar } from '../../../components/ui/Avatar.jsx';
 import { Button } from '../../../components/ui/Button.jsx';
 import { Dropdown, DropdownItem } from '../../../components/ui/Dropdown.jsx';
 import { Skeleton } from '../../../components/ui/Skeleton.jsx';
 import { EmptyState } from '../../../components/ui/EmptyState.jsx';
+import { useAuth } from '../../auth/hooks/useAuth.js';
+import { formatCurrency } from '../../../utils/currency.js';
+import { formatDate } from '../../../utils/dateTime.js';
 import {
   MoreVertical,
   Eye,
@@ -34,6 +38,7 @@ export function LeadTable({
   canArchive = false,
   isArchivedView = false,
 }) {
+  const { organizationCurrency, organizationTimezone } = useAuth();
   if (isLoading) {
     return (
       <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-xs">
@@ -84,8 +89,8 @@ export function LeadTable({
       {/* ------------------------------------------------------------- */}
       <div className="sm:hidden divide-y divide-slate-100">
         {leads.map((lead) => {
-          const dealValueFormatted = lead.estimated_value || lead.estimated_deal_value
-            ? `$${Number(lead.estimated_value || lead.estimated_deal_value).toLocaleString()}`
+          const dealValueFormatted = lead.estimated_value
+            ? formatCurrency(lead.estimated_value, organizationCurrency)
             : null;
 
           return (
@@ -104,7 +109,12 @@ export function LeadTable({
                     <span className="font-bold text-xs text-slate-900 truncate group-hover:text-blue-600 transition">
                       {lead.name}
                     </span>
-                    <LeadStatusBadge status={lead.status} />
+                    <div className="flex items-center space-x-1.5 shrink-0">
+                      {lead.priority && (
+                        <LeadPriorityBadge priority={lead.priority} size="xs" />
+                      )}
+                      <LeadStatusBadge status={lead.status} />
+                    </div>
                   </div>
 
                   <div className="flex items-center space-x-2 text-[11px] text-slate-500 mt-0.5 truncate">
@@ -143,6 +153,8 @@ export function LeadTable({
               <th className="py-3.5 px-4">Lead Name</th>
               <th className="py-3.5 px-4">Company</th>
               <th className="py-3.5 px-4">Status</th>
+              <th className="py-3.5 px-4">Priority</th>
+              <th className="py-3.5 px-4">Deal Value</th>
               <th className="py-3.5 px-4">Source</th>
               <th className="py-3.5 px-4">Assigned Rep</th>
               <th className="py-3.5 px-4">Created Date</th>
@@ -155,11 +167,7 @@ export function LeadTable({
                 ? `${lead.assigned_to_first_name} ${lead.assigned_to_last_name}`
                 : 'Unassigned';
 
-              const createdDate = new Date(lead.created_at).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-              });
+              const createdDate = formatDate(lead.created_at, organizationTimezone);
 
               return (
                 <tr
@@ -208,6 +216,16 @@ export function LeadTable({
                   {/* Status */}
                   <td className="py-3.5 px-4">
                     <LeadStatusBadge status={lead.status} />
+                  </td>
+
+                  {/* Priority */}
+                  <td className="py-3.5 px-4">
+                    <LeadPriorityBadge priority={lead.priority} size="xs" />
+                  </td>
+
+                  {/* Deal Value */}
+                  <td className="py-3.5 px-4 font-bold text-emerald-700">
+                    {formatCurrency(lead.estimated_value, organizationCurrency)}
                   </td>
 
                   {/* Source */}

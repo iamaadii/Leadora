@@ -23,9 +23,27 @@ export const leadsService = {
       company,
       source = 'WEBSITE',
       status = 'NEW',
+      priority = 'MEDIUM',
+      estimated_value,
+      loss_reason,
+      loss_notes,
       assigned_to_id,
       description,
     } = leadData;
+
+    if (status === 'LOST' && (!loss_reason || !loss_reason.trim())) {
+      throw AppError.badRequest(
+        'A loss reason is required when creating a lead in Lost status.',
+        'LOSS_REASON_REQUIRED',
+      );
+    }
+
+    if (status === 'LOST' && loss_reason === 'Other' && (!loss_notes || !loss_notes.trim())) {
+      throw AppError.badRequest(
+        'Please provide an explanation in additional notes when selecting "Other".',
+        'LOSS_NOTES_REQUIRED',
+      );
+    }
 
     // Check Employee role restrictions
     if (user.role === 'EMPLOYEE' && assigned_to_id && assigned_to_id !== user.id) {
@@ -77,6 +95,10 @@ export const leadsService = {
           company: company || null,
           source,
           status,
+          priority: priority || 'MEDIUM',
+          estimated_value: estimated_value !== undefined ? estimated_value : null,
+          loss_reason: loss_reason || null,
+          loss_notes: loss_notes || null,
           assigned_to_id: assigned_to_id || null,
           description: description || null,
           created_by_id: user.id,
@@ -98,8 +120,12 @@ export const leadsService = {
           description: activityDescription,
           metadata: {
             status: createdLead.status,
+            priority: createdLead.priority,
+            estimated_value: createdLead.estimated_value,
             source: createdLead.source,
             assigned_to_id: createdLead.assigned_to_id,
+            loss_reason: createdLead.loss_reason,
+            loss_notes: createdLead.loss_notes,
           },
         },
         client,
@@ -238,6 +264,10 @@ export const leadsService = {
       'company',
       'source',
       'status',
+      'priority',
+      'estimated_value',
+      'loss_reason',
+      'loss_notes',
       'assigned_to_id',
       'description',
     ];
@@ -314,16 +344,42 @@ export const leadsService = {
 
       // 2. Record status change activity if status changed
       if (fieldsToUpdate.status && fieldsToUpdate.status !== existingLead.status) {
+        const isLost = fieldsToUpdate.status === 'LOST';
+        const lossReason = fieldsToUpdate.loss_reason || existingLead.loss_reason || null;
+        const lossNotes = fieldsToUpdate.loss_notes || existingLead.loss_notes || null;
+
+        if (isLost && (!lossReason || !lossReason.trim())) {
+          throw AppError.badRequest(
+            'A loss reason is required when marking a lead as Lost.',
+            'LOSS_REASON_REQUIRED',
+          );
+        }
+
+        if (isLost && lossReason === 'Other' && (!lossNotes || !lossNotes.trim())) {
+          throw AppError.badRequest(
+            'Please provide an explanation in additional notes when selecting "Other".',
+            'LOSS_NOTES_REQUIRED',
+          );
+        }
+
+        const activityDescription = isLost
+          ? `Lead marked as Lost. Reason: ${lossReason}${lossNotes ? ` - Notes: ${lossNotes}` : ''}`
+          : `Lead status changed from ${existingLead.status} to ${fieldsToUpdate.status}`;
+
         await leadsRepository.createActivity(
           {
             organization_id: user.organizationId,
             lead_id: leadId,
             actor_user_id: user.id,
             activity_type: LEAD_ACTIVITY_TYPES.STATUS_CHANGED,
-            description: `Lead status changed from ${existingLead.status} to ${fieldsToUpdate.status}`,
+            description: activityDescription,
             metadata: {
               old_status: existingLead.status,
               new_status: fieldsToUpdate.status,
+              from: existingLead.status,
+              to: fieldsToUpdate.status,
+              loss_reason: isLost ? lossReason : null,
+              loss_notes: isLost ? lossNotes : null,
             },
           },
           client,
@@ -367,7 +423,11 @@ export const leadsService = {
 
       // 4. Record general update activity for other fields
       const nonStatusNonAssignFields = changedFields.filter(
-        (f) => f !== 'status' && f !== 'assigned_to_id',
+        (f) =>
+          f !== 'status' &&
+          f !== 'assigned_to_id' &&
+          f !== 'loss_reason' &&
+          f !== 'loss_notes',
       );
 
       if (nonStatusNonAssignFields.length > 0) {

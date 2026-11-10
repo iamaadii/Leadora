@@ -100,6 +100,8 @@ export async function seedDatabase() {
         company: 'TechStart Inc',
         source: 'WEBSITE',
         status: 'NEW',
+        priority: 'HIGH',
+        estimatedValue: 45000.00,
         assignedToId: aliceId,
         createdById: adminId,
         description: 'Inbound inquiry requesting product demo for 50-person sales team.',
@@ -111,6 +113,8 @@ export async function seedDatabase() {
         company: 'Apex Logistics LLC',
         source: 'COLD_CALL',
         status: 'CONTACTED',
+        priority: 'MEDIUM',
+        estimatedValue: 18500.00,
         assignedToId: aliceId,
         createdById: aliceId,
         description: 'First call completed. Interested in automated follow-up workflows.',
@@ -122,6 +126,8 @@ export async function seedDatabase() {
         company: 'CloudNova Systems',
         source: 'LINKEDIN',
         status: 'INTERESTED',
+        priority: 'HIGH',
+        estimatedValue: 72000.00,
         assignedToId: bobId,
         createdById: managerId,
         description: 'Looking to replace outdated spreadsheets with a structured CRM.',
@@ -133,9 +139,11 @@ export async function seedDatabase() {
         company: 'Global BioLabs Corp',
         source: 'REFERRAL',
         status: 'QUALIFIED',
+        priority: 'URGENT',
+        estimatedValue: 95000.00,
         assignedToId: bobId,
         createdById: bobId,
-        description: 'Budget confirmed ($30k annual). Key decision maker is VP of Operations.',
+        description: 'Budget confirmed ($95k annual). Key decision maker is VP of Operations.',
       },
       {
         name: 'Michael Torres',
@@ -144,6 +152,8 @@ export async function seedDatabase() {
         company: 'Vanguard Retail Chain',
         source: 'WEBSITE',
         status: 'PROPOSAL_SENT',
+        priority: 'HIGH',
+        estimatedValue: 120000.00,
         assignedToId: aliceId,
         createdById: aliceId,
         description: 'Custom proposal sent for enterprise rollout across 12 branch offices.',
@@ -155,6 +165,8 @@ export async function seedDatabase() {
         company: 'Horizon Health Network',
         source: 'EVENT',
         status: 'CONVERTED',
+        priority: 'URGENT',
+        estimatedValue: 150000.00,
         assignedToId: bobId,
         createdById: managerId,
         description: 'Contract signed! Successfully converted after 45-day sales cycle.',
@@ -166,6 +178,10 @@ export async function seedDatabase() {
         company: 'Solaris Media Group',
         source: 'COLD_CALL',
         status: 'LOST',
+        priority: 'LOW',
+        estimatedValue: 24000.00,
+        lossReason: 'Budget unavailable',
+        lossNotes: 'Customer opted to postpone CRM upgrades until Q4 due to enterprise budget freeze.',
         assignedToId: aliceId,
         createdById: aliceId,
         description: 'Customer opted to postpone CRM upgrades until Q4 due to budget freeze.',
@@ -177,6 +193,8 @@ export async function seedDatabase() {
         company: 'Quantum Robotics Labs',
         source: 'REFERRAL',
         status: 'QUALIFIED',
+        priority: 'HIGH',
+        estimatedValue: 88000.00,
         assignedToId: managerId,
         createdById: adminId,
         description: 'High-growth AI startup. Needs rapid integration and activity history.',
@@ -188,6 +206,8 @@ export async function seedDatabase() {
         company: 'Evergreen Packaging Solutions',
         source: 'WEBSITE',
         status: 'CONTACTED',
+        priority: 'MEDIUM',
+        estimatedValue: 32000.00,
         assignedToId: bobId,
         createdById: bobId,
         description: 'Requested pricing information for multi-user licenses.',
@@ -199,6 +219,8 @@ export async function seedDatabase() {
         company: 'Summit Financial Partners',
         source: 'OTHER',
         status: 'PROPOSAL_SENT',
+        priority: 'HIGH',
+        estimatedValue: 64000.00,
         assignedToId: aliceId,
         createdById: adminId,
         description: 'Proposal currently under review by compliance and legal team.',
@@ -210,6 +232,8 @@ export async function seedDatabase() {
         company: 'Pinnacle Architecture Studio',
         source: 'WEBSITE',
         status: 'NEW',
+        priority: 'LOW',
+        estimatedValue: 12500.00,
         assignedToId: null,
         createdById: adminId,
         description: 'Unassigned inbound lead from website contact form.',
@@ -221,6 +245,8 @@ export async function seedDatabase() {
         company: 'BlueWave Marine Technologies',
         source: 'EVENT',
         status: 'INTERESTED',
+        priority: 'MEDIUM',
+        estimatedValue: 41000.00,
         assignedToId: bobId,
         createdById: bobId,
         description: 'Met at annual trade show. Follow-up demo requested.',
@@ -239,9 +265,10 @@ export async function seedDatabase() {
         const res = await client.query(
           `INSERT INTO leads (
              organization_id, name, email, phone, company, source, status,
+             priority, estimated_value, loss_reason, loss_notes,
              assigned_to_id, description, created_by_id
            )
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
            RETURNING id;`,
           [
             orgId,
@@ -251,6 +278,10 @@ export async function seedDatabase() {
             lead.company,
             lead.source,
             lead.status,
+            lead.priority || 'MEDIUM',
+            lead.estimatedValue || null,
+            lead.lossReason || null,
+            lead.lossNotes || null,
             lead.assignedToId,
             lead.description,
             lead.createdById,
@@ -258,6 +289,22 @@ export async function seedDatabase() {
         );
         leadIdMap[lead.company] = res.rows[0].id;
       } else {
+        await client.query(
+          `UPDATE leads 
+           SET priority = COALESCE(priority, $3),
+               estimated_value = COALESCE(estimated_value, $4),
+               loss_reason = COALESCE(loss_reason, $5),
+               loss_notes = COALESCE(loss_notes, $6)
+           WHERE id = $1 AND organization_id = $2;`,
+          [
+            existingLead.rows[0].id,
+            orgId,
+            lead.priority || 'MEDIUM',
+            lead.estimatedValue || null,
+            lead.lossReason || null,
+            lead.lossNotes || null,
+          ],
+        );
         leadIdMap[lead.company] = existingLead.rows[0].id;
       }
     }

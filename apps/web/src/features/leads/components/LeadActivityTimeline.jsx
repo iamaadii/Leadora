@@ -10,6 +10,8 @@ import {
   User,
 } from 'lucide-react';
 import { Skeleton } from '../../../components/ui/Skeleton.jsx';
+import { useAuth } from '../../auth/hooks/useAuth.js';
+import { formatDateTime } from '../../../utils/dateTime.js';
 
 const EVENT_ICONS = {
   LEAD_CREATED: { icon: Sparkles, color: 'text-purple-600 bg-purple-50 border-purple-200' },
@@ -21,6 +23,7 @@ const EVENT_ICONS = {
 };
 
 export function LeadActivityTimeline({ activities = [], isLoading = false }) {
+  const { organizationTimezone } = useAuth();
   if (isLoading) {
     return (
       <div className="space-y-4 py-2">
@@ -54,12 +57,7 @@ export function LeadActivityTimeline({ activities = [], isLoading = false }) {
         };
         const Icon = config.icon;
 
-        const dateStr = new Date(act.created_at).toLocaleString('en-US', {
-          month: 'short',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: '2-digit',
-        });
+        const dateStr = formatDateTime(act.created_at, organizationTimezone);
 
         const actorName = act.actor_first_name
           ? `${act.actor_first_name} ${act.actor_last_name}`

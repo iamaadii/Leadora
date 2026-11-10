@@ -9,7 +9,9 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { useToast } from '../../../components/ui/Toast.jsx';
-import { Select } from '../../../components/ui/Select.jsx';
+import { MarkLeadAsLostModal } from './MarkLeadAsLostModal.jsx';
+import { LeadPriorityBadge } from './LeadPriorityBadge.jsx';
+import { formatCurrency } from '../../../utils/currency.js';
 
 export const KANBAN_STAGES = [
   {
@@ -29,6 +31,14 @@ export const KANBAN_STAGES = [
     tagBg: 'bg-indigo-100/80 text-indigo-800',
   },
   {
+    id: 'INTERESTED',
+    label: 'Interested',
+    color: 'border-t-blue-500',
+    headerBg: 'bg-blue-50 text-blue-700',
+    badgeDot: 'bg-blue-500',
+    tagBg: 'bg-blue-100/80 text-blue-800',
+  },
+  {
     id: 'QUALIFIED',
     label: 'Qualified',
     color: 'border-t-amber-500',
@@ -45,16 +55,8 @@ export const KANBAN_STAGES = [
     tagBg: 'bg-purple-100/80 text-purple-800',
   },
   {
-    id: 'NEGOTIATION',
-    label: 'Negotiation',
-    color: 'border-t-blue-500',
-    headerBg: 'bg-blue-50 text-blue-700',
-    badgeDot: 'bg-blue-500',
-    tagBg: 'bg-blue-100/80 text-blue-800',
-  },
-  {
-    id: 'WON',
-    label: 'Won',
+    id: 'CONVERTED',
+    label: 'Converted',
     color: 'border-t-emerald-500',
     headerBg: 'bg-emerald-50 text-emerald-700',
     badgeDot: 'bg-emerald-500',
@@ -77,13 +79,15 @@ export function LeadKanbanBoard({
   isArchived = false,
   onRestoreLead,
 }) {
-  const { user } = useAuth();
+  const { user, organizationCurrency } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
 
   const [draggedLeadId, setDraggedLeadId] = useState(null);
   const [dragOverStage, setDragOverStage] = useState(null);
+  const [pendingLostLead, setPendingLostLead] = useState(null);
+  const [isSubmittingLoss, setIsSubmittingLoss] = useState(false);
   const columnRefs = useRef({});
 
   // Group leads by pipeline stage
@@ -107,7 +111,7 @@ export function LeadKanbanBoard({
   };
 
   const handleDragStart = (e, leadId) => {
-    if (isArchived) return; // Prevent drag on archived leads
+    if (isArchived) return;
     e.dataTransfer.setData('text/plain', leadId);
     setDraggedLeadId(leadId);
   };
@@ -139,13 +143,26 @@ export function LeadKanbanBoard({
     if (!leadId) return;
 
     const lead = leads.find((l) => l.id === leadId);
-    if (!lead || lead.status === targetStageId) return;
+    if (!lead || lead.status === targetStageId) {
+      setDraggedLeadId(null);
+      return;
+    }
 
     if (isDemo) {
       toast.warning(
         'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
         'Demo Mode (Read-Only)',
       );
+      setDraggedLeadId(null);
+      return;
+    }
+
+    // If moving to LOST, prompt for mandatory loss reason
+    if (targetStageId === 'LOST') {
+      setPendingLostLead({
+        id: lead.id,
+        name: lead.name,
+      });
       setDraggedLeadId(null);
       return;
     }
@@ -172,6 +189,15 @@ export function LeadKanbanBoard({
       return;
     }
 
+    // If moving to LOST, prompt for mandatory loss reason
+    if (newStage === 'LOST') {
+      setPendingLostLead({
+        id: lead.id,
+        name: lead.name,
+      });
+      return;
+    }
+
     try {
       await onStatusChange(lead.id, newStage);
       toast.success(`Updated "${lead.name}" stage to ${newStage.replace(/_/g, ' ')}`);
@@ -181,13 +207,19 @@ export function LeadKanbanBoard({
     }
   };
 
-  const formatCurrency = (val) => {
-    if (val === null || val === undefined || isNaN(val)) return '$0';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0,
-    }).format(val);
+  const handleConfirmLost = async (lossData) => {
+    if (!pendingLostLead) return;
+    setIsSubmittingLoss(true);
+    try {
+      await onStatusChange(pendingLostLead.id, 'LOST', lossData);
+      toast.success(`Marked "${pendingLostLead.name}" as Lost`);
+      setPendingLostLead(null);
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || 'Failed to record loss reason';
+      toast.error(msg, 'Loss Record Error');
+    } finally {
+      setIsSubmittingLoss(false);
+    }
   };
 
   return (
@@ -245,14 +277,14 @@ export function LeadKanbanBoard({
           </span>
           <span className="text-slate-300">•</span>
           <span className="text-slate-500 font-medium">
-            Pipeline: <strong className="text-emerald-700">{formatCurrency(totalPipelineValue)}</strong>
+            Pipeline: <strong className="text-emerald-700">{formatCurrency(totalPipelineValue, organizationCurrency)}</strong>
           </span>
         </div>
       </div>
 
-      {/* Main Kanban Columns Scroll Area */}
-      <div className="w-full overflow-x-auto pb-4 pt-1 touch-pan-x">
-        <div className="flex gap-4 min-w-max items-start">
+      {/* Horizontal Kanban Columns */}
+      <div className="relative">
+        <div className="flex space-x-3.5 overflow-x-auto pb-4 pt-1 px-1 scrollbar-thin scroll-smooth">
           {KANBAN_STAGES.map((stage) => {
             const columnLeads = stageGroups[stage.id] || [];
             const stageValue = columnLeads.reduce(
@@ -287,7 +319,7 @@ export function LeadKanbanBoard({
                       </span>
                     </div>
                     <p className="text-[11px] font-bold text-slate-500 pl-4">
-                      {formatCurrency(stageValue)}
+                      {formatCurrency(stageValue, organizationCurrency)}
                     </p>
                   </div>
                 </div>
@@ -349,7 +381,7 @@ export function LeadKanbanBoard({
                             </Link>
                           </div>
 
-                          {/* Company & Source Badges */}
+                          {/* Company & Priority / Source Badges */}
                           <div className="space-y-1.5">
                             {lead.company && (
                               <div className="flex items-center space-x-1.5 text-xs text-slate-600 truncate">
@@ -359,6 +391,9 @@ export function LeadKanbanBoard({
                             )}
 
                             <div className="flex flex-wrap items-center gap-1.5">
+                              {lead.priority && (
+                                <LeadPriorityBadge priority={lead.priority} size="xs" />
+                              )}
                               {lead.source && (
                                 <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 text-slate-700">
                                   {lead.source.replace(/_/g, ' ')}
@@ -375,7 +410,7 @@ export function LeadKanbanBoard({
                           {/* Value & Assignee Footer */}
                           <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
                             <span className="font-extrabold text-emerald-700">
-                              {formatCurrency(lead.estimated_value)}
+                              {formatCurrency(lead.estimated_value, organizationCurrency)}
                             </span>
 
                             <div
@@ -390,31 +425,37 @@ export function LeadKanbanBoard({
                           </div>
 
                           {/* Quick Stage Mover or Restore Action */}
-                          {!isArchived ? (
-                            <div className="pt-1 flex items-center justify-between gap-1.5 text-[11px]">
-                              <span className="text-[10px] text-slate-400 font-medium shrink-0">Stage:</span>
-                              <Select
-                                size="sm"
-                                value={lead.status || 'NEW'}
-                                onChange={(e) => handleSelectStageChange(lead, e.target.value)}
-                                disabled={isUpdating}
-                                options={KANBAN_STAGES.map((s) => ({ value: s.id, label: s.label }))}
-                                containerClassName="flex-1 min-w-0"
-                                className="w-full text-[11px]"
-                              />
-                            </div>
-                          ) : onRestoreLead ? (
-                            <div className="pt-1 flex justify-end">
+                          <div className="pt-1 flex items-center justify-between gap-1 border-t border-slate-50">
+                            {isArchived ? (
                               <button
                                 type="button"
-                                onClick={() => onRestoreLead(lead)}
-                                className="inline-flex items-center space-x-1 text-[11px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-1 rounded-md transition"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onRestoreLead?.(lead);
+                                }}
+                                className="w-full inline-flex items-center justify-center space-x-1.5 py-1 px-2 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 text-[11px] font-semibold transition"
                               >
                                 <RotateCcw className="w-3 h-3" />
                                 <span>Restore Lead</span>
                               </button>
-                            </div>
-                          ) : null}
+                            ) : (
+                              <div className="w-full flex items-center space-x-1.5">
+                                <span className="text-[10px] text-slate-400 font-medium shrink-0">Stage:</span>
+                                <select
+                                  value={lead.status || 'NEW'}
+                                  disabled={isUpdating}
+                                  onChange={(e) => handleSelectStageChange(lead, e.target.value)}
+                                  className="w-full py-0.5 px-1.5 text-[11px] font-medium rounded border border-slate-200 bg-slate-50 hover:bg-white text-slate-700 focus:outline-hidden focus:ring-1 focus:ring-blue-500"
+                                >
+                                  {KANBAN_STAGES.map((s) => (
+                                    <option key={s.id} value={s.id}>
+                                      {s.label}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       );
                     })
@@ -425,6 +466,15 @@ export function LeadKanbanBoard({
           })}
         </div>
       </div>
+
+      {/* Mandatory Loss Reason Modal */}
+      <MarkLeadAsLostModal
+        isOpen={Boolean(pendingLostLead)}
+        onClose={() => setPendingLostLead(null)}
+        onConfirm={handleConfirmLost}
+        leadName={pendingLostLead?.name || ''}
+        isLoading={isSubmittingLoss}
+      />
     </div>
   );
 }
