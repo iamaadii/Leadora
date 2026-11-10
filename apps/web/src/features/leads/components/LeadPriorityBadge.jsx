@@ -20,3 +20,4 @@ export function LeadPriorityBadge({ priority = 'MEDIUM', size = 'sm', className 
     </Badge>
   );
 }
+

@@ -38,3 +38,4 @@ The custom hook `apps/web/src/features/notifications/hooks/useNotificationStream
 - Automatically handles reconnection with backoff if network drops.
 - Falls back gracefully to background polling (every 30s) if SSE is blocked by client firewall.
 - Is automatically disabled when navigating in Demo Mode.
+

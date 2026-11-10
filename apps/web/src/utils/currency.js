@@ -63,3 +63,4 @@ export function formatCurrency(amount, currency = 'USD', options = {}) {
 export function getCurrencySymbol(currency = 'USD') {
   return CURRENCY_SYMBOLS[(currency || 'USD').toUpperCase()] || '$';
 }
+

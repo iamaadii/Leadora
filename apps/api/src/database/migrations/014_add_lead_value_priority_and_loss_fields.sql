@@ -46,3 +46,4 @@ WHERE archived_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_leads_org_estimated_value 
 ON leads(organization_id, estimated_value DESC) 
 WHERE archived_at IS NULL;
+

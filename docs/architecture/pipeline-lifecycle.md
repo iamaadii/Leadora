@@ -41,3 +41,4 @@ When a lead transitions to `LOST` via Kanban drag-and-drop, stage selector, or L
 - If *Other* is selected, an explanatory note is mandatory.
 - The reason and notes are transactionally stored in `leads.loss_reason`, `leads.loss_notes`, and logged as an immutable `LEAD_STATUS_CHANGED` activity entry.
 - Lost Leads reports and exports include the exact reason for loss analysis.
+

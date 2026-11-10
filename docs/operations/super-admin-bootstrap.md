@@ -42,3 +42,4 @@ npm run admin:create -- --email=admin@yourdomain.com --password=YourStrongPasswo
 If an account with the specified email already exists:
 - If the account has `role = 'SUPER_ADMIN'`, the script prompts to update the name and password safely without altering past audit logs.
 - If the email belongs to a tenant employee or manager, the script aborts with an error to prevent accidental permission escalation.
+

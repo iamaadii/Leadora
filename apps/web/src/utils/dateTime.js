@@ -86,3 +86,4 @@ export function formatRelativeTime(date) {
 
   return d.toLocaleDateString();
 }
+

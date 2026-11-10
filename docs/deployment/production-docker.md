@@ -83,3 +83,4 @@ location /api/ {
 ```
 
 This prevents Nginx from holding notification chunks, delivering instant real-time notifications to users.
+
