@@ -7,6 +7,7 @@ export const Input = forwardRef(function Input(
     helperText,
     leftIcon: LeftIcon,
     rightIcon: RightIcon,
+    rightAction,
     className = '',
     containerClassName = '',
     id,
@@ -41,9 +42,9 @@ export const Input = forwardRef(function Input(
           type={type}
           disabled={disabled}
           required={required}
-          className={`block w-full text-xs sm:text-sm rounded-lg border transition placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed ${
+          className={`block w-full text-base sm:text-sm rounded-lg border transition placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed ${
             LeftIcon ? 'pl-9' : 'pl-3'
-          } ${RightIcon ? 'pr-9' : 'pr-3'} py-2 ${
+          } ${RightIcon || rightAction ? 'pr-9' : 'pr-3'} py-2.5 sm:py-2 ${
             error
               ? 'border-rose-300 text-rose-900 focus:border-rose-500 focus:ring-rose-500/20'
               : 'border-slate-300 text-slate-900 focus:border-blue-500 focus:ring-blue-500/20'
@@ -51,11 +52,15 @@ export const Input = forwardRef(function Input(
           {...rest}
         />
 
-        {RightIcon && (
+        {rightAction ? (
+          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+            {rightAction}
+          </div>
+        ) : RightIcon ? (
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
             <RightIcon className="w-4 h-4" />
           </div>
-        )}
+        ) : null}
       </div>
 
       {error ? (

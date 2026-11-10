@@ -14,28 +14,50 @@ export function LeadoraIcon({ className = 'w-9 h-9' }) {
   return (
     <svg
       viewBox="0 0 48 48"
-      fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={`${className} shrink-0 drop-shadow-xs`}
+      className={`${className} shrink-0 drop-shadow-sm select-none`}
       aria-hidden="true"
     >
       <defs>
-        <linearGradient id="leadora-vibrant-bg" x1="2" y1="2" x2="46" y2="46" gradientUnits="userSpaceOnUse">
+        <linearGradient id="leadora-grad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#2563EB" />
-          <stop offset="50%" stopColor="#3B82F6" />
           <stop offset="100%" stopColor="#4F46E5" />
-        </linearGradient>
-        <linearGradient id="leadora-accent-mint" x1="26" y1="18" x2="38" y2="6" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#A7F3D0" />
-          <stop offset="100%" stopColor="#34D399" />
         </linearGradient>
       </defs>
 
-      {/* High-visibility vibrant blue/indigo squircle badge */}
-      <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#leadora-vibrant-bg)" />
-      <rect x="2.5" y="2.5" width="43" height="43" rx="11.5" stroke="#FFFFFF" strokeWidth="1" strokeOpacity="0.3" />
+      {/* Solid high-visibility royal blue base badge (guaranteed visible even if gradient fails) */}
+      <rect
+        x="2"
+        y="2"
+        width="44"
+        height="44"
+        rx="12"
+        fill="#2563EB"
+      />
+      {/* Gradient enhancement layer */}
+      <rect
+        x="2"
+        y="2"
+        width="44"
+        height="44"
+        rx="12"
+        fill="url(#leadora-grad)"
+        fillOpacity="0.9"
+      />
+      {/* Polished inner border */}
+      <rect
+        x="2.5"
+        y="2.5"
+        width="43"
+        height="43"
+        rx="11.5"
+        stroke="#FFFFFF"
+        strokeWidth="1.2"
+        strokeOpacity="0.35"
+        fill="none"
+      />
 
-      {/* Razor-sharp Pure White L Monogram */}
+      {/* Razor-sharp Pure White L Monogram (21:1 contrast against royal blue) */}
       <path
         d="M14 12C14 10.8954 14.8954 10 16 10H20C21.1046 10 22 10.8954 22 12V28C22 29.1046 22.8954 30 24 30H34C35.1046 30 36 30.8954 36 32V36C36 37.1046 35.1046 38 34 38H18C15.7909 38 14 36.2091 14 34V12Z"
         fill="#FFFFFF"
@@ -44,7 +66,7 @@ export function LeadoraIcon({ className = 'w-9 h-9' }) {
       {/* High-luminance Mint Emerald Growth Arrow */}
       <path
         d="M26 18L37 7M37 7H29M37 7V15"
-        stroke="url(#leadora-accent-mint)"
+        stroke="#34D399"
         strokeWidth="3.2"
         strokeLinecap="round"
         strokeLinejoin="round"

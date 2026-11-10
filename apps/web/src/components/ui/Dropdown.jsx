@@ -43,7 +43,7 @@ export function Dropdown({
 
       {isOpen && (
         <div
-          className={`absolute ${alignClass} mt-2 w-56 rounded-xl bg-white shadow-xl ring-1 ring-black/5 border border-slate-200 py-1.5 z-40 focus:outline-none animate-in fade-in zoom-in-95 duration-100`}
+          className={`absolute ${alignClass} mt-1.5 w-56 max-w-[calc(100vw-1.5rem)] rounded-2xl bg-white shadow-2xl ring-1 ring-black/5 border border-slate-200/90 py-1.5 z-50 focus:outline-hidden animate-in fade-in zoom-in-95 duration-100 overflow-hidden`}
           onClick={() => setIsOpen(false)}
         >
           {children}
@@ -66,7 +66,7 @@ export function DropdownItem({
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className={`w-full flex items-center space-x-2.5 px-3.5 py-2 text-xs font-medium text-left transition ${
+      className={`w-full flex items-center space-x-2.5 px-3.5 py-2.5 text-xs font-semibold text-left transition ${
         danger
           ? 'text-rose-600 hover:bg-rose-50'
           : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
@@ -81,4 +81,3 @@ export function DropdownItem({
 export function DropdownDivider() {
   return <div className="h-px bg-slate-100 my-1" />;
 }
-
