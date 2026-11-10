@@ -10,7 +10,8 @@
     "lint": "eslint src/**/*.js",
     "test": "node --test --test-concurrency=1 tests/",
     "db:migrate": "node src/database/migrate.js",
-    "db:seed": "node src/database/seeds/seed.js"
+    "db:seed": "node src/database/seeds/seed.js",
+    "admin:create": "node src/scripts/create-super-admin.js"
   },
   "dependencies": {
     "argon2": "^0.40.1",

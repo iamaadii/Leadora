@@ -76,19 +76,22 @@ export function createApp() {
     app.use(morgan('[:date[iso]] :method :url :status :response-time ms - :res[content-length]'));
   }
 
-  // Basic API Health check
-  app.get('/api/v1/health', (req, res) => {
+  // Basic API Health check (supports both /health and /api/v1/health)
+  const healthHandler = (req, res) => {
     res.status(200).json({
       success: true,
       data: {
         status: 'healthy',
-        message: 'Business CRM Backend API is running',
+        message: 'Leadora CRM Backend API is running',
         uptime: Math.floor(process.uptime()),
         timestamp: new Date().toISOString(),
         environment: env.NODE_ENV,
       },
     });
-  });
+  };
+
+  app.get('/health', healthHandler);
+  app.get('/api/v1/health', healthHandler);
 
   // Database Connectivity Health check (safe for production - no sensitive schema/name leaks)
   app.get('/api/v1/health/db', async (req, res) => {

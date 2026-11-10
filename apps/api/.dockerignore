@@ -1,0 +1,9 @@
+node_modules
+npm-debug.log
+tests
+.env
+.env.local
+.git
+.gitignore
+coverage
+dist
