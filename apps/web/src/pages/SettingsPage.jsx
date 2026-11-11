@@ -4,6 +4,7 @@ import { PageHeader } from '../components/ui/PageHeader.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Input } from '../components/ui/Input.jsx';
 import { Select } from '../components/ui/Select.jsx';
+import { UnsavedChangesBar } from '../components/ui/UnsavedChangesBar.jsx';
 import { useToast } from '../components/ui/Toast.jsx';
 import { Building, Save, Shield, AlertTriangle } from 'lucide-react';
 import {
@@ -37,6 +38,21 @@ export function SettingsPage() {
       setTimezone(data.data.timezone || 'America/New_York');
     }
   }, [data]);
+
+  const initialData = data?.data || {};
+  const isDirty =
+    Boolean(data?.data) &&
+    (companyName !== (initialData.name || '') ||
+      currency !== (initialData.currency || 'USD') ||
+      timezone !== (initialData.timezone || 'America/New_York'));
+
+  const handleDiscard = () => {
+    if (data?.data) {
+      setCompanyName(data.data.name || '');
+      setCurrency(data.data.currency || 'USD');
+      setTimezone(data.data.timezone || 'America/New_York');
+    }
+  };
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -201,6 +217,14 @@ export function SettingsPage() {
           </form>
         )}
       </div>
+
+      <UnsavedChangesBar
+        isVisible={isDirty}
+        onDiscard={handleDiscard}
+        onSave={handleSave}
+        isSaving={updateMutation.isPending}
+        message="Unsaved organization settings"
+      />
     </div>
   );
 }

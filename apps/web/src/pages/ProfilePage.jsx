@@ -5,6 +5,7 @@ import { Button } from '../components/ui/Button.jsx';
 import { Input } from '../components/ui/Input.jsx';
 import { PhoneInput } from '../components/ui/PhoneInput.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
+import { UnsavedChangesBar } from '../components/ui/UnsavedChangesBar.jsx';
 import { useToast } from '../components/ui/Toast.jsx';
 import { authService } from '../features/auth/services/auth.service.js';
 import { User, Lock, KeyRound, ShieldCheck, Mail, Building, Save, Eye, EyeOff } from 'lucide-react';
@@ -17,6 +18,11 @@ export function ProfilePage() {
   const [firstName, setFirstName] = useState(user?.firstName || '');
   const [lastName, setLastName] = useState(user?.lastName || '');
   const [phone, setPhone] = useState(user?.phone || '');
+  const [initialProfile, setInitialProfile] = useState({
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    phone: user?.phone || '',
+  });
   const [profileLoading, setProfileLoading] = useState(false);
 
   // Password change state
@@ -34,16 +40,28 @@ export function ProfilePage() {
         const res = await authService.getProfile();
         if (isMounted && res?.data?.user) {
           const u = res.data.user;
-          setFirstName(u.firstName || u.first_name || '');
-          setLastName(u.lastName || u.last_name || '');
-          setPhone(u.phone || '');
+          const init = {
+            firstName: u.firstName || u.first_name || '',
+            lastName: u.lastName || u.last_name || '',
+            phone: u.phone || '',
+          };
+          setFirstName(init.firstName);
+          setLastName(init.lastName);
+          setPhone(init.phone);
+          setInitialProfile(init);
         }
       } catch (_err) {
         // Fall back to context user
         if (isMounted && user) {
-          setFirstName(user.firstName || '');
-          setLastName(user.lastName || '');
-          setPhone(user.phone || '');
+          const init = {
+            firstName: user.firstName || '',
+            lastName: user.lastName || '',
+            phone: user.phone || '',
+          };
+          setFirstName(init.firstName);
+          setLastName(init.lastName);
+          setPhone(init.phone);
+          setInitialProfile(init);
         }
       }
     }
@@ -52,6 +70,17 @@ export function ProfilePage() {
       isMounted = false;
     };
   }, [user]);
+
+  const isProfileDirty =
+    firstName !== initialProfile.firstName ||
+    lastName !== initialProfile.lastName ||
+    phone !== initialProfile.phone;
+
+  const handleDiscardProfile = () => {
+    setFirstName(initialProfile.firstName);
+    setLastName(initialProfile.lastName);
+    setPhone(initialProfile.phone);
+  };
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
@@ -68,6 +97,11 @@ export function ProfilePage() {
         phone: phone.trim() || null,
       });
 
+      setInitialProfile({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        phone: phone.trim() || '',
+      });
       toast.success('Profile updated');
       if (refreshUser) {
         await refreshUser();
@@ -206,6 +240,7 @@ export function ProfilePage() {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder="First name"
+                  clearable
                   required
                 />
                 <Input
@@ -213,6 +248,7 @@ export function ProfilePage() {
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   placeholder="Last name"
+                  clearable
                 />
               </div>
 
@@ -322,6 +358,14 @@ export function ProfilePage() {
           </div>
         </div>
       </div>
+
+      <UnsavedChangesBar
+        isVisible={isProfileDirty}
+        onDiscard={handleDiscardProfile}
+        onSave={handleUpdateProfile}
+        isSaving={profileLoading}
+        message="Unsaved personal details"
+      />
     </div>
   );
 }
