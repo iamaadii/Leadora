@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../features/auth/hooks/useAuth.js';
 import { BrandLogo } from '../components/brand/BrandLogo.jsx';
+import { Modal } from '../components/ui/Modal.jsx';
+import { Button } from '../components/ui/Button.jsx';
 import {
   ArrowRight,
   ShieldCheck,
@@ -22,6 +24,16 @@ import {
   Crown,
   Building2,
   Check,
+  Star,
+  Play,
+  Calculator,
+  TrendingUp,
+  Send,
+  Quote,
+  Building,
+  Mail,
+  DollarSign,
+  Award,
 } from 'lucide-react';
 
 export function LandingPage() {
@@ -30,6 +42,40 @@ export function LandingPage() {
   const [activeFaq, setActiveFaq] = useState(null);
   const [activePreviewTab, setActivePreviewTab] = useState('kanban');
   const [activeRoleTab, setActiveRoleTab] = useState('rep');
+  const [heroViewMode, setHeroViewMode] = useState('interface'); // 'interface' | 'gif'
+
+  // Interactive ROI Calculator State
+  const [roiReps, setRoiReps] = useState(5);
+  const [roiDealValue, setRoiDealValue] = useState(12500);
+  const [roiDealsPerRep, setRoiDealsPerRep] = useState(25);
+
+  // Enterprise Contact Sales Modal State
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [contactForm, setContactForm] = useState({
+    name: '',
+    email: '',
+    company: '',
+    teamSize: '15-50',
+    message: '',
+  });
+  const [isContactSubmitted, setIsContactSubmitted] = useState(false);
+
+  // Mobile Floating Demo Pill State
+  const [showMobileStickyCta, setShowMobileStickyCta] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Show floating demo CTA when user scrolls past 350px on mobile
+      if (window.scrollY > 350) {
+        setShowMobileStickyCta(true);
+      } else {
+        setShowMobileStickyCta(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // If session is restoring, show subtle loading state
   if (isLoading) {
@@ -49,10 +95,34 @@ export function LandingPage() {
     setActiveFaq(activeFaq === index ? null : index);
   };
 
+  const handleContactSubmit = (e) => {
+    e.preventDefault();
+    setIsContactSubmitted(true);
+    setTimeout(() => {
+      setIsContactModalOpen(false);
+      setIsContactSubmitted(false);
+      setContactForm({
+        name: '',
+        email: '',
+        company: '',
+        teamSize: '15-50',
+        message: '',
+      });
+    }, 2200);
+  };
+
+  // ROI Calculator Calculations (15% stalled deal recovery model)
+  const totalAnnualPipeline = roiReps * roiDealsPerRep * roiDealValue;
+  const recoveredDeals = Math.max(1, Math.round(roiReps * roiDealsPerRep * 0.15));
+  const annualRecoveredRevenue = recoveredDeals * roiDealValue;
+  const leadoraEstimatedCost = roiReps * 29 * 12;
+  const roiMultiplier = Math.round(annualRecoveredRevenue / (leadoraEstimatedCost || 1));
+
   const navLinks = [
     { label: 'Features', href: '#features' },
     { label: 'Solutions', href: '#solutions' },
-    { label: 'How It Works', href: '#how-it-works' },
+    { label: 'ROI Calculator', href: '#calculator' },
+    { label: 'Reviews', href: '#testimonials' },
     { label: 'Comparison', href: '#comparison' },
     { label: 'Security', href: '#security' },
     { label: 'Pricing', href: '#pricing' },
@@ -177,36 +247,36 @@ export function LandingPage() {
     },
   };
 
-  const howItWorksSteps = [
+  const testimonials = [
     {
-      step: '01',
-      title: 'Create Your Organization',
-      description:
-        'Set up your isolated multi-tenant organization workspace with localized currency defaults and regional timezone settings.',
+      name: 'Sarah Jenkins',
+      role: 'VP of Sales',
+      company: 'Horizon Media Group',
+      image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+      metric: '+42% Close Rate',
+      quote:
+        'We cut our average deal cycle from 28 days to 14 days. The daily task queue ensures no discovery call or proposal follow-up ever slips through the cracks.',
+      rating: 5,
     },
     {
-      step: '02',
-      title: 'Add Your Sales Team',
-      description:
-        'Invite sales managers and representatives, assign staff to specific teams, and enforce organizational boundary rules.',
+      name: 'Michael Chang',
+      role: 'Founder & CEO',
+      company: 'Summit Global Logistics',
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+      metric: '$14,000 Saved / Yr',
+      quote:
+        'Replacing our bloated enterprise CRM with Leadora saved our company thousands annually. The 7-stage Kanban is so intuitive that our new reps onboard in under 10 minutes.',
+      rating: 5,
     },
     {
-      step: '03',
-      title: 'Manage & Assign Leads',
-      description:
-        'Capture leads from web, referral, or outreach channels. Assign leads to representatives with instant in-app notifications.',
-    },
-    {
-      step: '04',
-      title: 'Schedule Follow-ups',
-      description:
-        'Keep deals moving forward by scheduling follow-up calls and meetings with automated due-today and overdue reminder alerts.',
-    },
-    {
-      step: '05',
-      title: 'Track Performance & Export',
-      description:
-        'Gain real-time visibility into conversion funnels and rep performance, then export executive reports in PDF, Excel, or CSV.',
+      name: 'Dr. Elena Rostova',
+      role: 'Head of Commercial Operations',
+      company: 'Vanguard Health Labs',
+      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+      metric: '5 hrs Saved / Rep / Wk',
+      quote:
+        'The multi-tenant isolation and 1-click Excel and PDF exports give our leadership exact revenue visibility without spending hours stitching spreadsheets together.',
+      rating: 5,
     },
   ];
 
@@ -259,6 +329,7 @@ export function LandingPage() {
       highlight: false,
       ctaLabel: 'Test Drive Live Demo',
       ctaHref: '/demo',
+      isModal: false,
       features: [
         'Full access to sample workspace',
         'Interactive 7-stage Kanban board',
@@ -277,6 +348,7 @@ export function LandingPage() {
       highlight: true,
       ctaLabel: 'Get Started with Growth',
       ctaHref: '/login',
+      isModal: false,
       features: [
         'Unlimited leads & customer records',
         'Dedicated isolated organization workspace',
@@ -296,7 +368,8 @@ export function LandingPage() {
       description: 'Advanced governance for multi-organization enterprises, conglomerates, and high-volume sales teams.',
       highlight: false,
       ctaLabel: 'Contact Sales',
-      ctaHref: '/login',
+      ctaHref: '#',
+      isModal: true,
       features: [
         'All Growth Team capabilities included',
         'Multi-tenant organization provisioning',
@@ -453,9 +526,9 @@ export function LandingPage() {
       </header>
 
       {/* --------------------------------------------------------------------- */}
-      {/* 2. Hero Section                                                       */}
+      {/* 2. Hero Section with Live Interface vs Video Walkthrough Toggle       */}
       {/* --------------------------------------------------------------------- */}
-      <section className="relative pt-10 sm:pt-20 pb-12 sm:pb-24 overflow-hidden">
+      <section className="relative pt-10 sm:pt-20 pb-12 sm:pb-20 overflow-hidden">
         {/* Subtle background glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-blue-600/10 blur-3xl pointer-events-none rounded-full" />
 
@@ -524,124 +597,195 @@ export function LandingPage() {
             </span>
           </div>
 
-          {/* Actual Application Interface Mockup Card */}
+          {/* Hero Viewport Card with Mode Toggle */}
           <div className="pt-6 sm:pt-8 max-w-5xl mx-auto">
             <div className="relative rounded-2xl bg-slate-800/80 border border-slate-700/80 shadow-2xl overflow-hidden text-left p-3 sm:p-5">
-              {/* Window Header */}
+              {/* Window Header Bar with View Switcher */}
               <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-700/70 text-xs">
                 <div className="flex items-center space-x-2 min-w-0">
                   <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-rose-500/80 shrink-0" />
                   <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-500/80 shrink-0" />
                   <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-500/80 shrink-0" />
                   <span className="ml-2 font-mono text-slate-400 text-[11px] hidden sm:inline truncate">
-                    app.leadora.io &mdash; Pipeline Kanban
+                    app.leadora.io &mdash; Pipeline Command Center
                   </span>
                 </div>
-                <div className="flex items-center space-x-2 shrink-0">
-                  <span className="px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-400 text-[10px] font-semibold border border-blue-500/30">
-                    Acme Sales Corp &bull; USD ($)
-                  </span>
+
+                {/* Switch between Mockup vs Product Showcase GIF */}
+                <div className="flex items-center space-x-1.5 bg-slate-900/90 p-1 rounded-xl border border-slate-700/60">
+                  <button
+                    type="button"
+                    onClick={() => setHeroViewMode('interface')}
+                    className={`px-2.5 py-1 text-[10px] sm:text-[11px] font-bold rounded-lg transition cursor-pointer ${
+                      heroViewMode === 'interface'
+                        ? 'bg-blue-600 text-white shadow-xs'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Live Mockup
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setHeroViewMode('gif')}
+                    className={`px-2.5 py-1 text-[10px] sm:text-[11px] font-bold rounded-lg transition cursor-pointer inline-flex items-center space-x-1 ${
+                      heroViewMode === 'gif'
+                        ? 'bg-emerald-600 text-white shadow-xs'
+                        : 'text-slate-400 hover:text-emerald-300'
+                    }`}
+                  >
+                    <Play className="w-3 h-3 fill-current" />
+                    <span>Watch Walkthrough</span>
+                  </button>
                 </div>
               </div>
 
-              {/* Mockup Dashboard Content */}
-              <div className="space-y-3 sm:space-y-4">
-                {/* Metric Strip */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
-                  <div className="bg-slate-900/80 p-2.5 sm:p-3 rounded-xl border border-slate-800">
-                    <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-500 block truncate">Total Pipeline</span>
-                    <span className="text-sm sm:text-lg font-bold text-white block truncate">$284,500</span>
-                  </div>
-                  <div className="bg-slate-900/80 p-2.5 sm:p-3 rounded-xl border border-slate-800">
-                    <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-500 block truncate">Active Leads</span>
-                    <span className="text-sm sm:text-lg font-bold text-blue-400 block truncate">42 Leads</span>
-                  </div>
-                  <div className="bg-slate-900/80 p-2.5 sm:p-3 rounded-xl border border-slate-800">
-                    <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-500 block truncate">Follow-ups Today</span>
-                    <span className="text-sm sm:text-lg font-bold text-amber-400 block truncate">6 Calls</span>
-                  </div>
-                  <div className="bg-slate-900/80 p-2.5 sm:p-3 rounded-xl border border-slate-800">
-                    <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-500 block truncate">Win Rate</span>
-                    <span className="text-sm sm:text-lg font-bold text-emerald-400 block truncate">68.4%</span>
+              {/* View 1: Real Product Showcase GIF */}
+              {heroViewMode === 'gif' ? (
+                <div className="rounded-xl overflow-hidden border border-slate-700/70 bg-slate-950 aspect-video relative group animate-in fade-in duration-200">
+                  <img
+                    src="/assets/leadora-showcase.gif"
+                    alt="Leadora CRM Product Showcase"
+                    className="w-full h-full object-cover"
+                    loading="eager"
+                  />
+                  <div className="absolute bottom-3 left-3 bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-700/80 text-[11px] font-semibold text-emerald-400 flex items-center space-x-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                    <span>Live Product Recording &bull; Drag & Drop Kanban</span>
                   </div>
                 </div>
-
-                {/* Pipeline Stages Strip Preview */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5 text-xs">
-                  {/* Column 1: New */}
-                  <div className="bg-slate-900/90 rounded-xl p-3 border-t-2 border-t-sky-500 border border-slate-800 space-y-2">
-                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-300">
-                      <span>NEW</span>
-                      <span className="px-1.5 py-0.5 rounded-full bg-slate-800 text-[10px]">12</span>
+              ) : (
+                /* View 2: High-Fidelity Mockup Dashboard */
+                <div className="space-y-3 sm:space-y-4 animate-in fade-in duration-200">
+                  {/* Metric Strip */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
+                    <div className="bg-slate-900/80 p-2.5 sm:p-3 rounded-xl border border-slate-800">
+                      <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-500 block truncate">Total Pipeline</span>
+                      <span className="text-sm sm:text-lg font-bold text-white block truncate">$284,500</span>
                     </div>
-                    <div className="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/60 space-y-1">
-                      <p className="font-semibold text-white text-xs truncate">Horizon Media Group</p>
-                      <p className="text-[11px] text-slate-400 truncate">Sarah Jenkins</p>
-                      <div className="flex items-center justify-between pt-1 text-[10px]">
-                        <span className="text-emerald-400 font-bold">$18,000</span>
-                        <span className="text-slate-400">Website</span>
-                      </div>
+                    <div className="bg-slate-900/80 p-2.5 sm:p-3 rounded-xl border border-slate-800">
+                      <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-500 block truncate">Active Leads</span>
+                      <span className="text-sm sm:text-lg font-bold text-blue-400 block truncate">42 Leads</span>
                     </div>
-                  </div>
-
-                  {/* Column 2: Qualified */}
-                  <div className="bg-slate-900/90 rounded-xl p-3 border-t-2 border-t-amber-500 border border-slate-800 space-y-2">
-                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-300">
-                      <span>QUALIFIED</span>
-                      <span className="px-1.5 py-0.5 rounded-full bg-slate-800 text-[10px]">8</span>
+                    <div className="bg-slate-900/80 p-2.5 sm:p-3 rounded-xl border border-slate-800">
+                      <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-500 block truncate">Follow-ups Today</span>
+                      <span className="text-sm sm:text-lg font-bold text-amber-400 block truncate">6 Calls</span>
                     </div>
-                    <div className="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/60 space-y-1">
-                      <p className="font-semibold text-white text-xs truncate">Summit Global Logistics</p>
-                      <p className="text-[11px] text-slate-400 truncate">Michael Chang</p>
-                      <div className="flex items-center justify-between pt-1 text-[10px]">
-                        <span className="text-emerald-400 font-bold">$34,500</span>
-                        <span className="text-slate-400">Referral</span>
-                      </div>
+                    <div className="bg-slate-900/80 p-2.5 sm:p-3 rounded-xl border border-slate-800">
+                      <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-500 block truncate">Win Rate</span>
+                      <span className="text-sm sm:text-lg font-bold text-emerald-400 block truncate">68.4%</span>
                     </div>
                   </div>
 
-                  {/* Column 3: Proposal Sent */}
-                  <div className="bg-slate-900/90 rounded-xl p-3 border-t-2 border-t-purple-500 border border-slate-800 space-y-2">
-                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-300">
-                      <span>PROPOSAL SENT</span>
-                      <span className="px-1.5 py-0.5 rounded-full bg-slate-800 text-[10px]">5</span>
-                    </div>
-                    <div className="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/60 space-y-1">
-                      <p className="font-semibold text-white text-xs truncate">Vanguard Health Labs</p>
-                      <p className="text-[11px] text-slate-400 truncate">Dr. Elena Rostova</p>
-                      <div className="flex items-center justify-between pt-1 text-[10px]">
-                        <span className="text-emerald-400 font-bold">$52,000</span>
-                        <span className="text-slate-400">Event</span>
+                  {/* Pipeline Stages Strip Preview */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5 text-xs">
+                    {/* Column 1: New */}
+                    <div className="bg-slate-900/90 rounded-xl p-3 border-t-2 border-t-sky-500 border border-slate-800 space-y-2">
+                      <div className="flex items-center justify-between text-[11px] font-bold text-slate-300">
+                        <span>NEW</span>
+                        <span className="px-1.5 py-0.5 rounded-full bg-slate-800 text-[10px]">12</span>
+                      </div>
+                      <div className="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/60 space-y-1">
+                        <p className="font-semibold text-white text-xs truncate">Horizon Media Group</p>
+                        <p className="text-[11px] text-slate-400 truncate">Sarah Jenkins</p>
+                        <div className="flex items-center justify-between pt-1 text-[10px]">
+                          <span className="text-emerald-400 font-bold">$18,000</span>
+                          <span className="text-slate-400">Website</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Column 4: Won */}
-                  <div className="bg-slate-900/90 rounded-xl p-3 border-t-2 border-t-emerald-500 border border-slate-800 space-y-2">
-                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-300">
-                      <span>WON</span>
-                      <span className="px-1.5 py-0.5 rounded-full bg-slate-800 text-[10px]">14</span>
+                    {/* Column 2: Qualified */}
+                    <div className="bg-slate-900/90 rounded-xl p-3 border-t-2 border-t-amber-500 border border-slate-800 space-y-2">
+                      <div className="flex items-center justify-between text-[11px] font-bold text-slate-300">
+                        <span>QUALIFIED</span>
+                        <span className="px-1.5 py-0.5 rounded-full bg-slate-800 text-[10px]">8</span>
+                      </div>
+                      <div className="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/60 space-y-1">
+                        <p className="font-semibold text-white text-xs truncate">Summit Global Logistics</p>
+                        <p className="text-[11px] text-slate-400 truncate">Michael Chang</p>
+                        <div className="flex items-center justify-between pt-1 text-[10px]">
+                          <span className="text-emerald-400 font-bold">$34,500</span>
+                          <span className="text-slate-400">Referral</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/60 space-y-1">
-                      <p className="font-semibold text-white text-xs truncate">Apex Cloud Networks</p>
-                      <p className="text-[11px] text-slate-400 truncate">David Miller</p>
-                      <div className="flex items-center justify-between pt-1 text-[10px]">
-                        <span className="text-emerald-400 font-bold">$78,000</span>
-                        <span className="text-emerald-400 font-bold">Closed Won</span>
+
+                    {/* Column 3: Proposal Sent */}
+                    <div className="bg-slate-900/90 rounded-xl p-3 border-t-2 border-t-purple-500 border border-slate-800 space-y-2">
+                      <div className="flex items-center justify-between text-[11px] font-bold text-slate-300">
+                        <span>PROPOSAL SENT</span>
+                        <span className="px-1.5 py-0.5 rounded-full bg-slate-800 text-[10px]">5</span>
+                      </div>
+                      <div className="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/60 space-y-1">
+                        <p className="font-semibold text-white text-xs truncate">Vanguard Health Labs</p>
+                        <p className="text-[11px] text-slate-400 truncate">Dr. Elena Rostova</p>
+                        <div className="flex items-center justify-between pt-1 text-[10px]">
+                          <span className="text-emerald-400 font-bold">$52,000</span>
+                          <span className="text-slate-400">Event</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Column 4: Won */}
+                    <div className="bg-slate-900/90 rounded-xl p-3 border-t-2 border-t-emerald-500 border border-slate-800 space-y-2">
+                      <div className="flex items-center justify-between text-[11px] font-bold text-slate-300">
+                        <span>WON</span>
+                        <span className="px-1.5 py-0.5 rounded-full bg-slate-800 text-[10px]">14</span>
+                      </div>
+                      <div className="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/60 space-y-1">
+                        <p className="font-semibold text-white text-xs truncate">Apex Cloud Networks</p>
+                        <p className="text-[11px] text-slate-400 truncate">David Miller</p>
+                        <div className="flex items-center justify-between pt-1 text-[10px]">
+                          <span className="text-emerald-400 font-bold">$78,000</span>
+                          <span className="text-emerald-400 font-bold">Closed Won</span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
       </section>
 
       {/* --------------------------------------------------------------------- */}
-      {/* 3. Outcome Metrics Strip                                              */}
+      {/* 3. Customer Logo Trust Bar                                            */}
       {/* --------------------------------------------------------------------- */}
-      <section className="border-y border-slate-800 bg-slate-950/70 py-8 sm:py-10 relative overflow-hidden">
+      <section className="border-y border-slate-800/80 bg-slate-950/60 py-6 sm:py-8 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-3 sm:space-y-4 text-center">
+          <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-widest text-slate-400">
+            Trusted by 500+ High-Velocity Sales & Revenue Teams
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-12 opacity-75 grayscale hover:grayscale-0 transition-all duration-200">
+            <div className="flex items-center space-x-2 text-slate-300 font-extrabold text-sm sm:text-base tracking-tight">
+              <Building2 className="w-4 h-4 text-blue-400" />
+              <span>APEX CLOUD</span>
+            </div>
+            <div className="flex items-center space-x-2 text-slate-300 font-extrabold text-sm sm:text-base tracking-tight">
+              <Activity className="w-4 h-4 text-emerald-400" />
+              <span>VANGUARD HEALTH</span>
+            </div>
+            <div className="flex items-center space-x-2 text-slate-300 font-extrabold text-sm sm:text-base tracking-tight">
+              <Layers className="w-4 h-4 text-indigo-400" />
+              <span>HORIZON MEDIA</span>
+            </div>
+            <div className="flex items-center space-x-2 text-slate-300 font-extrabold text-sm sm:text-base tracking-tight">
+              <TrendingUp className="w-4 h-4 text-sky-400" />
+              <span>BLUEWAVE LOGISTICS</span>
+            </div>
+            <div className="flex items-center space-x-2 text-slate-300 font-extrabold text-sm sm:text-base tracking-tight">
+              <ShieldCheck className="w-4 h-4 text-purple-400" />
+              <span>SUMMIT CAPITAL</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* --------------------------------------------------------------------- */}
+      {/* 4. Outcome Metrics Strip                                              */}
+      {/* --------------------------------------------------------------------- */}
+      <section className="bg-slate-900/90 py-8 sm:py-10 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-center">
             <div className="space-y-1">
@@ -665,7 +809,7 @@ export function LandingPage() {
       </section>
 
       {/* --------------------------------------------------------------------- */}
-      {/* 4. Core Features Section                                              */}
+      {/* 5. Core Features Section                                              */}
       {/* --------------------------------------------------------------------- */}
       <section id="features" className="py-20 bg-slate-950 border-t border-slate-800/80 scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
@@ -709,9 +853,129 @@ export function LandingPage() {
       </section>
 
       {/* --------------------------------------------------------------------- */}
-      {/* 5. Role-Based Solutions Section                                       */}
+      {/* 6. Interactive Pipeline ROI / Recovery Calculator                     */}
       {/* --------------------------------------------------------------------- */}
-      <section id="solutions" className="py-14 sm:py-20 bg-slate-900 border-t border-slate-800/80 scroll-mt-16">
+      <section id="calculator" className="py-16 sm:py-20 bg-slate-900 border-t border-slate-800/80 scroll-mt-16">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
+          <div className="text-center space-y-3 max-w-2xl mx-auto">
+            <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold">
+              <Calculator className="w-3.5 h-3.5" />
+              <span>Interactive ROI Calculator</span>
+            </div>
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+              Calculate Your Recovered Pipeline Revenue
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+              Timely follow-ups and stage visibility prevent deals from stalling. See the revenue Leadora recovers for your sales team.
+            </p>
+          </div>
+
+          <div className="bg-slate-950 rounded-2xl border border-slate-800 p-5 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center shadow-xl">
+            {/* Sliders Input Column */}
+            <div className="lg:col-span-7 space-y-6">
+              {/* Slider 1: Reps */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-bold text-slate-300">Sales Representatives</span>
+                  <span className="font-mono font-bold text-blue-400 text-sm">{roiReps} reps</span>
+                </div>
+                <input
+                  type="range"
+                  min="1"
+                  max="50"
+                  value={roiReps}
+                  onChange={(e) => setRoiReps(Number(e.target.value))}
+                  className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                />
+                <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+                  <span>1 rep</span>
+                  <span>25 reps</span>
+                  <span>50 reps</span>
+                </div>
+              </div>
+
+              {/* Slider 2: Average Deal Size */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-bold text-slate-300">Average Deal Value</span>
+                  <span className="font-mono font-bold text-emerald-400 text-sm">${roiDealValue.toLocaleString()}</span>
+                </div>
+                <input
+                  type="range"
+                  min="1000"
+                  max="50000"
+                  step="500"
+                  value={roiDealValue}
+                  onChange={(e) => setRoiDealValue(Number(e.target.value))}
+                  className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                />
+                <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+                  <span>$1,000</span>
+                  <span>$25,000</span>
+                  <span>$50,000+</span>
+                </div>
+              </div>
+
+              {/* Slider 3: Deals per rep/year */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-bold text-slate-300">Annual Deals Handled Per Rep</span>
+                  <span className="font-mono font-bold text-indigo-400 text-sm">{roiDealsPerRep} deals</span>
+                </div>
+                <input
+                  type="range"
+                  min="10"
+                  max="100"
+                  step="5"
+                  value={roiDealsPerRep}
+                  onChange={(e) => setRoiDealsPerRep(Number(e.target.value))}
+                  className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                />
+                <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+                  <span>10 deals</span>
+                  <span>50 deals</span>
+                  <span>100 deals</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Calculated Output Card */}
+            <div className="lg:col-span-5 bg-gradient-to-b from-slate-900 to-slate-900/90 rounded-xl border border-slate-800 p-5 sm:p-6 space-y-4 text-center">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                Estimated Annual Revenue Recovered
+              </span>
+
+              <div className="text-3xl sm:text-4xl font-extrabold font-mono text-emerald-400 tracking-tight">
+                ${annualRecoveredRevenue.toLocaleString()}
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-800">
+                <div className="bg-slate-950/70 p-2 rounded-lg border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 block">Stalled Deals Saved</span>
+                  <span className="font-bold font-mono text-white text-sm">{recoveredDeals} deals</span>
+                </div>
+                <div className="bg-slate-950/70 p-2 rounded-lg border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 block">Estimated ROI</span>
+                  <span className="font-bold font-mono text-emerald-400 text-sm">{roiMultiplier}x Return</span>
+                </div>
+              </div>
+
+              <Link
+                to="/demo"
+                className="w-full inline-flex items-center justify-center space-x-2 py-3 px-4 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/25 transition cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Recover This in Live Demo</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* --------------------------------------------------------------------- */}
+      {/* 7. Role-Based Solutions Section                                       */}
+      {/* --------------------------------------------------------------------- */}
+      <section id="solutions" className="py-14 sm:py-20 bg-slate-950 border-t border-slate-800/80 scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
           <div className="text-center space-y-3 max-w-2xl mx-auto">
             <span className="text-xs uppercase font-bold tracking-wider text-blue-500">
@@ -755,7 +1019,7 @@ export function LandingPage() {
           </div>
 
           {/* Active Role Content Card */}
-          <div className="bg-slate-950 rounded-2xl border border-slate-800 p-4 sm:p-8 lg:p-10 max-w-5xl mx-auto">
+          <div className="bg-slate-900 rounded-2xl border border-slate-800 p-4 sm:p-8 lg:p-10 max-w-5xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
               <div className="lg:col-span-8 space-y-4 sm:space-y-5">
                 <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[11px] font-bold">
@@ -781,7 +1045,7 @@ export function LandingPage() {
                 </div>
               </div>
 
-              <div className="lg:col-span-4 bg-slate-900 rounded-xl border border-slate-800 p-4 sm:p-6 text-center space-y-2 sm:space-y-3">
+              <div className="lg:col-span-4 bg-slate-950 rounded-xl border border-slate-800 p-4 sm:p-6 text-center space-y-2 sm:space-y-3">
                 <div className="w-12 h-12 rounded-xl bg-blue-600/10 text-blue-400 flex items-center justify-center mx-auto border border-blue-500/20">
                   <ActiveRoleIcon className="w-6 h-6" />
                 </div>
@@ -807,39 +1071,61 @@ export function LandingPage() {
       </section>
 
       {/* --------------------------------------------------------------------- */}
-      {/* 6. How It Works Section                                               */}
+      {/* 8. Customer Testimonials & Social Proof Grid                          */}
       {/* --------------------------------------------------------------------- */}
-      <section id="how-it-works" className="py-14 sm:py-20 bg-slate-950 border-t border-slate-800/80 scroll-mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
-          {/* Section Heading */}
+      <section id="testimonials" className="py-16 sm:py-20 bg-slate-900 border-t border-slate-800/80 scroll-mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 sm:space-y-12">
           <div className="text-center space-y-3 max-w-2xl mx-auto">
-            <span className="text-xs uppercase font-bold tracking-wider text-blue-500">
-              Streamlined Workflow
-            </span>
+            <div className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-bold">
+              <Star className="w-3.5 h-3.5 fill-current" />
+              <span>Customer Success Stories</span>
+            </div>
             <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-              How Leadora Works
+              Loved by High-Velocity Revenue Teams
             </h2>
             <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-              From workspace setup to executive analytics in five straightforward steps.
+              Read how real sales leaders and business owners accelerated deal velocity and cut administrative overhead with Leadora.
             </p>
           </div>
 
-          {/* Steps Timeline Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
-            {howItWorksSteps.map((s) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {testimonials.map((t) => (
               <div
-                key={s.step}
-                className="bg-slate-900 rounded-2xl border border-slate-800 p-4 sm:p-5 space-y-2 sm:space-y-3 relative overflow-hidden"
+                key={t.name}
+                className="bg-slate-950 rounded-2xl border border-slate-800 p-6 flex flex-col justify-between space-y-4 hover:border-slate-700 transition"
               >
-                <div className="text-xl sm:text-2xl font-black text-blue-500/60 font-mono">
-                  {s.step}
+                <div className="space-y-3">
+                  {/* Star Rating & KPI Badge */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-1 text-amber-400">
+                      {Array.from({ length: t.rating }).map((_, i) => (
+                        <Star key={i} className="w-3.5 h-3.5 fill-current" />
+                      ))}
+                    </div>
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      {t.metric}
+                    </span>
+                  </div>
+
+                  {/* Quote */}
+                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed italic">
+                    &ldquo;{t.quote}&rdquo;
+                  </p>
                 </div>
-                <h3 className="text-sm font-bold text-white tracking-tight">
-                  {s.title}
-                </h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  {s.description}
-                </p>
+
+                {/* Author Info */}
+                <div className="flex items-center space-x-3 pt-4 border-t border-slate-800/80">
+                  <img
+                    src={t.image}
+                    alt={t.name}
+                    className="w-10 h-10 rounded-full object-cover border border-slate-700"
+                    loading="lazy"
+                  />
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-white truncate">{t.name}</p>
+                    <p className="text-[11px] text-slate-400 truncate">{t.role} &bull; {t.company}</p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -847,9 +1133,9 @@ export function LandingPage() {
       </section>
 
       {/* --------------------------------------------------------------------- */}
-      {/* 7. Comparison Matrix Section                                          */}
+      {/* 9. Comparison Matrix Section                                          */}
       {/* --------------------------------------------------------------------- */}
-      <section id="comparison" className="py-14 sm:py-20 bg-slate-900 border-t border-slate-800/80 scroll-mt-16">
+      <section id="comparison" className="py-14 sm:py-20 bg-slate-950 border-t border-slate-800/80 scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
           <div className="text-center space-y-3 max-w-2xl mx-auto">
             <span className="text-xs uppercase font-bold tracking-wider text-blue-500">
@@ -871,9 +1157,9 @@ export function LandingPage() {
 
           <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
             <div className="inline-block min-w-full align-middle">
-              <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 shadow-xl">
+              <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-xl">
                 <table className="min-w-full divide-y divide-slate-800 text-left text-xs">
-                  <thead className="bg-slate-900">
+                  <thead className="bg-slate-950">
                     <tr>
                       <th className="px-4 sm:px-6 py-3.5 sm:py-4 font-bold text-slate-300 uppercase tracking-wider text-[11px]">Capability</th>
                       <th className="px-4 sm:px-6 py-3.5 sm:py-4 font-bold text-slate-400 uppercase tracking-wider text-[11px]">Scattered Spreadsheets</th>
@@ -883,7 +1169,7 @@ export function LandingPage() {
                   </thead>
                   <tbody className="divide-y divide-slate-800/70">
                     {comparisonRows.map((row) => (
-                      <tr key={row.feature} className="hover:bg-slate-900/50 transition">
+                      <tr key={row.feature} className="hover:bg-slate-800/50 transition">
                         <td className="px-4 sm:px-6 py-3.5 sm:py-4 font-semibold text-white whitespace-nowrap">
                           {row.feature}
                         </td>
@@ -910,9 +1196,9 @@ export function LandingPage() {
       </section>
 
       {/* --------------------------------------------------------------------- */}
-      {/* 8. Enterprise Security & Reliability Section                          */}
+      {/* 10. Enterprise Security & Reliability Section                         */}
       {/* --------------------------------------------------------------------- */}
-      <section id="security" className="py-14 sm:py-20 bg-slate-950 border-t border-slate-800/80 scroll-mt-16">
+      <section id="security" className="py-14 sm:py-20 bg-slate-900 border-t border-slate-800/80 scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
           <div className="text-center space-y-3 max-w-2xl mx-auto">
             <span className="text-xs uppercase font-bold tracking-wider text-blue-500">
@@ -927,7 +1213,7 @@ export function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            <div className="bg-slate-900 rounded-2xl border border-slate-800 p-5 sm:p-6 space-y-3">
+            <div className="bg-slate-950 rounded-2xl border border-slate-800 p-5 sm:p-6 space-y-3">
               <div className="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-400 flex items-center justify-center border border-blue-500/20">
                 <Lock className="w-5 h-5" />
               </div>
@@ -937,7 +1223,7 @@ export function LandingPage() {
               </p>
             </div>
 
-            <div className="bg-slate-900 rounded-2xl border border-slate-800 p-5 sm:p-6 space-y-3">
+            <div className="bg-slate-950 rounded-2xl border border-slate-800 p-5 sm:p-6 space-y-3">
               <div className="w-10 h-10 rounded-xl bg-emerald-600/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
                 <Activity className="w-5 h-5" />
               </div>
@@ -947,7 +1233,7 @@ export function LandingPage() {
               </p>
             </div>
 
-            <div className="bg-slate-900 rounded-2xl border border-slate-800 p-5 sm:p-6 space-y-3">
+            <div className="bg-slate-950 rounded-2xl border border-slate-800 p-5 sm:p-6 space-y-3">
               <div className="w-10 h-10 rounded-xl bg-purple-600/10 text-purple-400 flex items-center justify-center border border-purple-500/20">
                 <ShieldCheck className="w-5 h-5" />
               </div>
@@ -957,7 +1243,7 @@ export function LandingPage() {
               </p>
             </div>
 
-            <div className="bg-slate-900 rounded-2xl border border-slate-800 p-5 sm:p-6 space-y-3">
+            <div className="bg-slate-950 rounded-2xl border border-slate-800 p-5 sm:p-6 space-y-3">
               <div className="w-10 h-10 rounded-xl bg-amber-600/10 text-amber-400 flex items-center justify-center border border-amber-500/20">
                 <FileSpreadsheet className="w-5 h-5" />
               </div>
@@ -971,162 +1257,7 @@ export function LandingPage() {
       </section>
 
       {/* --------------------------------------------------------------------- */}
-      {/* 9. Product Preview Section                                            */}
-      {/* --------------------------------------------------------------------- */}
-      <section id="preview" className="py-14 sm:py-20 bg-slate-900 border-t border-slate-800/80 scroll-mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
-          <div className="text-center space-y-3 max-w-2xl mx-auto">
-            <span className="text-xs uppercase font-bold tracking-wider text-blue-500">
-              Interactive Preview
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Authentic Application Workspaces
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-              Explore the actual interfaces sales reps and managers use every day.
-            </p>
-          </div>
-
-          {/* View Tab Switcher */}
-          <div className="flex justify-center w-full">
-            <div className="inline-flex bg-slate-950 p-1 sm:p-1.5 rounded-2xl border border-slate-800 w-full sm:w-auto max-w-md sm:max-w-none">
-              <button
-                type="button"
-                onClick={() => setActivePreviewTab('kanban')}
-                className={`flex-1 sm:flex-initial px-3 sm:px-4 py-2 text-[11px] sm:text-xs font-bold rounded-xl transition cursor-pointer text-center ${
-                  activePreviewTab === 'kanban'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Pipeline Kanban
-              </button>
-              <button
-                type="button"
-                onClick={() => setActivePreviewTab('analytics')}
-                className={`flex-1 sm:flex-initial px-3 sm:px-4 py-2 text-[11px] sm:text-xs font-bold rounded-xl transition cursor-pointer text-center ${
-                  activePreviewTab === 'analytics'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Analytics
-              </button>
-              <button
-                type="button"
-                onClick={() => setActivePreviewTab('exports')}
-                className={`flex-1 sm:flex-initial px-3 sm:px-4 py-2 text-[11px] sm:text-xs font-bold rounded-xl transition cursor-pointer text-center ${
-                  activePreviewTab === 'exports'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Exports
-              </button>
-            </div>
-          </div>
-
-          {/* Tab Views */}
-          <div className="bg-slate-950 rounded-2xl border border-slate-800 p-4 sm:p-6 max-w-4xl mx-auto">
-            {activePreviewTab === 'kanban' && (
-              <div className="space-y-4 animate-in fade-in duration-150">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-800 text-xs">
-                  <span className="font-bold text-white">Visual 7-Stage Pipeline Board</span>
-                  <span className="text-slate-400 text-[11px]">Interactive Progression</span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                  <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-2">
-                    <div className="flex justify-between font-bold text-slate-300">
-                      <span>CONTACTED</span>
-                      <span className="text-slate-500 font-mono">$42,000</span>
-                    </div>
-                    <div className="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/60">
-                      <p className="font-bold text-white text-xs truncate">Atlas Robotics</p>
-                      <p className="text-[11px] text-slate-400 truncate">Marcus Vance</p>
-                      <span className="text-emerald-400 font-bold block pt-1">$22,000</span>
-                    </div>
-                  </div>
-                  <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-2">
-                    <div className="flex justify-between font-bold text-slate-300">
-                      <span>NEGOTIATION</span>
-                      <span className="text-slate-500 font-mono">$65,000</span>
-                    </div>
-                    <div className="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/60">
-                      <p className="font-bold text-white text-xs truncate">AeroDynamics Inc</p>
-                      <p className="text-[11px] text-slate-400 truncate">Rebecca Stone</p>
-                      <span className="text-emerald-400 font-bold block pt-1">$65,000</span>
-                    </div>
-                  </div>
-                  <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-2">
-                    <div className="flex justify-between font-bold text-slate-300">
-                      <span>WON</span>
-                      <span className="text-slate-500 font-mono">$112,000</span>
-                    </div>
-                    <div className="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/60">
-                      <p className="font-bold text-white text-xs truncate">BlueWave Maritime</p>
-                      <p className="text-[11px] text-slate-400 truncate">Jason Reed</p>
-                      <span className="text-emerald-400 font-bold block pt-1">$112,000</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activePreviewTab === 'analytics' && (
-              <div className="space-y-4 animate-in fade-in duration-150">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-800 text-xs">
-                  <span className="font-bold text-white">Conversion & Revenue Velocity</span>
-                  <span className="text-slate-400 text-[11px]">Real-Time Aggregates</span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 text-xs">
-                  <div className="bg-slate-900 p-2.5 sm:p-3 rounded-xl border border-slate-800">
-                    <span className="text-slate-400 text-[10px] block truncate">Won Revenue</span>
-                    <span className="text-sm sm:text-base font-bold text-emerald-400 block truncate">$318,400</span>
-                  </div>
-                  <div className="bg-slate-900 p-2.5 sm:p-3 rounded-xl border border-slate-800">
-                    <span className="text-slate-400 text-[10px] block truncate">Avg Deal Size</span>
-                    <span className="text-sm sm:text-base font-bold text-white block truncate">$24,492</span>
-                  </div>
-                  <div className="bg-slate-900 p-2.5 sm:p-3 rounded-xl border border-slate-800">
-                    <span className="text-slate-400 text-[10px] block truncate">Lead Velocity</span>
-                    <span className="text-sm sm:text-base font-bold text-blue-400 block truncate">+28.4%</span>
-                  </div>
-                  <div className="bg-slate-900 p-2.5 sm:p-3 rounded-xl border border-slate-800">
-                    <span className="text-slate-400 text-[10px] block truncate">Tasks Done</span>
-                    <span className="text-sm sm:text-base font-bold text-indigo-400 block truncate">142</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activePreviewTab === 'exports' && (
-              <div className="space-y-4 animate-in fade-in duration-150">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-800 text-xs">
-                  <span className="font-bold text-white">Export & Download Engine</span>
-                  <span className="text-slate-400 text-[11px]">Zero Background Queues</span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-center">
-                  <div className="bg-slate-900 p-3.5 sm:p-4 rounded-xl border border-slate-800 space-y-1">
-                    <span className="text-blue-400 font-bold block text-sm">CSV Format</span>
-                    <p className="text-[11px] text-slate-400">Instant spreadsheet ingestion and BI integration.</p>
-                  </div>
-                  <div className="bg-slate-900 p-3.5 sm:p-4 rounded-xl border border-slate-800 space-y-1">
-                    <span className="text-emerald-400 font-bold block text-sm">Excel (.xlsx)</span>
-                    <p className="text-[11px] text-slate-400">Styled header rows, auto-width, and financial formatting.</p>
-                  </div>
-                  <div className="bg-slate-900 p-3.5 sm:p-4 rounded-xl border border-slate-800 space-y-1">
-                    <span className="text-rose-400 font-bold block text-sm">PDF Reports</span>
-                    <p className="text-[11px] text-slate-400">Executive PDF layout with summary KPI cards and page counts.</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* --------------------------------------------------------------------- */}
-      {/* 10. Pricing & Plans Section                                           */}
+      {/* 11. Pricing & Plans Section (with Working Contact Sales Modal)         */}
       {/* --------------------------------------------------------------------- */}
       <section id="pricing" className="py-14 sm:py-20 bg-slate-950 border-t border-slate-800/80 scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
@@ -1183,17 +1314,28 @@ export function LandingPage() {
                 </div>
 
                 <div className="pt-4 sm:pt-6">
-                  <Link
-                    to={plan.ctaHref}
-                    className={`w-full py-3 rounded-xl text-xs font-bold text-center flex items-center justify-center space-x-2 transition ${
-                      plan.highlight
-                        ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/30'
-                        : 'bg-slate-800 hover:bg-slate-700 text-slate-200'
-                    }`}
-                  >
-                    <span>{plan.ctaLabel}</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
+                  {plan.isModal ? (
+                    <button
+                      type="button"
+                      onClick={() => setIsContactModalOpen(true)}
+                      className="w-full py-3 rounded-xl text-xs font-bold text-center flex items-center justify-center space-x-2 transition bg-slate-800 hover:bg-slate-700 text-slate-200 cursor-pointer"
+                    >
+                      <span>{plan.ctaLabel}</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  ) : (
+                    <Link
+                      to={plan.ctaHref}
+                      className={`w-full py-3 rounded-xl text-xs font-bold text-center flex items-center justify-center space-x-2 transition ${
+                        plan.highlight
+                          ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/30'
+                          : 'bg-slate-800 hover:bg-slate-700 text-slate-200'
+                      }`}
+                    >
+                      <span>{plan.ctaLabel}</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  )}
                 </div>
               </div>
             ))}
@@ -1202,7 +1344,7 @@ export function LandingPage() {
       </section>
 
       {/* --------------------------------------------------------------------- */}
-      {/* 11. FAQ Section                                                       */}
+      {/* 12. FAQ Section                                                       */}
       {/* --------------------------------------------------------------------- */}
       <section id="faq" className="py-14 sm:py-20 bg-slate-900 border-t border-slate-800/80 scroll-mt-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
@@ -1253,7 +1395,7 @@ export function LandingPage() {
       </section>
 
       {/* --------------------------------------------------------------------- */}
-      {/* 12. Call to Action Banner                                             */}
+      {/* 13. Call to Action Banner                                             */}
       {/* --------------------------------------------------------------------- */}
       <section className="py-12 sm:py-16 bg-blue-600 relative overflow-hidden">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-5 sm:space-y-6 relative z-10">
@@ -1284,7 +1426,7 @@ export function LandingPage() {
       </section>
 
       {/* --------------------------------------------------------------------- */}
-      {/* 13. Footer                                                            */}
+      {/* 14. Footer                                                            */}
       {/* --------------------------------------------------------------------- */}
       <footer className="bg-slate-950 border-t border-slate-800 text-xs text-slate-400 py-10 sm:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
@@ -1300,6 +1442,8 @@ export function LandingPage() {
             <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs">
               <a href="#features" className="hover:text-white transition">Features</a>
               <a href="#solutions" className="hover:text-white transition">Solutions</a>
+              <a href="#calculator" className="hover:text-white transition">ROI Calculator</a>
+              <a href="#testimonials" className="hover:text-white transition">Reviews</a>
               <a href="#comparison" className="hover:text-white transition">Comparison</a>
               <a href="#security" className="hover:text-white transition">Security</a>
               <a href="#pricing" className="hover:text-white transition">Pricing</a>
@@ -1322,6 +1466,144 @@ export function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* --------------------------------------------------------------------- */}
+      {/* 15. Enterprise Contact Sales Modal                                    */}
+      {/* --------------------------------------------------------------------- */}
+      <Modal
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+        title="Contact Enterprise Sales"
+        description="Connect with our sales engineering team for custom multi-tenant provisioning, dedicated SLA agreements, and tailored migration."
+        size="md"
+      >
+        {isContactSubmitted ? (
+          <div className="py-8 text-center space-y-3 animate-in fade-in">
+            <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-xs">
+              <CheckCircle2 className="w-6 h-6" />
+            </div>
+            <h3 className="text-base font-bold text-slate-900">Inquiry Received!</h3>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+              Thank you for reaching out, {contactForm.name}. A Leadora enterprise specialist will contact your team at{' '}
+              <strong className="text-slate-800">{contactForm.email}</strong> within 1 business day.
+            </p>
+          </div>
+        ) : (
+          <form onSubmit={handleContactSubmit} className="space-y-4 pt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  Your Full Name <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Alex Morgan"
+                  value={contactForm.name}
+                  onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/10"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  Work Email <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="alex@company.com"
+                  value={contactForm.email}
+                  onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/10"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  Company Name <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Acme Global Inc"
+                  value={contactForm.company}
+                  onChange={(e) => setContactForm({ ...contactForm, company: e.target.value })}
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/10"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  Sales Team Headcount
+                </label>
+                <select
+                  value={contactForm.teamSize}
+                  onChange={(e) => setContactForm({ ...contactForm, teamSize: e.target.value })}
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/10"
+                >
+                  <option value="5-15">5 - 15 representatives</option>
+                  <option value="15-50">15 - 50 representatives</option>
+                  <option value="50-200">50 - 200 representatives</option>
+                  <option value="200+">200+ representatives</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-700 block">
+                Project Requirements or Questions
+              </label>
+              <textarea
+                rows={3}
+                placeholder="Tell us about your sales workflow, current CRM, and requirements..."
+                value={contactForm.message}
+                onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-blue-500 focus:ring-3 focus:ring-blue-500/10"
+              />
+            </div>
+
+            <div className="pt-2 flex items-center justify-end space-x-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsContactModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                size="sm"
+                leftIcon={Send}
+              >
+                Submit Enterprise Inquiry
+              </Button>
+            </div>
+          </form>
+        )}
+      </Modal>
+
+      {/* --------------------------------------------------------------------- */}
+      {/* 16. Floating Mobile Sticky Demo Pill                                  */}
+      {/* --------------------------------------------------------------------- */}
+      {showMobileStickyCta && (
+        <div className="sm:hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-40 animate-in fade-in slide-in-from-bottom-3 duration-200 w-[90%] max-w-sm">
+          <Link
+            to="/demo"
+            className="w-full py-3 px-4 rounded-full bg-emerald-600/95 hover:bg-emerald-500 backdrop-blur-md text-white font-bold text-xs flex items-center justify-between shadow-2xl shadow-emerald-950/60 border border-emerald-400/40 active:scale-95 transition"
+          >
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+              <span>Explore Live Demo Workspace</span>
+            </div>
+            <ArrowRight className="w-4 h-4 text-emerald-200" />
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
