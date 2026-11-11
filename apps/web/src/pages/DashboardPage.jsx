@@ -75,7 +75,7 @@ export function DashboardPage() {
   );
 
   const { data: activityData, isLoading: isActivityLoading } = useRecentActivity(
-    { limit: 8 },
+    { limit: 5 },
     { enabled: !isSuperAdmin },
   );
 

@@ -1,10 +1,19 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../auth/hooks/useAuth.js';
 import { Skeleton } from '../../../components/ui/Skeleton.jsx';
 import { Avatar } from '../../../components/ui/Avatar.jsx';
-import { UserCheck, ChevronDown, ChevronUp } from 'lucide-react';
+import { UserCheck, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, ArrowUpRight } from 'lucide-react';
 
-export function EmployeePerformanceTable({ employees = [], isLoading = false }) {
+export function EmployeePerformanceTable({ employees = [], isLoading = false, pageSize = 5 }) {
+  const { user } = useAuth();
+  const isDemo = Boolean(user?.isDemo || user?.role === 'DEMO');
   const [expandedEmpId, setExpandedEmpId] = useState(null);
+  const [page, setPage] = useState(1);
+
+  const totalPages = Math.max(1, Math.ceil(employees.length / pageSize));
+  const startIndex = (page - 1) * pageSize;
+  const paginatedEmployees = employees.slice(startIndex, startIndex + pageSize);
   if (isLoading) {
     return (
       <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
@@ -26,17 +35,24 @@ export function EmployeePerformanceTable({ employees = [], isLoading = false }) 
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-      <div className="p-5 pb-3 border-b border-slate-100 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <UserCheck className="w-4 h-4 text-slate-500" />
-          <h3 className="text-sm font-bold text-slate-900">Representative Pipeline & Activity</h3>
+      <div className="p-4 sm:p-5 pb-3 border-b border-slate-100 flex items-center justify-between gap-3">
+        <div className="flex items-center space-x-2 min-w-0">
+          <UserCheck className="w-4 h-4 text-slate-500 shrink-0" />
+          <h3 className="text-sm font-bold text-slate-900 truncate">Representative Pipeline & Activity</h3>
+          <span className="text-xs text-slate-400 font-medium shrink-0">({employees.length})</span>
         </div>
-        <span className="text-xs text-slate-400 font-medium">{employees.length} member(s)</span>
+        <Link
+          to={isDemo ? '/demo/employees' : '/employees'}
+          className="text-xs font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center space-x-1 shrink-0"
+        >
+          <span>View all reps</span>
+          <ArrowUpRight className="w-3.5 h-3.5" />
+        </Link>
       </div>
 
       {/* Mobile Progressive Disclosure Card View */}
       <div className="sm:hidden divide-y divide-slate-100">
-        {employees.map((emp) => {
+        {paginatedEmployees.map((emp) => {
           const nameParts = (emp.name || 'User').split(' ');
           const fName = nameParts[0] || 'U';
           const lName = nameParts[1] || '';
@@ -132,7 +148,7 @@ export function EmployeePerformanceTable({ employees = [], isLoading = false }) 
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 text-slate-700">
-            {employees.map((emp) => {
+            {paginatedEmployees.map((emp) => {
               const nameParts = (emp.name || 'User').split(' ');
               const fName = nameParts[0] || 'U';
               const lName = nameParts[1] || '';
@@ -182,6 +198,40 @@ export function EmployeePerformanceTable({ employees = [], isLoading = false }) 
           </tbody>
         </table>
       </div>
+
+      {/* Pagination Footer */}
+      {employees.length > pageSize && (
+        <div className="p-3 px-4 sm:px-5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 bg-slate-50/50">
+          <span>
+            Showing <strong className="text-slate-800">{startIndex + 1}</strong> to{' '}
+            <strong className="text-slate-800">{Math.min(startIndex + pageSize, employees.length)}</strong> of{' '}
+            <strong className="text-slate-800">{employees.length}</strong> representatives
+          </span>
+          <div className="flex items-center space-x-1.5">
+            <button
+              type="button"
+              disabled={page === 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+              aria-label="Previous page"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+            </button>
+            <span className="px-2 py-0.5 font-semibold text-slate-700">
+              {page} / {totalPages}
+            </span>
+            <button
+              type="button"
+              disabled={page >= totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+              aria-label="Next page"
+            >
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
