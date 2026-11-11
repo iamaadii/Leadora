@@ -9,6 +9,7 @@ import { Avatar } from '../../../components/ui/Avatar.jsx';
 import { Button } from '../../../components/ui/Button.jsx';
 import { EmptyState } from '../../../components/ui/EmptyState.jsx';
 import { Skeleton } from '../../../components/ui/Skeleton.jsx';
+import { Dropdown, DropdownItem } from '../../../components/ui/Dropdown.jsx';
 import {
   CalendarClock,
   CheckCircle2,
@@ -18,8 +19,11 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
+  ChevronUp,
   User,
   Clock,
+  MoreVertical,
+  AlertTriangle,
 } from 'lucide-react';
 
 export function FollowupTable({
@@ -42,19 +46,65 @@ export function FollowupTable({
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-6 space-y-4">
-        <Skeleton className="h-6 w-48" />
-        <div className="space-y-3">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="flex items-center space-x-4">
-              <Skeleton className="w-8 h-8 rounded-full" />
-              <div className="space-y-1.5 flex-1">
-                <Skeleton className="h-4 w-1/4" />
-                <Skeleton className="h-3 w-1/3" />
+      <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-xs">
+        {/* Mobile Skeleton */}
+        <div className="sm:hidden divide-y divide-slate-100">
+          {Array.from({ length: 4 }).map((_, idx) => (
+            <div key={idx} className="p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3 flex-1">
+                  <Skeleton className="w-9 h-9 rounded-xl" />
+                  <div className="space-y-1.5 flex-1">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                </div>
+                <Skeleton className="h-6 w-20 rounded-full" />
               </div>
-              <Skeleton className="h-6 w-20 rounded-full" />
+              <Skeleton className="h-12 w-full rounded-xl" />
+              <div className="flex gap-2 pt-1">
+                <Skeleton className="h-9 flex-1 rounded-xl" />
+                <Skeleton className="h-9 w-24 rounded-xl" />
+              </div>
             </div>
           ))}
+        </div>
+
+        {/* Desktop Skeleton */}
+        <div className="hidden sm:block">
+          <div className="p-4 bg-slate-50/75 border-b border-slate-200 flex items-center justify-between">
+            <Skeleton className="h-4 w-40" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+          <div className="divide-y divide-slate-100">
+            {Array.from({ length: 5 }).map((_, idx) => (
+              <div key={idx} className="p-4 flex items-center justify-between space-x-4">
+                <div className="w-[36%] flex items-center space-x-3">
+                  <Skeleton className="w-8 h-8 rounded-lg shrink-0" />
+                  <div className="space-y-1.5 flex-1">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-1/2" />
+                  </div>
+                </div>
+                <div className="w-[22%] space-y-1.5">
+                  <Skeleton className="h-4 w-28" />
+                  <Skeleton className="h-3 w-16" />
+                </div>
+                <div className="w-[18%] space-y-1.5">
+                  <Skeleton className="h-5 w-20 rounded-full" />
+                  <Skeleton className="h-4 w-14" />
+                </div>
+                <div className="w-[14%] flex items-center space-x-2">
+                  <Skeleton variant="circular" className="w-6 h-6 shrink-0" />
+                  <Skeleton className="h-4 w-20" />
+                </div>
+                <div className="w-[10%] flex justify-end space-x-1">
+                  <Skeleton className="h-8 w-8 rounded-lg" />
+                  <Skeleton className="h-8 w-8 rounded-lg" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -62,7 +112,7 @@ export function FollowupTable({
 
   if (followups.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-12 text-center">
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-8 sm:p-12 text-center shadow-xs">
         <EmptyState
           icon={CalendarClock}
           title="No follow-ups found"
@@ -78,160 +128,189 @@ export function FollowupTable({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col">
       {/* ------------------------------------------------------------- */}
-      {/* Mobile View: Concise Clickable Cards (Progressive Disclosure) */}
+      {/* Mobile View (<768px): 3-Tier Ergonomic Smart Cards            */}
       {/* ------------------------------------------------------------- */}
       <div className="sm:hidden divide-y divide-slate-100">
-        {followups.map((f) => {
+        {followups.map((f, idx) => {
           const isPending = f.status === 'PENDING';
           const isOverdue =
             isPending && f.due_at && new Date(f.due_at).getTime() < Date.now();
           const isExpanded = expandedId === f.id;
           const relativeTime = f.due_at ? formatRelativeTime(f.due_at) : null;
+          const assignedName = f.assigned_to_first_name
+            ? `${f.assigned_to_first_name} ${f.assigned_to_last_name || ''}`
+            : 'Unassigned';
 
           return (
             <div
               key={f.id}
-              className={`transition ${isOverdue ? 'bg-rose-50/20' : ''}`}
+              className={`p-4 space-y-3 transition ${
+                isOverdue ? 'bg-rose-50/25 border-l-4 border-rose-500' : ''
+              }`}
             >
-              {/* Summary Row (Clickable) */}
-              <div
-                onClick={() => toggleExpand(f.id)}
-                className="p-3.5 flex items-center justify-between gap-3 hover:bg-slate-50 cursor-pointer"
-              >
-                <div className="flex items-center space-x-2.5 min-w-0 flex-1">
-                  <div className="p-2 rounded-xl bg-slate-100 shrink-0">
+              {/* Tier 1: Task Header & Status */}
+              <div className="flex items-start justify-between gap-2.5">
+                <div className="flex items-start space-x-3 min-w-0 flex-1">
+                  <div
+                    className={`p-2 rounded-xl shrink-0 mt-0.5 ${
+                      isOverdue
+                        ? 'bg-rose-100 text-rose-700'
+                        : 'bg-slate-100 text-slate-700'
+                    }`}
+                  >
                     <FollowupTypeIcon type={f.type} />
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="font-bold text-xs text-slate-900 truncate">
-                        {f.title}
-                      </p>
-                      <FollowupStatusBadge
-                        status={f.status}
-                        dueAt={f.due_at}
-                        isOverdue={f.is_overdue}
-                      />
-                    </div>
+                    <p className="font-bold text-sm text-slate-900 truncate">
+                      {f.title}
+                    </p>
 
-                    <div className="flex items-center space-x-2 text-[11px] text-slate-500 mt-0.5 truncate">
-                      <span className={isOverdue ? 'text-rose-600 font-bold' : 'text-slate-600'}>
-                        {formatDueDate(f.due_at)}
-                      </span>
-                      {relativeTime && (
-                        <>
-                          <span className="text-slate-300">&bull;</span>
-                          <span className="text-slate-400">{relativeTime}</span>
-                        </>
-                      )}
-                      {f.lead_name && (
-                        <>
-                          <span className="text-slate-300">&bull;</span>
-                          <span className="truncate text-blue-600 font-medium">
-                            {f.lead_name}
+                    {f.lead_id && (
+                      <div className="flex items-center space-x-1 mt-0.5 text-xs text-blue-600 font-medium truncate">
+                        <Link
+                          to={`/leads/${f.lead_id}`}
+                          className="hover:underline truncate inline-flex items-center gap-1"
+                        >
+                          <span>{f.lead_name || 'View Lead'}</span>
+                          <ExternalLink className="w-3 h-3 shrink-0 text-slate-400" />
+                        </Link>
+                        {f.lead_company && (
+                          <span className="text-slate-400 truncate">
+                            · {f.lead_company}
                           </span>
-                        </>
-                      )}
-                    </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                <ChevronDown
-                  className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 ${
-                    isExpanded ? 'rotate-180 text-blue-600' : ''
-                  }`}
-                />
+                <div className="flex flex-col items-end gap-1 shrink-0">
+                  <FollowupStatusBadge
+                    status={f.status}
+                    dueAt={f.due_at}
+                    isOverdue={f.is_overdue}
+                  />
+                  {isOverdue && (
+                    <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-rose-700 bg-rose-100 px-1.5 py-0.2 rounded">
+                      <AlertTriangle className="w-2.5 h-2.5" />
+                      <span>OVERDUE</span>
+                    </span>
+                  )}
+                </div>
               </div>
 
-              {/* Expanded Detail Panel (Progressive Disclosure on Click) */}
-              {isExpanded && (
-                <div className="px-3.5 pb-3.5 pt-1 space-y-3 bg-slate-50/70 border-t border-slate-100/80 animate-in fade-in duration-150">
-                  {f.description && (
-                    <p className="text-xs text-slate-600 leading-relaxed bg-white p-2.5 rounded-xl border border-slate-200/70">
-                      {f.description}
-                    </p>
-                  )}
+              {/* Tier 2: Micro-Metric Strip (Schedule | Priority | Assigned) */}
+              <div className="grid grid-cols-3 gap-2 bg-slate-50/90 p-2.5 rounded-xl border border-slate-100 text-xs">
+                <div className="min-w-0">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider leading-none">
+                    Scheduled
+                  </span>
+                  <span
+                    className={`text-xs font-semibold mt-1 block truncate ${
+                      isOverdue ? 'text-rose-600 font-bold' : 'text-slate-800'
+                    }`}
+                  >
+                    {relativeTime || 'Not set'}
+                  </span>
+                </div>
 
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="bg-white p-2 rounded-xl border border-slate-200/60">
-                      <span className="text-[10px] text-slate-400 font-semibold uppercase block">
-                        Priority & Type
-                      </span>
-                      <div className="mt-1 flex items-center space-x-1.5">
-                        <FollowupPriorityBadge priority={f.priority} />
-                        <span className="text-[11px] text-slate-600">
-                          <FollowupTypeLabel type={f.type} />
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="bg-white p-2 rounded-xl border border-slate-200/60">
-                      <span className="text-[10px] text-slate-400 font-semibold uppercase block">
-                        Assigned To
-                      </span>
-                      <div className="mt-1 flex items-center space-x-1.5 truncate">
-                        <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        <span className="text-xs font-medium text-slate-700 truncate">
-                          {f.assigned_to_first_name
-                            ? `${f.assigned_to_first_name} ${f.assigned_to_last_name || ''}`
-                            : 'Unassigned'}
-                        </span>
-                      </div>
-                    </div>
+                <div className="min-w-0">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider leading-none">
+                    Priority
+                  </span>
+                  <div className="mt-1">
+                    <FollowupPriorityBadge priority={f.priority} size="xs" />
                   </div>
+                </div>
 
-                  {f.lead_id && (
-                    <div className="flex items-center justify-between text-xs pt-1">
-                      <Link
-                        to={`/leads/${f.lead_id}`}
-                        className="inline-flex items-center space-x-1 text-blue-600 font-bold hover:underline"
-                      >
-                        <span>View Lead: {f.lead_name || 'Details'}</span>
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </Link>
-                    </div>
-                  )}
+                <div className="min-w-0 text-right">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider leading-none">
+                    Assigned
+                  </span>
+                  <span className="text-xs font-medium text-slate-700 mt-1 block truncate">
+                    {assignedName}
+                  </span>
+                </div>
+              </div>
 
-                  {f.completion_notes && (
-                    <div className="text-[11px] text-emerald-800 bg-emerald-50 p-2 rounded-xl border border-emerald-100">
-                      <span className="font-bold">Outcome:</span> {f.completion_notes}
-                    </div>
+              {/* Expandable Notes Preview */}
+              {f.description && (
+                <div className="text-xs text-slate-600 bg-slate-50/60 p-2 rounded-lg border border-slate-100 leading-relaxed">
+                  <p className={isExpanded ? '' : 'line-clamp-2'}>
+                    {f.description}
+                  </p>
+                  {f.description.length > 90 && (
+                    <button
+                      type="button"
+                      onClick={() => toggleExpand(f.id)}
+                      className="text-blue-600 font-semibold text-[11px] mt-1 hover:underline cursor-pointer block"
+                    >
+                      {isExpanded ? 'Show less' : 'Read full notes'}
+                    </button>
                   )}
+                </div>
+              )}
 
-                  {/* Quick Action Buttons */}
-                  {isPending && (
-                    <div className="flex items-center space-x-2 pt-1">
-                      <Button
-                        size="xs"
-                        variant="primary"
-                        leftIcon={CheckCircle2}
-                        onClick={() => onCompleteClick(f)}
-                        className="flex-1"
+              {/* Outcome if already completed */}
+              {f.completion_notes && (
+                <div className="text-[11px] text-emerald-800 bg-emerald-50/80 p-2 rounded-xl border border-emerald-100">
+                  <span className="font-bold">Outcome:</span> {f.completion_notes}
+                </div>
+              )}
+
+              {/* Tier 3: Ergonomic Touch Strip (1-Tap Completion on Mobile) */}
+              {isPending && (
+                <div className="flex items-center gap-2 pt-0.5">
+                  <button
+                    type="button"
+                    onClick={() => onCompleteClick(f)}
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-semibold text-xs text-white bg-emerald-600 hover:bg-emerald-700 active:scale-95 shadow-2xs transition"
+                  >
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                    <span>Complete</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onEditClick(f)}
+                    className="inline-flex items-center justify-center gap-1 py-2.5 px-3.5 rounded-xl font-semibold text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-95 transition"
+                  >
+                    <Edit2 className="w-3.5 h-3.5 shrink-0" />
+                    <span>Edit</span>
+                  </button>
+
+                  <Dropdown
+                    align="right"
+                    direction={idx >= followups.length - 2 ? 'up' : 'auto'}
+                    trigger={
+                      <button
+                        type="button"
+                        className="p-2.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+                        aria-label="More actions"
                       >
-                        Complete
-                      </Button>
-                      <Button
-                        size="xs"
-                        variant="outline"
-                        leftIcon={Edit2}
-                        onClick={() => onEditClick(f)}
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
+                    }
+                  >
+                    {f.lead_id && (
+                      <DropdownItem
+                        icon={ExternalLink}
+                        onClick={() => window.open(`/leads/${f.lead_id}`, '_self')}
                       >
-                        Edit
-                      </Button>
-                      <Button
-                        size="xs"
-                        variant="ghost"
-                        leftIcon={XCircle}
-                        onClick={() => onCancelClick(f)}
-                        className="text-rose-600 hover:bg-rose-50"
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  )}
+                        Open Lead Profile
+                      </DropdownItem>
+                    )}
+                    <DropdownItem
+                      icon={XCircle}
+                      danger
+                      onClick={() => onCancelClick(f)}
+                    >
+                      Cancel Follow-up
+                    </DropdownItem>
+                  </Dropdown>
                 </div>
               )}
             </div>
@@ -240,17 +319,18 @@ export function FollowupTable({
       </div>
 
       {/* ------------------------------------------------------------- */}
-      {/* Desktop View: Semantic Paired Columns (Fits Laptop Screens)   */}
+      {/* Desktop / Laptop View (≥768px): Sticky Header, Paired Cols    */}
       {/* ------------------------------------------------------------- */}
-      <div className="hidden sm:block overflow-x-auto">
+      <div className="hidden sm:block overflow-x-auto relative">
         <table className="w-full text-left border-collapse text-xs">
-          <thead>
-            <tr className="border-b border-slate-100 bg-slate-50/70 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
-              <th className="py-3 px-4 w-[36%]">Task & Related Lead</th>
-              <th className="py-3 px-4 w-[22%]">Schedule & Timing</th>
-              <th className="py-3 px-4 w-[18%]">Status & Priority</th>
-              <th className="py-3 px-4 w-[14%]">Assigned Rep</th>
-              <th className="py-3 px-4 w-[10%] text-right">Actions</th>
+          {/* Sticky Table Header with Backdrop Blur */}
+          <thead className="sticky top-0 z-10 bg-slate-50/95 backdrop-blur-xs border-b border-slate-200 shadow-2xs">
+            <tr className="text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
+              <th className="py-3.5 px-4 w-[36%]">Task & Related Lead</th>
+              <th className="py-3.5 px-4 w-[22%]">Schedule & Urgency</th>
+              <th className="py-3.5 px-4 w-[18%]">Status & Priority</th>
+              <th className="py-3.5 px-4 w-[14%]">Assigned Rep</th>
+              <th className="py-3.5 px-4 w-[10%] text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -266,41 +346,55 @@ export function FollowupTable({
               return (
                 <tr
                   key={f.id}
-                  className={`hover:bg-slate-50/70 transition group ${
-                    isOverdue ? 'bg-rose-50/20' : ''
+                  className={`hover:bg-slate-50/70 border-l-2 transition-all group ${
+                    isOverdue
+                      ? 'bg-rose-50/20 border-rose-500 hover:border-rose-600'
+                      : 'border-transparent hover:border-blue-600'
                   }`}
                 >
                   {/* Col 1: Task & Related Lead */}
                   <td className="py-3.5 px-4">
                     <div className="space-y-1">
                       <div className="flex items-center space-x-2">
-                        <div className="p-1 rounded-md bg-slate-100 text-slate-600 shrink-0">
+                        <div
+                          className={`p-1.5 rounded-lg shrink-0 ${
+                            isOverdue
+                              ? 'bg-rose-100 text-rose-700'
+                              : 'bg-slate-100 text-slate-600'
+                          }`}
+                        >
                           <FollowupTypeIcon type={f.type} />
                         </div>
                         <span className="font-semibold text-slate-900 text-sm truncate max-w-sm">
                           {f.title}
                         </span>
                       </div>
+
                       {f.description && (
-                        <p className="text-[11px] text-slate-500 line-clamp-1 max-w-md pl-6">
+                        <p className="text-[11px] text-slate-500 line-clamp-1 max-w-md pl-8">
                           {f.description}
                         </p>
                       )}
-                      <div className="flex items-center space-x-1.5 text-[11px] text-blue-600 font-medium pl-6">
+
+                      <div className="flex items-center space-x-1.5 text-[11px] pl-8">
                         {f.lead_id ? (
                           <Link
                             to={`/leads/${f.lead_id}`}
-                            className="hover:underline flex items-center space-x-1"
+                            className="text-blue-600 hover:underline font-medium inline-flex items-center gap-1"
                           >
                             <span>{f.lead_name || 'View Lead'}</span>
-                            <ExternalLink className="w-3 h-3 inline text-slate-400" />
+                            <ExternalLink className="w-3 h-3 text-slate-400" />
                           </Link>
                         ) : (
                           <span className="text-slate-400 italic">No lead attached</span>
                         )}
+
                         {f.lead_company && (
-                          <span className="text-slate-400">· {f.lead_company}</span>
+                          <span className="text-slate-400 font-normal">
+                            · {f.lead_company}
+                          </span>
                         )}
+
                         {f.completion_notes && (
                           <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-100 text-[10px]">
                             Outcome: {f.completion_notes}
@@ -310,7 +404,7 @@ export function FollowupTable({
                     </div>
                   </td>
 
-                  {/* Col 2: Schedule & Timing */}
+                  {/* Col 2: Schedule & Urgency */}
                   <td className="py-3.5 px-4">
                     <div className="space-y-0.5">
                       <span
@@ -320,11 +414,11 @@ export function FollowupTable({
                       >
                         {formatDueDate(f.due_at)}
                       </span>
-                      <div className="flex items-center space-x-1 text-[11px] text-slate-400">
+                      <div className="flex items-center space-x-1.5 text-[11px] text-slate-400">
                         <Clock className="w-3 h-3 text-slate-400 shrink-0" />
-                        <span>{relativeTime || '—'}</span>
+                        <span className="font-mono">{relativeTime || '—'}</span>
                         {isOverdue && (
-                          <span className="text-rose-600 font-bold bg-rose-50 px-1 rounded text-[10px]">
+                          <span className="text-rose-600 font-bold bg-rose-100 px-1.5 py-0.2 rounded text-[10px]">
                             OVERDUE
                           </span>
                         )}
@@ -343,7 +437,7 @@ export function FollowupTable({
                         />
                       </div>
                       <div className="flex items-center space-x-1.5">
-                        <FollowupPriorityBadge priority={f.priority} />
+                        <FollowupPriorityBadge priority={f.priority} size="xs" />
                         <span className="text-[11px] text-slate-400 capitalize">
                           {f.type?.toLowerCase()}
                         </span>

@@ -22,6 +22,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
+  ArrowUpRight,
+  User,
+  Tag,
 } from 'lucide-react';
 
 export function LeadTable({
@@ -40,25 +43,71 @@ export function LeadTable({
   isArchivedView = false,
 }) {
   const { organizationCurrency, organizationTimezone } = useAuth();
+
   if (isLoading) {
     return (
       <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-xs">
-        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-          <Skeleton className="h-5 w-32" />
-          <Skeleton className="h-5 w-20" />
-        </div>
-        <div className="divide-y divide-slate-100">
-          {Array.from({ length: 5 }).map((_, idx) => (
-            <div key={idx} className="p-4 flex items-center space-x-4">
-              <Skeleton variant="circular" className="w-9 h-9" />
-              <div className="flex-1 space-y-2">
-                <Skeleton className="h-4 w-1/4" />
-                <Skeleton className="h-3 w-1/3" />
+        {/* Mobile Skeleton */}
+        <div className="sm:hidden divide-y divide-slate-100">
+          {Array.from({ length: 4 }).map((_, idx) => (
+            <div key={idx} className="p-4 space-y-3.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3 flex-1">
+                  <Skeleton variant="circular" className="w-10 h-10" />
+                  <div className="space-y-1.5 flex-1">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                </div>
+                <Skeleton className="h-6 w-18 rounded-full" />
               </div>
-              <Skeleton className="h-6 w-20" />
-              <Skeleton className="h-8 w-8 rounded-lg" />
+              <Skeleton className="h-14 w-full rounded-xl" />
+              <div className="flex gap-2 pt-1">
+                <Skeleton className="h-9 flex-1 rounded-xl" />
+                <Skeleton className="h-9 flex-1 rounded-xl" />
+              </div>
             </div>
           ))}
+        </div>
+
+        {/* Desktop Skeleton */}
+        <div className="hidden sm:block">
+          <div className="p-4 bg-slate-50/75 border-b border-slate-200 flex items-center justify-between">
+            <Skeleton className="h-4 w-36" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+          <div className="divide-y divide-slate-100">
+            {Array.from({ length: 5 }).map((_, idx) => (
+              <div key={idx} className="p-4 flex items-center justify-between space-x-4">
+                <div className="flex items-center space-x-3 w-[28%]">
+                  <Skeleton variant="circular" className="w-9 h-9 shrink-0" />
+                  <div className="space-y-1.5 flex-1">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-1/2" />
+                  </div>
+                </div>
+                <div className="w-[18%] space-y-1.5">
+                  <Skeleton className="h-5 w-20 rounded-full" />
+                  <Skeleton className="h-4 w-14 rounded-full" />
+                </div>
+                <div className="w-[16%] flex flex-col items-end space-y-1.5">
+                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="h-3 w-12" />
+                </div>
+                <div className="w-[18%] flex items-center space-x-2">
+                  <Skeleton variant="circular" className="w-6 h-6 shrink-0" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+                <div className="w-[12%] space-y-1">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-3 w-14" />
+                </div>
+                <div className="w-[8%] flex justify-end">
+                  <Skeleton className="h-8 w-8 rounded-lg" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -85,11 +134,11 @@ export function LeadTable({
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col">
-      {/* ------------------------------------------------------------- */}
-      {/* Mobile View: High-Density Structured Cards (Tiered Layout)    */}
-      {/* ------------------------------------------------------------- */}
+      {/* ----------------------------------------------------------------- */}
+      {/* Mobile View (<768px): 3-Tier Ergonomic Smart Cards                */}
+      {/* ----------------------------------------------------------------- */}
       <div className="sm:hidden divide-y divide-slate-100">
-        {leads.map((lead) => {
+        {leads.map((lead, idx) => {
           const dealValueFormatted = lead.estimated_value
             ? formatCurrency(lead.estimated_value, organizationCurrency)
             : null;
@@ -104,14 +153,14 @@ export function LeadTable({
             <div
               key={lead.id}
               onClick={() => onView(lead.id)}
-              className="p-4 space-y-3 active:bg-blue-50/40 hover:bg-slate-50 transition cursor-pointer group"
+              className="p-4 space-y-3 active:bg-blue-50/30 hover:bg-slate-50 transition cursor-pointer group"
               role="button"
               tabIndex={0}
               aria-label={`View details for ${lead.name}`}
             >
-              {/* Tier 1: Lead Identity & Pipeline Status */}
+              {/* Tier 1: Identity & Status Chips */}
               <div className="flex items-start justify-between gap-2.5">
-                <div className="flex items-center space-x-2.5 min-w-0 flex-1">
+                <div className="flex items-center space-x-3 min-w-0 flex-1">
                   <Avatar name={lead.name} size="sm" />
                   <div className="min-w-0 flex-1">
                     <span className="font-bold text-sm text-slate-900 truncate block group-hover:text-blue-600 transition">
@@ -138,84 +187,127 @@ export function LeadTable({
                 </div>
               </div>
 
-              {/* Tier 2: Deal Metrics & Owner */}
-              <div className="flex items-center justify-between text-xs bg-slate-50/80 p-2.5 rounded-xl border border-slate-100">
-                <div className="flex items-center space-x-2 min-w-0">
-                  <Avatar name={assignedName} size="xs" />
-                  <div className="min-w-0">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider leading-none">
-                      Assigned
-                    </span>
-                    <span className="font-semibold text-slate-700 truncate block text-xs mt-0.5">
+              {/* Tier 2: Micro-Metric Strip (Deal Value | Owner | Age) */}
+              <div className="grid grid-cols-3 gap-2 bg-slate-50/90 p-2.5 rounded-xl border border-slate-100 text-xs">
+                {/* Metric A: Deal Value */}
+                <div className="min-w-0">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider leading-none">
+                    Value
+                  </span>
+                  <span className="font-bold font-mono tabular-nums text-emerald-700 text-xs mt-1 block truncate">
+                    {dealValueFormatted || '—'}
+                  </span>
+                </div>
+
+                {/* Metric B: Assigned Rep */}
+                <div className="min-w-0">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider leading-none">
+                    Owner
+                  </span>
+                  <div className="flex items-center space-x-1 mt-1 truncate">
+                    <Avatar name={assignedName} size="xs" />
+                    <span className="font-semibold text-slate-700 truncate text-xs">
                       {assignedName}
                     </span>
                   </div>
                 </div>
 
-                <div className="text-right shrink-0">
+                {/* Metric C: Source or Age */}
+                <div className="min-w-0 text-right">
                   <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider leading-none">
-                    Value
+                    Created
                   </span>
-                  <span className="font-bold font-mono tabular-nums text-emerald-700 text-sm mt-0.5 block">
-                    {dealValueFormatted || '—'}
+                  <span className="text-[11px] text-slate-500 mt-1 block truncate font-medium">
+                    {relativeTime}
                   </span>
                 </div>
               </div>
 
-              {/* Tier 3: Metadata & Direct Contact Actions */}
-              <div className="flex items-center justify-between pt-0.5 text-[11px] text-slate-400">
-                <div className="flex items-center space-x-2">
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3 h-3 text-slate-400" />
-                    <span>{relativeTime}</span>
-                  </span>
-                  {lead.source && (
-                    <>
-                      <span>&bull;</span>
-                      <span className="font-medium text-slate-600 bg-slate-100 px-1.5 py-0.2 rounded">
-                        {lead.source}
-                      </span>
-                    </>
-                  )}
-                </div>
-
-                <div className="flex items-center space-x-1.5" onClick={(e) => e.stopPropagation()}>
+              {/* Tier 3: Ergonomic Touch Strip (Min 40px Touch Targets) */}
+              <div
+                className="flex items-center justify-between gap-2 pt-0.5"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center gap-1.5 flex-1 min-w-0">
                   {lead.phone && (
                     <a
                       href={`tel:${lead.phone}`}
                       aria-label={`Call ${lead.name}`}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/60 font-semibold active:scale-95 transition"
+                      className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-emerald-700 bg-emerald-50 hover:bg-emerald-100 active:scale-95 border border-emerald-200/60 font-semibold text-xs transition flex-1 min-w-0"
                     >
-                      <Phone className="w-3 h-3" />
-                      <span>Call</span>
+                      <Phone className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate">Call</span>
                     </a>
                   )}
+
                   {lead.email && (
                     <a
                       href={`mailto:${lead.email}`}
                       aria-label={`Email ${lead.name}`}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200/60 font-semibold active:scale-95 transition"
+                      className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-blue-700 bg-blue-50 hover:bg-blue-100 active:scale-95 border border-blue-200/60 font-semibold text-xs transition flex-1 min-w-0"
                     >
-                      <Mail className="w-3 h-3" />
-                      <span>Email</span>
+                      <Mail className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate">Email</span>
                     </a>
                   )}
-                  <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-600 group-hover:translate-x-0.5 transition ml-0.5" />
+
+                  <button
+                    type="button"
+                    onClick={() => onView(lead.id)}
+                    aria-label={`View details of ${lead.name}`}
+                    className="inline-flex items-center justify-center gap-1 px-3 py-2 rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-95 font-semibold text-xs transition shrink-0"
+                  >
+                    <span>Details</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </button>
                 </div>
+
+                {/* Overflow Dropdown for Secondary Mobile Actions */}
+                <Dropdown
+                  align="right"
+                  direction={idx >= leads.length - 2 ? 'up' : 'auto'}
+                  trigger={
+                    <button
+                      type="button"
+                      className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition shrink-0"
+                      aria-label="More actions"
+                    >
+                      <MoreVertical className="w-4 h-4" />
+                    </button>
+                  }
+                >
+                  <DropdownItem icon={Eye} onClick={() => onView(lead.id)}>
+                    View Details
+                  </DropdownItem>
+                  <DropdownItem icon={Edit2} onClick={() => onEdit(lead)}>
+                    Edit Lead
+                  </DropdownItem>
+                  {canArchive && !lead.archived_at && (
+                    <DropdownItem icon={Archive} danger onClick={() => onArchive(lead)}>
+                      Archive Lead
+                    </DropdownItem>
+                  )}
+                  {canArchive && lead.archived_at && (
+                    <DropdownItem icon={RotateCcw} onClick={() => onRestore(lead)}>
+                      Restore Lead
+                    </DropdownItem>
+                  )}
+                </Dropdown>
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* ------------------------------------------------------------- */}
-      {/* Desktop View: Semantic Paired Columns (Fits 13"-15" Screens)  */}
-      {/* ------------------------------------------------------------- */}
-      <div className="hidden sm:block overflow-x-auto">
+      {/* ----------------------------------------------------------------- */}
+      {/* Desktop / Laptop View (≥768px): Sticky Header, Dense Paired Cols  */}
+      {/* ----------------------------------------------------------------- */}
+      <div className="hidden sm:block overflow-x-auto relative">
         <table className="w-full text-left text-xs border-collapse">
-          <thead>
-            <tr className="bg-slate-50/75 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
-              <th className="py-3.5 px-4 w-[28%]">Lead & Company</th>
+          {/* Sticky Header with Backdrop Blur */}
+          <thead className="sticky top-0 z-10 bg-slate-50/95 backdrop-blur-xs border-b border-slate-200 shadow-2xs">
+            <tr className="text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
+              <th className="py-3.5 px-4 w-[28%]">Lead & Organization</th>
               <th className="py-3.5 px-4 w-[18%]">Stage & Priority</th>
               <th className="py-3.5 px-4 w-[16%] text-right">Deal Value</th>
               <th className="py-3.5 px-4 w-[18%]">Assigned Owner</th>
@@ -224,7 +316,7 @@ export function LeadTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {leads.map((lead) => {
+            {leads.map((lead, idx) => {
               const assignedName = lead.assigned_to_first_name
                 ? `${lead.assigned_to_first_name} ${lead.assigned_to_last_name}`
                 : 'Unassigned';
@@ -238,10 +330,10 @@ export function LeadTable({
               return (
                 <tr
                   key={lead.id}
-                  className="hover:bg-slate-50/70 transition group cursor-pointer"
+                  className="hover:bg-slate-50/70 border-l-2 border-transparent hover:border-blue-600 transition-all group cursor-pointer"
                   onClick={() => onView(lead.id)}
                 >
-                  {/* Col 1: Lead & Company */}
+                  {/* Col 1: Lead Identity & Company */}
                   <td className="py-3.5 px-4">
                     <div className="flex items-center space-x-3">
                       <Avatar name={lead.name} size="sm" />
@@ -264,7 +356,7 @@ export function LeadTable({
                                   <a
                                     href={`mailto:${lead.email}`}
                                     title={`Email: ${lead.email}`}
-                                    className="text-slate-400 hover:text-blue-600 transition"
+                                    className="text-slate-400 hover:text-blue-600 transition p-0.5 rounded"
                                   >
                                     <Mail className="w-3.5 h-3.5" />
                                   </a>
@@ -273,7 +365,7 @@ export function LeadTable({
                                   <a
                                     href={`tel:${lead.phone}`}
                                     title={`Call: ${lead.phone}`}
-                                    className="text-slate-400 hover:text-emerald-600 transition"
+                                    className="text-slate-400 hover:text-emerald-600 transition p-0.5 rounded"
                                   >
                                     <Phone className="w-3.5 h-3.5" />
                                   </a>
@@ -304,9 +396,11 @@ export function LeadTable({
                       <span className="font-bold font-mono tabular-nums text-slate-900 text-sm block">
                         {dealValueFormatted}
                       </span>
-                      <span className="text-[11px] font-medium text-slate-400 block truncate">
-                        {lead.source || 'Direct'}
-                      </span>
+                      {lead.source && (
+                        <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded uppercase tracking-wider inline-block">
+                          {lead.source}
+                        </span>
+                      )}
                     </div>
                   </td>
 
@@ -331,7 +425,7 @@ export function LeadTable({
                       <span className="text-slate-700 font-medium text-xs block">
                         {createdDate}
                       </span>
-                      <span className="text-slate-400 text-[11px] block">
+                      <span className="text-slate-400 text-[11px] block font-mono">
                         {relativeTime}
                       </span>
                     </div>
@@ -343,7 +437,7 @@ export function LeadTable({
                     onClick={(e) => e.stopPropagation()}
                   >
                     <div className="flex items-center justify-end space-x-1">
-                      {/* Hover action shortcuts */}
+                      {/* Hover action shortcuts for fast desktop workflows */}
                       {lead.phone && (
                         <a
                           href={`tel:${lead.phone}`}
@@ -373,6 +467,7 @@ export function LeadTable({
 
                       <Dropdown
                         align="right"
+                        direction={idx >= leads.length - 2 ? 'up' : 'auto'}
                         trigger={
                           <button
                             type="button"
@@ -419,7 +514,9 @@ export function LeadTable({
         </table>
       </div>
 
-      {/* Pagination Bar */}
+      {/* ----------------------------------------------------------------- */}
+      {/* Standardized Pagination Bar                                       */}
+      {/* ----------------------------------------------------------------- */}
       <div className="p-3.5 sm:p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
         <div className="text-center sm:text-left w-full sm:w-auto">
           Showing <span className="font-semibold text-slate-800">{startRecord}</span> to{' '}
