@@ -5,6 +5,7 @@ import { DemoBanner } from '../components/demo/DemoBanner.jsx';
 import {
   Menu,
   Bell,
+  Search,
   LogOut,
   User as UserIcon,
   Settings,
@@ -20,6 +21,7 @@ import {
 } from 'lucide-react';
 import { Dropdown, DropdownItem, DropdownDivider } from '../components/ui/Dropdown.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
+import { CommandPalette } from '../components/navigation/CommandPalette.jsx';
 import {
   useUnreadNotificationCount,
   useNotifications,
@@ -77,7 +79,19 @@ export function Topbar({ onToggleMobileSidebar }) {
   const navigate = useNavigate();
 
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const notifRef = useRef(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Real-time Server-Sent Events stream for instantaneous notifications
   useNotificationStream();
@@ -177,8 +191,22 @@ export function Topbar({ onToggleMobileSidebar }) {
         </div>
       </div>
 
-      {/* Right: Notification Icon & User Profile Dropdown */}
+      {/* Right: Quick Search, Notification Icon & User Profile Dropdown */}
       <div className="flex items-center space-x-2 sm:space-x-3">
+        {/* Quick Search / Command Palette Trigger */}
+        <button
+          type="button"
+          onClick={() => setIsCommandPaletteOpen(true)}
+          className="flex items-center space-x-2 py-1.5 px-2.5 sm:px-3 rounded-xl bg-slate-100/90 hover:bg-slate-200/90 text-slate-500 hover:text-slate-800 transition text-xs border border-slate-200/70 focus:outline-none cursor-pointer"
+          title="Search or jump to (Ctrl + K / ⌘K)"
+        >
+          <Search className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+          <span className="hidden sm:inline font-medium">Search or jump to...</span>
+          <kbd className="hidden sm:inline-block font-mono text-[10px] bg-white text-slate-500 px-1.5 py-0.5 rounded border border-slate-200 shadow-2xs font-semibold">
+            ⌘K
+          </kbd>
+        </button>
+
         {/* Dynamic Notification Bell with Dropdown */}
         <div className="relative" ref={notifRef}>
           <button
@@ -417,6 +445,11 @@ export function Topbar({ onToggleMobileSidebar }) {
         </Dropdown>
       </div>
     </header>
+
+    <CommandPalette
+      isOpen={isCommandPaletteOpen}
+      onClose={() => setIsCommandPaletteOpen(false)}
+    />
   </div>
   );
 }

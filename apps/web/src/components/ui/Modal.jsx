@@ -99,7 +99,7 @@ export function Modal({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 overflow-y-auto p-2.5 sm:p-4 md:p-6 flex items-center justify-center animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 overflow-y-auto p-0 sm:p-4 md:p-6 flex items-end sm:items-center justify-center animate-in fade-in duration-200"
     >
       {/* Dark frosted glass backdrop with rich blur */}
       <div
@@ -109,10 +109,15 @@ export function Modal({
         aria-hidden="true"
       />
 
-      {/* Modal Dialog Card */}
+      {/* Modal Dialog Card (Bottom sheet on mobile, centered card on desktop) */}
       <div
-        className={`relative bg-white rounded-2xl border border-slate-200/90 shadow-2xl w-full ${sizeClass} my-auto transform transition-all overflow-hidden flex flex-col max-h-[calc(100dvh-1.5rem)] sm:max-h-[90vh] z-10 animate-in zoom-in-95 duration-150`}
+        className={`relative bg-white rounded-t-3xl sm:rounded-2xl border-t sm:border border-slate-200/90 shadow-2xl w-full ${sizeClass} my-0 sm:my-auto transform transition-all overflow-hidden flex flex-col max-h-[88dvh] sm:max-h-[90vh] z-10 animate-in slide-in-from-bottom-6 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200`}
       >
+        {/* Mobile Drag Indicator Handle */}
+        <div className="sm:hidden pt-2.5 pb-1 flex justify-center bg-white shrink-0">
+          <div className="w-10 h-1.5 rounded-full bg-slate-300" />
+        </div>
+
         {/* Header */}
         <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-100 bg-white shrink-0">
           <div className="min-w-0 pr-3">
