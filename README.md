@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  **Every Lead. Every Opportunity. One Platform.**
+  Every Lead. Every Opportunity. One Platform.
 </p>
 
 <p align="center">
