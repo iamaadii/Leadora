@@ -14,6 +14,7 @@ import {
 import { ReportCategoryNav } from '../features/reports/components/ReportCategoryNav.jsx';
 import { ReportFilterBar } from '../features/reports/components/ReportFilterBar.jsx';
 import { ReportSummaryCards } from '../features/reports/components/ReportSummaryCards.jsx';
+import { ReportCharts } from '../features/reports/components/ReportCharts.jsx';
 import { ReportTable } from '../features/reports/components/ReportTable.jsx';
 import { ExportDropdown } from '../features/reports/components/ExportDropdown.jsx';
 
@@ -28,11 +29,11 @@ export function ReportsPage() {
     isSuperAdmin ? 'organizations' : 'leads'
   );
 
-  // Filter & Pagination State
+  // Filter & Pagination State (default limit: 15 for fast response & low payload)
   const [filters, setFilters] = useState({
     range: '30d',
     page: 1,
-    limit: 50,
+    limit: 15,
   });
 
   // Query Hooks (Tenant vs Platform)
@@ -63,7 +64,7 @@ export function ReportsPage() {
     setFilters({
       range: '30d',
       page: 1,
-      limit: 50,
+      limit: 15,
     });
   };
 
@@ -72,7 +73,7 @@ export function ReportsPage() {
     setFilters({
       range: '30d',
       page: 1,
-      limit: 50,
+      limit: 15,
     });
   };
 
@@ -141,6 +142,13 @@ export function ReportsPage() {
       <ReportSummaryCards
         category={activeCategory}
         summary={summary}
+      />
+
+      {/* Visual Analytics & Breakdown Charts */}
+      <ReportCharts
+        category={activeCategory}
+        summary={summary}
+        rows={rows}
       />
 
       {/* Report Filter Toolbar */}

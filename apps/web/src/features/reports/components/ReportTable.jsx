@@ -50,13 +50,58 @@ export function ReportTable({
       );
     }
 
+    if (col.key === 'daysToConvert') {
+      const days = Number(rawVal);
+      return (
+        <span
+          className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold ${
+            days <= 3
+              ? 'bg-emerald-50 text-emerald-700'
+              : days <= 14
+              ? 'bg-blue-50 text-blue-700'
+              : 'bg-amber-50 text-amber-700'
+          }`}
+        >
+          {days} {days === 1 ? 'day' : 'days'}
+        </span>
+      );
+    }
+
+    if (col.key === 'estimatedValue') {
+      if (!rawVal && rawVal !== 0) return <span className="text-slate-400">-</span>;
+      return (
+        <span className="font-bold text-emerald-700">
+          ${Number(rawVal).toLocaleString()}
+        </span>
+      );
+    }
+
     if (col.key.toLowerCase().includes('date') || col.key.endsWith('At')) {
       if (!rawVal) return <span className="text-slate-400">-</span>;
-      return new Date(rawVal).toLocaleDateString('en-US', {
+      const d = new Date(rawVal);
+      const formatted = d.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
       });
+      const daysAgo = Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24));
+      const relative =
+        daysAgo === 0
+          ? 'Today'
+          : daysAgo === 1
+          ? 'Yesterday'
+          : daysAgo > 0 && daysAgo < 30
+          ? `${daysAgo}d ago`
+          : null;
+
+      return (
+        <div className="flex flex-col">
+          <span className="font-medium text-slate-800">{formatted}</span>
+          {relative && (
+            <span className="text-[10px] text-slate-400 font-mono">{relative}</span>
+          )}
+        </div>
+      );
     }
 
     if (rawVal === null || rawVal === undefined || rawVal === '') {
@@ -138,26 +183,26 @@ export function ReportTable({
       </div>
 
       {/* Pagination Footer */}
-      <div className="px-4 py-3 border-t border-slate-100 bg-white flex flex-col sm:flex-row items-center justify-between gap-3">
-        <span className="text-xs text-slate-500 text-center sm:text-left">
-          Showing <span className="font-medium text-slate-900">{startItem}</span> to{' '}
-          <span className="font-medium text-slate-900">{endItem}</span> of{' '}
-          <span className="font-medium text-slate-900">{totalItems}</span> records
+      <div className="px-4 py-3 border-t border-slate-100 bg-white flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+        <span className="text-center sm:text-left w-full sm:w-auto">
+          Showing <span className="font-semibold text-slate-900">{startItem}</span> to{' '}
+          <span className="font-semibold text-slate-900">{endItem}</span> of{' '}
+          <span className="font-semibold text-slate-900">{totalItems}</span> records
         </span>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
           <Button
             variant="outline"
             size="sm"
             leftIcon={ChevronLeft}
             disabled={page <= 1}
             onClick={() => onPageChange && onPageChange(page - 1)}
-            className="h-8 text-xs"
+            className="flex-1 sm:flex-none justify-center"
           >
             Previous
           </Button>
-          <span className="text-xs font-medium text-slate-700 px-2">
-            Page {page} of {totalPages}
+          <span className="font-semibold text-slate-700 px-2 shrink-0 text-center">
+            {page} / {totalPages}
           </span>
           <Button
             variant="outline"
@@ -165,7 +210,7 @@ export function ReportTable({
             rightIcon={ChevronRight}
             disabled={page >= totalPages}
             onClick={() => onPageChange && onPageChange(page + 1)}
-            className="h-8 text-xs"
+            className="flex-1 sm:flex-none justify-center"
           >
             Next
           </Button>
