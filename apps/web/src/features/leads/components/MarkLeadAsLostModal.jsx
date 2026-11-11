@@ -97,12 +97,15 @@ export function MarkLeadAsLostModal({
                 ? 'Specify why this deal was lost...'
                 : 'Any extra context, customer feedback, or future re-engagement timing...'
             }
+            rows={3}
+            maxLength={500}
+            showCount
+            autoGrow
             value={lossNotes}
             onChange={(e) => {
               setLossNotes(e.target.value);
               if (error) setError('');
             }}
-            rows={3}
           />
         </div>
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal } from '../../../components/ui/Modal.jsx';
 import { Input } from '../../../components/ui/Input.jsx';
+import { Textarea } from '../../../components/ui/Textarea.jsx';
 import { Select } from '../../../components/ui/Select.jsx';
 import { Button } from '../../../components/ui/Button.jsx';
 import { useEmployees } from '../../employees/hooks/useEmployees.js';
@@ -54,6 +55,8 @@ export function CreateTeamModal({ isOpen, onClose, onSubmit, isSubmitting }) {
             value={formData.name}
             onChange={handleChange}
             placeholder="e.g. Enterprise Outbound"
+            autoFocus
+            clearable
             required
           />
         </div>
@@ -62,13 +65,15 @@ export function CreateTeamModal({ isOpen, onClose, onSubmit, isSubmitting }) {
           <label className="block text-xs font-medium text-slate-700 mb-1">
             Description
           </label>
-          <textarea
+          <Textarea
             name="description"
             value={formData.description}
             onChange={handleChange}
             placeholder="Brief description of the team's territory or focus..."
             rows={3}
-            className="w-full rounded-xl border border-slate-200 p-2.5 text-sm text-slate-800 placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            maxLength={300}
+            showCount
+            autoGrow
           />
         </div>
 

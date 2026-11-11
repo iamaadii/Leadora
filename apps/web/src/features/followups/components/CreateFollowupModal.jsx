@@ -148,6 +148,8 @@ export function CreateFollowupModal({
         <Input
           label="Task / Follow-up Title"
           required
+          autoFocus={Boolean(defaultLeadId)}
+          clearable
           placeholder="e.g., Q4 Pricing Proposal Review"
           value={formData.title}
           onChange={(e) => handleChange('title', e.target.value)}
@@ -189,14 +191,18 @@ export function CreateFollowupModal({
                 type="datetime-local"
                 value={formData.dueAt}
                 onChange={(e) => handleChange('dueAt', e.target.value)}
-                className={`w-full px-3 py-2 text-xs rounded-xl border bg-white focus:outline-none focus:ring-2 transition ${
+                className={`w-full py-2.5 px-3.5 text-xs rounded-xl border bg-white focus:outline-none transition ${
                   errors.dueAt
-                    ? 'border-rose-300 focus:ring-rose-500/20'
-                    : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500/20'
+                    ? 'border-rose-300 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10'
+                    : 'border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10'
                 }`}
               />
             </div>
-            {errors.dueAt && <p className="text-[11px] text-rose-500 mt-1">{errors.dueAt}</p>}
+            {errors.dueAt && (
+              <p className="animate-in fade-in slide-in-from-top-1 text-xs text-rose-500 font-medium mt-1">
+                {errors.dueAt}
+              </p>
+            )}
           </div>
 
           <Select
@@ -215,6 +221,9 @@ export function CreateFollowupModal({
           label="Preparation Notes / Agenda"
           placeholder="Key talking points, discovery questions, or requested follow-up items..."
           rows={3}
+          maxLength={500}
+          showCount
+          autoGrow
           value={formData.description}
           onChange={(e) => handleChange('description', e.target.value)}
         />

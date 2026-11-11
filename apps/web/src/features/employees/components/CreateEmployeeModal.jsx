@@ -56,6 +56,8 @@ export function CreateEmployeeModal({ isOpen, onClose, onSubmit, isSubmitting })
               value={formData.firstName}
               onChange={handleChange}
               placeholder="e.g. Jane"
+              autoFocus
+              clearable
               required
             />
           </div>
@@ -68,6 +70,7 @@ export function CreateEmployeeModal({ isOpen, onClose, onSubmit, isSubmitting })
               value={formData.lastName}
               onChange={handleChange}
               placeholder="e.g. Doe"
+              clearable
               required
             />
           </div>
@@ -80,9 +83,12 @@ export function CreateEmployeeModal({ isOpen, onClose, onSubmit, isSubmitting })
           <Input
             type="email"
             name="email"
+            inputMode="email"
+            autoComplete="email"
             value={formData.email}
             onChange={handleChange}
             placeholder="jane.doe@company.com"
+            clearable
             required
           />
         </div>

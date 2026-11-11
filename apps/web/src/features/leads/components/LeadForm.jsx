@@ -184,6 +184,7 @@ export function LeadForm({
             label="Full Name"
             placeholder="e.g. Sarah Connor"
             required
+            autoFocus
             value={formData.name}
             onChange={(e) => handleChange('name', e.target.value)}
             error={errors.name}
@@ -201,6 +202,9 @@ export function LeadForm({
           <Input
             label="Email Address"
             type="email"
+            inputMode="email"
+            autoComplete="email"
+            clearable
             placeholder="sarah@example.com"
             value={formData.email}
             onChange={(e) => handleChange('email', e.target.value)}
@@ -229,11 +233,13 @@ export function LeadForm({
           </Select>
 
           <Input
-            label={`Estimated Deal Value (${currencySymbol})`}
+            label="Estimated Deal Value"
+            prefix={currencySymbol}
             type="number"
+            inputMode="decimal"
             min="0"
             step="0.01"
-            placeholder="e.g. 25000"
+            placeholder="25,000.00"
             value={formData.estimated_value}
             onChange={(e) => handleChange('estimated_value', e.target.value)}
             error={errors.estimated_value}
@@ -292,6 +298,9 @@ export function LeadForm({
               }
               placeholder="Record why this lead did not proceed..."
               rows={2}
+              maxLength={300}
+              showCount
+              autoGrow
               value={formData.loss_notes}
               onChange={(e) => handleChange('loss_notes', e.target.value)}
               error={errors.loss_notes}
@@ -327,6 +336,9 @@ export function LeadForm({
             label="Description & Qualification Notes"
             placeholder="Add background notes, customer requirements, or meeting takeaways..."
             rows={3}
+            maxLength={500}
+            showCount
+            autoGrow
             value={formData.description}
             onChange={(e) => handleChange('description', e.target.value)}
           />

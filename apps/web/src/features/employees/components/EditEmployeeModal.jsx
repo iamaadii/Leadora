@@ -50,6 +50,8 @@ export function EditEmployeeModal({ isOpen, onClose, employee, onSubmit, isSubmi
               name="firstName"
               value={formData.firstName}
               onChange={handleChange}
+              autoFocus
+              clearable
               required
             />
           </div>
@@ -61,6 +63,7 @@ export function EditEmployeeModal({ isOpen, onClose, employee, onSubmit, isSubmi
               name="lastName"
               value={formData.lastName}
               onChange={handleChange}
+              clearable
               required
             />
           </div>

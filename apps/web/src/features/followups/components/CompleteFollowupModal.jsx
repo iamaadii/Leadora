@@ -39,6 +39,10 @@ export function CompleteFollowupModal({
           label="Outcome & Meeting Notes (Optional)"
           placeholder="e.g., Client requested updated proposal with 20 seats. Follow up next Tuesday."
           rows={3}
+          maxLength={500}
+          showCount
+          autoGrow
+          autoFocus
           value={completionNotes}
           onChange={(e) => setCompletionNotes(e.target.value)}
         />
