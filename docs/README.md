@@ -1,73 +1,85 @@
 # Leadora Documentation Directory
 
-Welcome to the Leadora documentation. All technical guides and specifications are organized into simple, related folders below.
+Welcome to the Leadora documentation directory. The documentation has been consolidated into 7 comprehensive domain guides for clarity, fast navigation, and streamlined maintenance.
 
 ---
 
-## 1. System Architecture & Requirements (`/docs/architecture/`)
-Guides explaining how the application is designed and what it does.
+## 1. [System Architecture & Requirements](architecture/architecture.md)
 
-- [System Architecture Overview](architecture/overview.md): How the backend, frontend, and database connect.
-- [Functional Requirements](architecture/functional-requirements.md): What the CRM does and who uses it.
-- [Brand Identity & Style Guide](architecture/branding.md): Brand colors, logo files, and typography.
+Comprehensive technical overview of Leadora:
 
----
-
-## 2. Database & Schema (`/docs/database/`)
-Everything about PostgreSQL tables, relationships, and data safety.
-
-- [Database Design & Tables](database/database-design.md): All 10 tables, column definitions, and migration files.
-- [Entity-Relationship Diagram (ERD)](database/database-erd.md): Visual diagram showing how tables connect.
-- [Database Backup & Recovery Runbook](database/backup-and-recovery.md): How to back up and restore the database with `pg_dump`.
+- **Modular Monolith Architecture**: Clean separation between React frontend (`apps/web`) and Express backend (`apps/api`).
+- **Transactional Consistency**: Multi-table atomic operations with `withTransaction()`.
+- **Multi-Tenant Isolation**: Database-level and token-derived tenant boundaries.
+- **Pipeline Lifecycle**: The 7 canonical stages and mandatory Loss Reason workflows.
+- **Brand Identity & Style Guide**: Logo assets, color codes, and reusable React brand components.
 
 ---
 
-## 3. REST API Reference (`/docs/api/`)
-Endpoints, response formats, and status codes.
+## 2. [Database Design, Schema & Operations](database/database.md)
 
-- [API Design & Conventions](api/api-design.md): JSON response format, error envelopes, and status codes.
-- [Complete API Endpoint Reference](api/api-documentation.md): List of all endpoints with allowed roles.
-- [Application Workflows](api/application-workflows.md): Step-by-step flows for login, lead creation, and pipelines.
+Complete relational schema specifications and database runbooks:
 
----
-
-## 4. Features & Modules (`/docs/features/`)
-How each business feature works.
-
-- [Leads & Kanban Board](features/lead-kanban.md): Moving leads across the 7 visual sales stages.
-- [Follow-ups & Task Scheduling](features/followup-management.md): Scheduling calls, meetings, and tracking overdue tasks.
-- [Team & Employee Management](features/team-management.md): Managing sales staff, teams, and workloads.
-- [Activity History & Audit Feed](features/activity-management.md): Automatic and manual timelines on leads.
-- [Dashboard & Sales Analytics](features/dashboard-analytics.md): KPI metrics, win rates, and pipeline funnels.
-- [Reports & Data Exports](features/reporting-and-exports.md): 1-click downloads for CSV, Excel (.xlsx), and PDF.
-- [In-App Notifications](features/notifications.md): Alert bell for new lead assignments and task reminders.
-- [Organization Settings](features/organization-settings.md): Setting company name, currency, and timezone.
-- [Platform Super Admin Management](features/platform-management.md): Managing tenant company workspaces.
-- [Public Live Demo](features/public-demo-environment.md): Free interactive demo mode without signing in.
+- **The 10 Core Tables**: Detailed column definitions, constraints, and composite foreign keys.
+- **Entity-Relationship Diagram (ERD)**: Visual Mermaid diagram mapping system relationships.
+- **SQL Migrations Reference**: Sequential migration history (`001` to `012`).
+- **Backup & Recovery Runbook**: Instant `pg_dump` backup, `pg_restore`, and daily automated cron backup script.
 
 ---
 
-## 5. Frontend & UI (`/docs/frontend/`)
-The web user interface.
+## 3. [REST API Design & Complete Reference](api/api-reference.md)
 
-- [Frontend Design System](frontend/design-system.md): Colors, buttons, modals, and responsive layout rules.
-- [Frontend Pages & Navigation](frontend/pages.md): Route map and screen descriptions.
-- [Frontend UI & Accessibility Audit](frontend/ui-audit.md): Mobile responsiveness and accessibility checks.
+Full backend API reference:
 
----
-
-## 6. Security & Permissions (`/docs/security/`)
-Security rules, access control, and tokens.
-
-- [Role Permissions Matrix](security/role-permissions.md): What Super Admins, Admins, Managers, and Reps can do.
-- [Security Hardening Guide](security/security-hardening.md): Cookies, Argon2, token rotation, and SQL injection defense.
+- **Conventions & Standards**: Base URL, HTTP status codes, standard success/error JSON response envelopes.
+- **Application Workflows**: Sequence and flowchart diagrams for authentication and lead creation.
+- **Endpoint Reference Matrix**: Complete route tables for Auth, Leads, Follow-ups, Employees, Teams, Dashboard, Reports, Notifications, Settings, and Super Admin.
 
 ---
 
-## 7. Operations & Deployment (`/docs/operations/`)
-How to configure, test, and deploy Leadora.
+## 4. [Features & Functional Modules Handbook](features/features.md)
 
-- [Environment Configuration Guide](operations/environment-configuration.md): All `.env` settings explained.
-- [Production Deployment Checklist](operations/production-deployment-checklist.md): Step-by-step launch checklist.
-- [Production Readiness Audit](operations/production-readiness-audit.md): Comprehensive module health and security audit.
+In-depth specifications for all business modules:
 
+- **Leads & Kanban Pipeline**: Interactive 7-stage visual board with drag-and-drop and filter controls.
+- **Follow-ups & Task Scheduling**: Real-time Overdue and Due Today tracking with outcome notes.
+- **Team & Employee Management**: Organizational hierarchy, manager boundaries, and single-team membership rules.
+- **Activity History & Audit Feed**: Automated event tracking and manual touchpoint logging.
+- **Dashboard & Sales Analytics**: Executive KPI cards, funnel metrics, and team leaderboards.
+- **Reports & 1-Click Exports**: Streaming downloads in CSV (formula injection safe), Excel (.xlsx), and PDF.
+- **Real-Time Notifications (SSE)**: Server-Sent Events stream with 25-second heartbeat keepalive.
+- **Organization Settings & Demo Mode**: Workspace configuration and sandboxed public demo mode.
+
+---
+
+## 5. [Frontend Design System, Pages & UI Guide](frontend/frontend.md)
+
+Frontend user experience and design reference:
+
+- **Visual Design Tokens**: High-contrast color palette, font scales, and semantic styling tokens.
+- **Reusable UI Components**: Modals, buttons, form controls, badges, and page headers.
+- **Application Route Map**: Complete screen routing and navigation breakdown.
+- **Responsive & Accessibility Standards**: Screen breakpoints (mobile, tablet, desktop) and WCAG AA compliance.
+
+---
+
+## 6. [Security, Authentication & Role Permissions Guide](security/security.md)
+
+Security controls and authorization specifications:
+
+- **Token Architecture**: 10-minute in-memory access tokens, HttpOnly refresh cookies, and automatic rotation.
+- **Cryptographic Protection**: Argon2id password hashing, timing-attack resistance, and parameterized SQL.
+- **Multi-Tenant Protection**: Strict tenant isolation derived from cryptographically verified claims.
+- **Role Permissions Matrix (RBAC)**: Detailed capabilities matrix across Super Admin, Admin, Manager, and Employee.
+
+---
+
+## 7. [Operations, Deployment & Administration Guide](operations/operations.md)
+
+Operational deployment and administration runbook:
+
+- **Environment Configuration**: Complete `.env` variable reference and cryptographic secret generation.
+- **Super Admin Provisioning CLI**: Interactive and non-interactive `npm run admin:create` bootstrap instructions.
+- **Production Docker Guide**: Multi-container Docker Compose architecture and Nginx reverse proxy configuration.
+- **Production Readiness Audit**: Verification status across all 10 core system modules.
+- **Deployment Checklist**: Step-by-step pre-flight, launch, and smoke-testing procedures.
