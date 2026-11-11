@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { useAuth } from '../../auth/hooks/useAuth.js';
 import { formatCurrency } from '../../../utils/currency.js';
 import {
@@ -286,10 +285,4 @@ export function ReportCharts({ category, summary = {}, rows = [] }) {
 
   return null;
 }
-
-ReportCharts.propTypes = {
-  category: PropTypes.string.isRequired,
-  summary: PropTypes.object,
-  rows: PropTypes.array,
-};
 

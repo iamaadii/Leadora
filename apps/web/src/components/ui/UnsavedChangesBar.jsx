@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Button } from './Button.jsx';
 import { Check, RotateCcw } from 'lucide-react';
 
@@ -61,13 +60,3 @@ export function UnsavedChangesBar({
     </div>
   );
 }
-
-UnsavedChangesBar.propTypes = {
-  isVisible: PropTypes.bool,
-  message: PropTypes.string,
-  onDiscard: PropTypes.func,
-  onSave: PropTypes.func.isRequired,
-  isSaving: PropTypes.bool,
-  saveText: PropTypes.string,
-  discardText: PropTypes.string,
-};

@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Check, AlertTriangle, RotateCcw } from 'lucide-react';
 
 const PIPELINE_STAGES = [
@@ -120,10 +119,3 @@ export function LeadPipelineStepper({
     </div>
   );
 }
-
-LeadPipelineStepper.propTypes = {
-  currentStatus: PropTypes.string.isRequired,
-  lossReason: PropTypes.string,
-  onStatusChange: PropTypes.func.isRequired,
-  isLoading: PropTypes.bool,
-};

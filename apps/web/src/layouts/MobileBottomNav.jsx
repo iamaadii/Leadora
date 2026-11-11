@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { NavLink, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Target, CalendarClock, Activity, Menu } from 'lucide-react';
 import { useAuth } from '../features/auth/hooks/useAuth.js';
@@ -80,8 +79,4 @@ export function MobileBottomNav({ onOpenMenu }) {
     </nav>
   );
 }
-
-MobileBottomNav.propTypes = {
-  onOpenMenu: PropTypes.func.isRequired,
-};
 
