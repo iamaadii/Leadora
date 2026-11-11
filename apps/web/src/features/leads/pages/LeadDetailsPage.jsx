@@ -7,6 +7,7 @@ import { Button } from '../../../components/ui/Button.jsx';
 import { Avatar } from '../../../components/ui/Avatar.jsx';
 import { LeadStatusBadge } from '../components/LeadStatusBadge.jsx';
 import { LeadPriorityBadge } from '../components/LeadPriorityBadge.jsx';
+import { LeadPipelineStepper } from '../components/LeadPipelineStepper.jsx';
 import { MarkLeadAsLostModal } from '../components/MarkLeadAsLostModal.jsx';
 import { LeadActivityTimeline } from '../components/LeadActivityTimeline.jsx';
 import { LeadForm } from '../components/LeadForm.jsx';
@@ -316,6 +317,14 @@ export function LeadDetailsPage() {
         }
       />
 
+      {/* Interactive Pipeline Stage Stepper */}
+      <LeadPipelineStepper
+        currentStatus={lead.status}
+        lossReason={lead.loss_reason}
+        onStatusChange={handleStatusChange}
+        isLoading={updateLeadMutation.isPending}
+      />
+
       {/* Archived Alert Banner */}
       {lead.archived_at && (
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-amber-800">
@@ -368,6 +377,30 @@ export function LeadDetailsPage() {
                 <p className="text-xs text-slate-500 truncate">{lead.company || 'Individual Client'}</p>
               </div>
             </div>
+
+            {/* Quick Contact Action Buttons */}
+            {(lead.phone || lead.email) && (
+              <div className="flex items-center gap-2 pb-1">
+                {lead.phone && (
+                  <a
+                    href={`tel:${lead.phone}`}
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200/80 transition shadow-2xs"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>Call</span>
+                  </a>
+                )}
+                {lead.email && (
+                  <a
+                    href={`mailto:${lead.email}`}
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-semibold bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200/80 transition shadow-2xs"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>Email</span>
+                  </a>
+                )}
+              </div>
+            )}
 
             <div className="space-y-3.5 text-xs">
               <div className="flex items-start space-x-2.5">

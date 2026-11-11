@@ -136,8 +136,30 @@ export function LeadTable({
                 </div>
               </div>
 
-              {/* Action indicator arrow */}
-              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition shrink-0" />
+              {/* Quick Contact Chips & Navigation for Mobile */}
+              <div className="flex items-center space-x-1 shrink-0">
+                {lead.phone && (
+                  <a
+                    href={`tel:${lead.phone}`}
+                    onClick={(e) => e.stopPropagation()}
+                    aria-label={`Call ${lead.name}`}
+                    className="p-2 rounded-xl text-emerald-700 bg-emerald-50 hover:bg-emerald-100 active:scale-95 transition"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                  </a>
+                )}
+                {lead.email && (
+                  <a
+                    href={`mailto:${lead.email}`}
+                    onClick={(e) => e.stopPropagation()}
+                    aria-label={`Email ${lead.name}`}
+                    className="p-2 rounded-xl text-blue-700 bg-blue-50 hover:bg-blue-100 active:scale-95 transition"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                  </a>
+                )}
+                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-600 group-hover:translate-x-0.5 transition" />
+              </div>
             </div>
           );
         })}
@@ -185,16 +207,24 @@ export function LeadTable({
                         </span>
                         <div className="flex items-center space-x-2 text-[11px] text-slate-500 mt-0.5 truncate">
                           {lead.email && (
-                            <span className="flex items-center space-x-1 truncate">
+                            <a
+                              href={`mailto:${lead.email}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="flex items-center space-x-1 truncate hover:text-blue-600 hover:underline"
+                            >
                               <Mail className="w-3 h-3 text-slate-400 shrink-0" />
                               <span className="truncate">{lead.email}</span>
-                            </span>
+                            </a>
                           )}
                           {lead.phone && (
-                            <span className="flex items-center space-x-1 truncate">
+                            <a
+                              href={`tel:${lead.phone}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="flex items-center space-x-1 truncate hover:text-emerald-600 hover:underline"
+                            >
                               <Phone className="w-3 h-3 text-slate-400 shrink-0" />
                               <span className="truncate">{lead.phone}</span>
-                            </span>
+                            </a>
                           )}
                         </div>
                       </div>
