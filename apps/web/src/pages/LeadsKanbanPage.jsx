@@ -34,7 +34,7 @@ export function LeadsKanbanPage() {
       source: searchParams.get('source') || '',
       assigned_to_id: searchParams.get('assigned_to_id') || '',
       isArchived: searchParams.get('isArchived') === 'true',
-      limit: 100, // Load comprehensive batch for Kanban board
+      limit: 50, // Streamlined batch for fast Kanban board rendering
     };
   }, [searchParams]);
 

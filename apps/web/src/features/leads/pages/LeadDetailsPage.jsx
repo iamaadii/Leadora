@@ -78,6 +78,7 @@ export function LeadDetailsPage() {
   const [cancellingFollowup, setCancellingFollowup] = useState(null);
   const [isMarkLostOpen, setIsMarkLostOpen] = useState(false);
   const [isSubmittingLoss, setIsSubmittingLoss] = useState(false);
+  const [showAllFollowups, setShowAllFollowups] = useState(false);
 
   const lead = leadData?.data;
   const leadFollowups = followupsData?.data || [];
@@ -556,7 +557,7 @@ export function LeadDetailsPage() {
               </div>
             ) : (
               <div className="space-y-2.5">
-                {leadFollowups.map((f) => {
+                {(showAllFollowups ? leadFollowups : leadFollowups.slice(0, 4)).map((f) => {
                   const isPending = f.status === 'PENDING';
                   const isOverdue =
                     isPending && f.due_at && new Date(f.due_at).getTime() < Date.now();
@@ -626,6 +627,18 @@ export function LeadDetailsPage() {
                     </div>
                   );
                 })}
+
+                {leadFollowups.length > 4 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAllFollowups((prev) => !prev)}
+                    className="w-full py-2 text-xs font-semibold text-blue-600 hover:text-blue-700 bg-slate-50 hover:bg-slate-100 rounded-xl transition text-center cursor-pointer"
+                  >
+                    {showAllFollowups
+                      ? 'Show fewer follow-ups'
+                      : `View all ${leadFollowups.length} scheduled follow-ups`}
+                  </button>
+                )}
               </div>
             )}
           </div>

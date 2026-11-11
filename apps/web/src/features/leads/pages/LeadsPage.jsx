@@ -38,7 +38,7 @@ export function LeadsPage() {
     return {
       view: searchParams.get('view') || 'table',
       page: parseInt(searchParams.get('page') || '1', 10),
-      limit: searchParams.get('view') === 'kanban' ? 100 : parseInt(searchParams.get('limit') || '10', 10),
+      limit: searchParams.get('view') === 'kanban' ? 50 : parseInt(searchParams.get('limit') || '10', 10),
       search: searchParams.get('search') || '',
       status: searchParams.get('status') || '',
       source: searchParams.get('source') || '',
@@ -51,7 +51,7 @@ export function LeadsPage() {
   const apiParams = useMemo(() => {
     const params = {
       page: filters.view === 'kanban' ? 1 : filters.page,
-      limit: filters.view === 'kanban' ? 100 : filters.limit,
+      limit: filters.view === 'kanban' ? 50 : filters.limit,
     };
     if (filters.search) params.search = filters.search;
     if (filters.status) params.status = filters.status;

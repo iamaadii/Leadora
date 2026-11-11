@@ -24,6 +24,7 @@ const EVENT_ICONS = {
 
 export function LeadActivityTimeline({ activities = [], isLoading = false }) {
   const { organizationTimezone } = useAuth();
+  const [visibleLimit, setVisibleLimit] = React.useState(5);
   if (isLoading) {
     return (
       <div className="space-y-4 py-2">
@@ -48,9 +49,12 @@ export function LeadActivityTimeline({ activities = [], isLoading = false }) {
     );
   }
 
+  const visibleActivities = activities.slice(0, visibleLimit);
+
   return (
-    <div className="relative pl-6 space-y-6 before:absolute before:inset-y-2 before:left-3 before:w-0.5 before:bg-slate-200/80">
-      {activities.map((act) => {
+    <div className="space-y-4">
+      <div className="relative pl-6 space-y-6 before:absolute before:inset-y-2 before:left-3 before:w-0.5 before:bg-slate-200/80">
+        {visibleActivities.map((act) => {
         const config = EVENT_ICONS[act.activity_type] || {
           icon: Activity,
           color: 'text-slate-600 bg-slate-50 border-slate-200',
@@ -102,6 +106,19 @@ export function LeadActivityTimeline({ activities = [], isLoading = false }) {
           </div>
         );
       })}
+      </div>
+
+      {activities.length > visibleLimit && (
+        <div className="pt-1">
+          <button
+            type="button"
+            onClick={() => setVisibleLimit((prev) => prev + 5)}
+            className="w-full py-2 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs transition cursor-pointer shadow-2xs"
+          >
+            Show more events ({activities.length - visibleLimit} remaining)
+          </button>
+        </div>
+      )}
     </div>
   );
 }
