@@ -295,29 +295,34 @@ export function EmployeesPage() {
             />
 
             {/* Pagination footer */}
-            <div className="p-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-              <div>
-                Showing {employees.length} of {meta.total} employees
+            <div className="p-3.5 sm:p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+              <div className="text-center sm:text-left w-full sm:w-auto">
+                Showing <strong className="text-slate-800">{employees.length}</strong> of{' '}
+                <strong className="text-slate-800">{meta.total}</strong> employees
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  leftIcon={ChevronLeft}
+                  className="flex-1 sm:flex-none justify-center"
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  Previous
                 </Button>
-                <span>
-                  Page {page} of {meta.totalPages}
+                <span className="font-semibold text-slate-700 px-2 shrink-0 text-center">
+                  {page} / {meta.totalPages}
                 </span>
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   disabled={page >= meta.totalPages}
                   onClick={() => setPage((p) => p + 1)}
+                  rightIcon={ChevronRight}
+                  className="flex-1 sm:flex-none justify-center"
                 >
-                  <ChevronRight className="w-4 h-4" />
+                  Next
                 </Button>
               </div>
             </div>

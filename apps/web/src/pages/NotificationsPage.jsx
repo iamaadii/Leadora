@@ -36,7 +36,7 @@ export function NotificationsPage() {
   const { data, isLoading } = useNotifications({
     status: filter,
     page,
-    limit: 20,
+    limit: 10,
   });
 
   const markReadMutation = useMarkNotificationAsRead();
@@ -240,24 +240,27 @@ export function NotificationsPage() {
 
           {/* Pagination Controls */}
           {meta.totalPages > 1 && (
-            <div className="p-4 bg-slate-50 flex items-center justify-between text-xs text-slate-600">
-              <span>
-                Page {meta.page} of {meta.totalPages} ({meta.total} total)
+            <div className="p-3.5 sm:p-4 bg-slate-50/70 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
+              <span className="text-center sm:text-left w-full sm:w-auto">
+                Page <strong className="text-slate-800">{meta.page}</strong> of{' '}
+                <strong className="text-slate-800">{meta.totalPages}</strong> ({meta.total} notifications)
               </span>
-              <div className="space-x-2">
+              <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
                 <Button
                   variant="outline"
-                  size="xs"
+                  size="sm"
                   disabled={meta.page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className="flex-1 sm:flex-none justify-center"
                 >
                   Previous
                 </Button>
                 <Button
                   variant="outline"
-                  size="xs"
+                  size="sm"
                   disabled={meta.page >= meta.totalPages}
                   onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
+                  className="flex-1 sm:flex-none justify-center"
                 >
                   Next
                 </Button>

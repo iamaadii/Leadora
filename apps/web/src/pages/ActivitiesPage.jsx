@@ -41,7 +41,7 @@ export function ActivitiesPage() {
   const [expandedId, setExpandedId] = useState(null);
 
   // Fetch employees for actor filter dropdown
-  const { data: employeesData } = useEmployees({ limit: 100 });
+  const { data: employeesData } = useEmployees({ limit: 50 });
   const employeesList = employeesData?.data || [];
 
   const toggleExpand = (id) => {
@@ -77,7 +77,7 @@ export function ActivitiesPage() {
     startDate: startDate && !dateError ? `${startDate}T00:00:00.000Z` : undefined,
     endDate: endDate && !dateError ? `${endDate}T23:59:59.999Z` : undefined,
     page,
-    limit: 20,
+    limit: 10,
   });
 
   const handleRefresh = async () => {
@@ -366,24 +366,27 @@ export function ActivitiesPage() {
 
         {/* Pagination Controls */}
         {meta.totalPages > 1 && (
-          <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-600">
-            <span>
-              Page {meta.page} of {meta.totalPages} ({meta.total} total activities)
+          <div className="p-3.5 sm:p-4 bg-slate-50/70 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
+            <span className="text-center sm:text-left w-full sm:w-auto">
+              Page <strong className="text-slate-800">{meta.page}</strong> of{' '}
+              <strong className="text-slate-800">{meta.totalPages}</strong> ({meta.total} activities)
             </span>
-            <div className="space-x-2">
+            <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
               <Button
                 variant="outline"
-                size="xs"
+                size="sm"
                 disabled={meta.page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="flex-1 sm:flex-none justify-center"
               >
                 Previous
               </Button>
               <Button
                 variant="outline"
-                size="xs"
+                size="sm"
                 disabled={meta.page >= meta.totalPages}
                 onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
+                className="flex-1 sm:flex-none justify-center"
               >
                 Next
               </Button>
