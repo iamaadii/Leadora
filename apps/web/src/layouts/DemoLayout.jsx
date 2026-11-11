@@ -3,6 +3,7 @@ import { Outlet, Link } from 'react-router-dom';
 import { useAuth } from '../features/auth/hooks/useAuth.js';
 import { Sidebar } from './Sidebar.jsx';
 import { Topbar } from './Topbar.jsx';
+import { MobileBottomNav } from './MobileBottomNav.jsx';
 import { ErrorBoundary } from '../components/feedback/ErrorBoundary.jsx';
 import { BrandLogo } from '../components/brand/BrandLogo.jsx';
 import { RefreshCw, AlertCircle, ArrowLeft } from 'lucide-react';
@@ -138,14 +139,17 @@ export function DemoLayout() {
           {/* Top Header Bar - Sticky Top-0 Header */}
           <Topbar onToggleMobileSidebar={() => setIsMobileOpen(true)} />
 
-          {/* Page Content Viewport */}
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+          {/* Page Content Viewport with mobile bottom padding */}
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-28 md:pb-12 max-w-7xl w-full mx-auto">
             <ErrorBoundary>
               <Outlet />
             </ErrorBoundary>
           </main>
         </div>
       </div>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <MobileBottomNav onOpenMenu={() => setIsMobileOpen(true)} />
     </div>
   );
 }
