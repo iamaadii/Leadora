@@ -282,15 +282,15 @@ export const Select = forwardRef(function Select(
           disabled
             ? 'bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed shadow-none'
             : isOpen
-            ? 'bg-white border-blue-500 ring-2 ring-blue-500/20 text-slate-900 shadow-sm'
+            ? 'bg-white border-blue-500 ring-4 ring-blue-500/10 text-slate-900 shadow-sm'
             : error
-            ? 'bg-white border-rose-300 text-slate-900 hover:border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 shadow-2xs'
-            : 'bg-white border-slate-200 text-slate-900 hover:border-slate-300 hover:bg-slate-50/50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs'
+            ? 'bg-white border-rose-300 text-slate-900 hover:border-rose-400 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 shadow-2xs'
+            : 'bg-white border-slate-200 text-slate-900 hover:border-slate-300 hover:bg-slate-50/50 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 shadow-2xs'
         }`}
       >
         <span
-          className={`truncate flex-1 font-bold ${
-            !selectedOption ? 'text-slate-400' : 'text-slate-900'
+          className={`truncate flex-1 font-medium ${
+            !selectedOption ? 'text-slate-400 font-normal' : 'text-slate-800'
           }`}
         >
           {selectedOption ? selectedOption.label : (placeholder || 'Select...')}
@@ -367,10 +367,10 @@ export const Select = forwardRef(function Select(
                         opt.disabled
                           ? 'text-slate-300 cursor-not-allowed'
                           : isSelected
-                          ? 'bg-blue-50 text-blue-700 font-bold'
+                          ? 'bg-blue-50 text-blue-700 font-semibold'
                           : isHighlighted
-                          ? 'bg-slate-100/80 text-slate-900 font-bold'
-                          : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 font-bold'
+                          ? 'bg-slate-100/80 text-slate-900 font-medium'
+                          : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 font-medium'
                       }`}
                     >
                       <span className="truncate flex-1">{opt.label}</span>
@@ -387,7 +387,9 @@ export const Select = forwardRef(function Select(
         )}
 
       {error ? (
-        <p className="text-xs text-rose-600 mt-1 font-medium">{error}</p>
+        <p className="text-xs text-rose-600 mt-1 font-medium animate-in fade-in slide-in-from-top-1 duration-150">
+          {error}
+        </p>
       ) : helperText ? (
         <p className="text-xs text-slate-500 mt-1">{helperText}</p>
       ) : null}
