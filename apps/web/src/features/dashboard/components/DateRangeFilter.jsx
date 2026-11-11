@@ -51,10 +51,10 @@ export function DateRangeFilter({
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="inline-flex items-center space-x-2 px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200/80 rounded-xl hover:bg-slate-50 shadow-2xs transition"
+        className="inline-flex items-center space-x-2 px-3 py-2 text-xs font-bold text-slate-900 bg-white border border-slate-200/80 rounded-xl hover:bg-slate-50 shadow-2xs transition"
       >
         <Calendar className="w-3.5 h-3.5 text-slate-500" />
-        <span>{currentOption.label}</span>
+        <span className="font-bold text-slate-900">{currentOption.label}</span>
         <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
       </button>
 
@@ -97,7 +97,14 @@ export function DateRangeFilter({
               type="date"
               required
               value={customStart}
-              onChange={(e) => setCustomStart(e.target.value)}
+              max={customEnd || undefined}
+              onChange={(e) => {
+                const val = e.target.value;
+                setCustomStart(val);
+                if (customEnd && val && val > customEnd) {
+                  setCustomEnd(val);
+                }
+              }}
               className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
@@ -108,7 +115,15 @@ export function DateRangeFilter({
               type="date"
               required
               value={customEnd}
-              onChange={(e) => setCustomEnd(e.target.value)}
+              min={customStart || undefined}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (customStart && val && val < customStart) {
+                  setCustomEnd(customStart);
+                } else {
+                  setCustomEnd(val);
+                }
+              }}
               className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-blue-500/20"
             />
           </div>

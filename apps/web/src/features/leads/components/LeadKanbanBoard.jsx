@@ -91,10 +91,7 @@ export function LeadKanbanBoard({
     }
 
     if (isDemo) {
-      toast.warning(
-        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
-        'Demo Mode (Read-Only)',
-      );
+      toast.warning('Changes are disabled in Demo Mode');
       setDraggedLeadId(null);
       return;
     }
@@ -114,7 +111,7 @@ export function LeadKanbanBoard({
       toast.success(`Moved "${lead.name}" to ${targetStageId.replace(/_/g, ' ')}`);
     } catch (err) {
       const msg = err.response?.data?.message || err.message || 'Failed to update stage';
-      toast.error(msg, 'Kanban Error');
+      toast.error(msg);
     } finally {
       setDraggedLeadId(null);
     }
@@ -124,10 +121,7 @@ export function LeadKanbanBoard({
     if (lead.status === newStage) return;
 
     if (isDemo) {
-      toast.warning(
-        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
-        'Demo Mode (Read-Only)',
-      );
+      toast.warning('Changes are disabled in Demo Mode');
       return;
     }
 
@@ -145,7 +139,7 @@ export function LeadKanbanBoard({
       toast.success(`Updated "${lead.name}" stage to ${newStage.replace(/_/g, ' ')}`);
     } catch (err) {
       const msg = err.response?.data?.message || err.message || 'Failed to update stage';
-      toast.error(msg, 'Stage Update Error');
+      toast.error(msg);
     }
   };
 
@@ -158,7 +152,7 @@ export function LeadKanbanBoard({
       setPendingLostLead(null);
     } catch (err) {
       const msg = err.response?.data?.message || err.message || 'Failed to record loss reason';
-      toast.error(msg, 'Loss Record Error');
+      toast.error(msg);
     } finally {
       setIsSubmittingLoss(false);
     }
@@ -387,7 +381,7 @@ export function LeadKanbanBoard({
                                   value={lead.status || 'NEW'}
                                   disabled={isUpdating}
                                   onChange={(e) => handleSelectStageChange(lead, e.target.value)}
-                                  className="w-full py-0.5 px-1.5 text-[11px] font-medium rounded border border-slate-200 bg-slate-50 hover:bg-white text-slate-700 focus:outline-hidden focus:ring-1 focus:ring-blue-500"
+                                  className="w-full py-0.5 px-1.5 text-[11px] font-bold rounded border border-slate-200 bg-slate-50 hover:bg-white text-slate-900 focus:outline-hidden focus:ring-1 focus:ring-blue-500"
                                 >
                                   {KANBAN_STAGES.map((s) => (
                                     <option key={s.id} value={s.id}>

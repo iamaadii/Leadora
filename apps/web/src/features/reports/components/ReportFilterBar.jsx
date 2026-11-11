@@ -128,14 +128,29 @@ export function ReportFilterBar({
                 <input
                   type="date"
                   value={customStart}
-                  onChange={(e) => setCustomStart(e.target.value)}
+                  max={customEnd || undefined}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCustomStart(val);
+                    if (customEnd && val && val > customEnd) {
+                      setCustomEnd(val);
+                    }
+                  }}
                   className="text-xs bg-transparent border-0 focus:outline-none text-slate-700"
                 />
                 <span className="text-slate-400 text-xs font-medium">to</span>
                 <input
                   type="date"
                   value={customEnd}
-                  onChange={(e) => setCustomEnd(e.target.value)}
+                  min={customStart || undefined}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (customStart && val && val < customStart) {
+                      setCustomEnd(customStart);
+                    } else {
+                      setCustomEnd(val);
+                    }
+                  }}
                   className="text-xs bg-transparent border-0 focus:outline-none text-slate-700"
                 />
                 <Button

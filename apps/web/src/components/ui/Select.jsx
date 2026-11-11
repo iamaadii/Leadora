@@ -285,12 +285,12 @@ export const Select = forwardRef(function Select(
             ? 'bg-white border-blue-500 ring-2 ring-blue-500/20 text-slate-900 shadow-sm'
             : error
             ? 'bg-white border-rose-300 text-slate-900 hover:border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 shadow-2xs'
-            : 'bg-white border-slate-200 text-slate-800 hover:border-slate-300 hover:bg-slate-50/50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs'
+            : 'bg-white border-slate-200 text-slate-900 hover:border-slate-300 hover:bg-slate-50/50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs'
         }`}
       >
         <span
-          className={`truncate flex-1 font-medium ${
-            !selectedOption || selectedOption.value === '' ? 'text-slate-500 font-normal' : 'text-slate-800'
+          className={`truncate flex-1 font-bold ${
+            !selectedOption ? 'text-slate-400' : 'text-slate-900'
           }`}
         >
           {selectedOption ? selectedOption.label : (placeholder || 'Select...')}
@@ -367,10 +367,10 @@ export const Select = forwardRef(function Select(
                         opt.disabled
                           ? 'text-slate-300 cursor-not-allowed'
                           : isSelected
-                          ? 'bg-blue-50 text-blue-700 font-semibold'
+                          ? 'bg-blue-50 text-blue-700 font-bold'
                           : isHighlighted
-                          ? 'bg-slate-100/80 text-slate-900 font-medium'
-                          : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 font-medium'
+                          ? 'bg-slate-100/80 text-slate-900 font-bold'
+                          : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 font-bold'
                       }`}
                     >
                       <span className="truncate flex-1">{opt.label}</span>

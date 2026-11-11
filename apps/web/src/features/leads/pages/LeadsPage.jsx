@@ -71,7 +71,7 @@ export function LeadsPage() {
 
   const handleStatusChange = async (leadId, newStatus, additionalData = {}) => {
     if (filters.isArchived) {
-      toast.warning('Stage updates are disabled on archived leads. Restore the lead first to make changes.');
+      toast.warning('Archived leads cannot change stage');
       return;
     }
     await updateLeadMutation.mutateAsync({
@@ -124,32 +124,26 @@ export function LeadsPage() {
 
   const handleCreateSubmit = async (payload) => {
     if (isDemo) {
-      toast.warning(
-        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
-        'Demo Mode (Read-Only)',
-      );
+      toast.warning('Changes are disabled in Demo Mode');
       setIsCreateModalOpen(false);
       return;
     }
     try {
       const res = await createLeadMutation.mutateAsync(payload);
-      toast.success(`Lead "${res.data.name}" created successfully`);
+      toast.success(`Lead "${res.data.name}" created`);
       setIsCreateModalOpen(false);
     } catch (err) {
       const msg =
         err.response?.data?.message ||
         err.response?.data?.error?.message ||
-        'Failed to create lead. Please verify inputs.';
-      toast.error(msg, 'Creation Error');
+        'Failed to create lead';
+      toast.error(msg);
     }
   };
 
   const handleEditSubmit = async (payload) => {
     if (isDemo) {
-      toast.warning(
-        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
-        'Demo Mode (Read-Only)',
-      );
+      toast.warning('Changes are disabled in Demo Mode');
       setEditingLead(null);
       return;
     }
@@ -158,14 +152,14 @@ export function LeadsPage() {
         id: editingLead.id,
         data: payload,
       });
-      toast.success('Lead updated successfully');
+      toast.success('Lead updated');
       setEditingLead(null);
     } catch (err) {
       const msg =
         err.response?.data?.message ||
         err.response?.data?.error?.message ||
-        'Failed to update lead.';
-      toast.error(msg, 'Update Error');
+        'Failed to update lead';
+      toast.error(msg);
     }
   };
 
@@ -176,41 +170,29 @@ export function LeadsPage() {
   const handleArchiveConfirm = async () => {
     if (!archivingLead) return;
     if (isDemo) {
-      toast.warning(
-        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
-        'Demo Mode (Read-Only)',
-      );
+      toast.warning('Changes are disabled in Demo Mode');
       setArchivingLead(null);
       return;
     }
     try {
       await archiveLeadMutation.mutateAsync(archivingLead.id);
-      toast.success(`Lead "${archivingLead.name}" has been archived.`);
+      toast.success(`Lead "${archivingLead.name}" archived`);
       setArchivingLead(null);
     } catch (err) {
-      toast.error(
-        err.response?.data?.message || err.message || 'Failed to archive lead',
-        'Archive Error',
-      );
+      toast.error(err.response?.data?.message || err.message || 'Failed to archive lead');
     }
   };
 
   const handleRestore = async (lead) => {
     if (isDemo) {
-      toast.warning(
-        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
-        'Demo Mode (Read-Only)',
-      );
+      toast.warning('Changes are disabled in Demo Mode');
       return;
     }
     try {
       await restoreLeadMutation.mutateAsync(lead.id);
-      toast.success(`Lead "${lead.name}" restored to active status.`);
+      toast.success(`Lead "${lead.name}" restored`);
     } catch (err) {
-      toast.error(
-        err.response?.data?.message || err.message || 'Failed to restore lead',
-        'Restore Error',
-      );
+      toast.error(err.response?.data?.message || err.message || 'Failed to restore lead');
     }
   };
 
