@@ -65,13 +65,10 @@ export function useTeamMutations() {
     mutationFn: (data) => teamsService.createTeam(data),
     onSuccess: (data) => {
       invalidate();
-      toast.success(`Team "${data.data.name}" created successfully!`, 'Team Created');
+      toast.success(`Team "${data.data.name}" created`);
     },
     onError: (err) => {
-      toast.error(
-        err.response?.data?.message || 'Failed to create team',
-        'Team Creation Error',
-      );
+      toast.error(err.response?.data?.message || 'Failed to create team');
     },
   });
 
@@ -79,13 +76,10 @@ export function useTeamMutations() {
     mutationFn: ({ id, data }) => teamsService.updateTeam(id, data),
     onSuccess: () => {
       invalidate();
-      toast.success('Team updated successfully', 'Team Updated');
+      toast.success('Team updated');
     },
     onError: (err) => {
-      toast.error(
-        err.response?.data?.message || 'Failed to update team',
-        'Update Error',
-      );
+      toast.error(err.response?.data?.message || 'Failed to update team');
     },
   });
 
@@ -93,13 +87,10 @@ export function useTeamMutations() {
     mutationFn: (id) => teamsService.deactivateTeam(id),
     onSuccess: () => {
       invalidate();
-      toast.success('Team deactivated and active members unassigned', 'Deactivated');
+      toast.success('Team deactivated');
     },
     onError: (err) => {
-      toast.error(
-        err.response?.data?.message || 'Failed to deactivate team',
-        'Error',
-      );
+      toast.error(err.response?.data?.message || 'Failed to deactivate team');
     },
   });
 
@@ -107,13 +98,10 @@ export function useTeamMutations() {
     mutationFn: (id) => teamsService.activateTeam(id),
     onSuccess: () => {
       invalidate();
-      toast.success('Team activated successfully', 'Activated');
+      toast.success('Team activated');
     },
     onError: (err) => {
-      toast.error(
-        err.response?.data?.message || 'Failed to activate team',
-        'Error',
-      );
+      toast.error(err.response?.data?.message || 'Failed to activate team');
     },
   });
 
@@ -121,13 +109,10 @@ export function useTeamMutations() {
     mutationFn: ({ teamId, employeeId }) => teamsService.addMember(teamId, employeeId),
     onSuccess: () => {
       invalidate();
-      toast.success('Member assigned to team successfully', 'Member Added');
+      toast.success('Member added');
     },
     onError: (err) => {
-      toast.error(
-        err.response?.data?.message || 'Failed to add member to team',
-        'Membership Error',
-      );
+      toast.error(err.response?.data?.message || 'Failed to add member');
     },
   });
 
@@ -135,13 +120,10 @@ export function useTeamMutations() {
     mutationFn: ({ teamId, employeeId }) => teamsService.removeMember(teamId, employeeId),
     onSuccess: () => {
       invalidate();
-      toast.success('Member removed from team', 'Member Removed');
+      toast.success('Member removed');
     },
     onError: (err) => {
-      toast.error(
-        err.response?.data?.message || 'Failed to remove member',
-        'Error',
-      );
+      toast.error(err.response?.data?.message || 'Failed to remove member');
     },
   });
 

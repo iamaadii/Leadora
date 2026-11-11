@@ -38,16 +38,10 @@ export function useEmployeeMutations() {
     mutationFn: (data) => employeesService.createEmployee(data),
     onSuccess: (data) => {
       invalidate();
-      toast.success(
-        `Employee ${data.data.first_name} ${data.data.last_name} created successfully!`,
-        'Employee Created',
-      );
+      toast.success(`Employee ${data.data.first_name} created`);
     },
     onError: (err) => {
-      toast.error(
-        err.response?.data?.message || 'Failed to create employee',
-        'Creation Error',
-      );
+      toast.error(err.response?.data?.message || 'Failed to create employee');
     },
   });
 
@@ -55,13 +49,10 @@ export function useEmployeeMutations() {
     mutationFn: ({ id, data }) => employeesService.updateEmployee(id, data),
     onSuccess: () => {
       invalidate();
-      toast.success('Employee updated successfully', 'Employee Updated');
+      toast.success('Employee updated');
     },
     onError: (err) => {
-      toast.error(
-        err.response?.data?.message || 'Failed to update employee',
-        'Update Error',
-      );
+      toast.error(err.response?.data?.message || 'Failed to update employee');
     },
   });
 
@@ -69,16 +60,10 @@ export function useEmployeeMutations() {
     mutationFn: ({ id, role }) => employeesService.changeRole(id, role),
     onSuccess: (data) => {
       invalidate();
-      toast.success(
-        `Role updated to ${data.data.role}`,
-        'Role Changed',
-      );
+      toast.success(`Role changed to ${data.data.role}`);
     },
     onError: (err) => {
-      toast.error(
-        err.response?.data?.message || 'Failed to update employee role',
-        'Role Change Error',
-      );
+      toast.error(err.response?.data?.message || 'Failed to update role');
     },
   });
 
@@ -91,13 +76,10 @@ export function useEmployeeMutations() {
     },
     onSuccess: () => {
       invalidate();
-      toast.success('Employee deactivated and active sessions revoked', 'Deactivated');
+      toast.success('Employee deactivated');
     },
     onError: (err) => {
-      toast.error(
-        err.response?.data?.message || 'Failed to deactivate employee',
-        'Error',
-      );
+      toast.error(err.response?.data?.message || 'Failed to deactivate employee');
     },
   });
 
@@ -105,13 +87,10 @@ export function useEmployeeMutations() {
     mutationFn: (id) => employeesService.activateEmployee(id),
     onSuccess: () => {
       invalidate();
-      toast.success('Employee reactivated successfully', 'Activated');
+      toast.success('Employee activated');
     },
     onError: (err) => {
-      toast.error(
-        err.response?.data?.message || 'Failed to reactivate employee',
-        'Error',
-      );
+      toast.error(err.response?.data?.message || 'Failed to activate employee');
     },
   });
 

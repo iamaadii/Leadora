@@ -78,15 +78,12 @@ export function ReportsPage() {
 
   const handleExport = (format) => {
     if (isCustomRangeIncomplete) {
-      toast.error('Please specify a valid start and end date for custom date range.', 'Invalid Date Range');
+      toast.error('Enter valid start and end dates');
       return;
     }
 
     if (isDemo) {
-      toast.warning(
-        'Action disabled in Demo Mode: Exporting CRM data is disabled in the live product demo.',
-        'Demo Mode (Read-Only)',
-      );
+      toast.warning('Export is disabled in Demo Mode');
       return;
     }
 

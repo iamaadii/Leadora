@@ -45,9 +45,9 @@ export function NotificationsPage() {
   const handleMarkAllRead = async () => {
     try {
       await markAllReadMutation.mutateAsync();
-      toast.success('All notifications marked as read.');
+      toast.success('All marked as read');
     } catch (_err) {
-      toast.error('Failed to mark all notifications as read.');
+      toast.error('Failed to mark all as read');
     }
   };
 
@@ -56,7 +56,7 @@ export function NotificationsPage() {
     try {
       await markReadMutation.mutateAsync(id);
     } catch (_err) {
-      toast.error('Failed to mark notification as read.');
+      toast.error('Failed to mark as read');
     }
   };
 

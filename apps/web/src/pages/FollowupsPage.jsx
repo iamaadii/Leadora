@@ -129,31 +129,22 @@ export function FollowupsPage() {
 
   const handleCreateSubmit = async (payload) => {
     if (isDemo) {
-      toast.warning(
-        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
-        'Demo Mode (Read-Only)',
-      );
+      toast.warning('Changes are disabled in Demo Mode');
       setIsCreateModalOpen(false);
       return;
     }
     try {
       await createMutation.mutateAsync(payload);
-      toast.success('Follow-up task scheduled successfully');
+      toast.success('Follow-up scheduled');
       setIsCreateModalOpen(false);
     } catch (err) {
-      toast.error(
-        err.response?.data?.message || err.message || 'Failed to schedule follow-up',
-        'Scheduling Error',
-      );
+      toast.error(err.response?.data?.message || err.message || 'Failed to schedule follow-up');
     }
   };
 
   const handleEditSubmit = async (payload) => {
     if (isDemo) {
-      toast.warning(
-        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
-        'Demo Mode (Read-Only)',
-      );
+      toast.warning('Changes are disabled in Demo Mode');
       setEditingFollowup(null);
       return;
     }
@@ -162,22 +153,16 @@ export function FollowupsPage() {
         id: editingFollowup.id,
         data: payload,
       });
-      toast.success('Follow-up task updated successfully');
+      toast.success('Follow-up updated');
       setEditingFollowup(null);
     } catch (err) {
-      toast.error(
-        err.response?.data?.message || err.message || 'Failed to update follow-up',
-        'Update Error',
-      );
+      toast.error(err.response?.data?.message || err.message || 'Failed to update follow-up');
     }
   };
 
   const handleCompleteSubmit = async (notes) => {
     if (isDemo) {
-      toast.warning(
-        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
-        'Demo Mode (Read-Only)',
-      );
+      toast.warning('Changes are disabled in Demo Mode');
       setCompletingFollowup(null);
       return;
     }
@@ -186,34 +171,25 @@ export function FollowupsPage() {
         id: completingFollowup.id,
         completionNotes: notes,
       });
-      toast.success('Follow-up task marked as completed');
+      toast.success('Follow-up completed');
       setCompletingFollowup(null);
     } catch (err) {
-      toast.error(
-        err.response?.data?.message || err.message || 'Failed to complete follow-up',
-        'Completion Error',
-      );
+      toast.error(err.response?.data?.message || err.message || 'Failed to complete follow-up');
     }
   };
 
   const handleCancelConfirm = async () => {
     if (isDemo) {
-      toast.warning(
-        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
-        'Demo Mode (Read-Only)',
-      );
+      toast.warning('Changes are disabled in Demo Mode');
       setCancellingFollowup(null);
       return;
     }
     try {
       await cancelMutation.mutateAsync(cancellingFollowup.id);
-      toast.success('Follow-up task was cancelled');
+      toast.success('Follow-up cancelled');
       setCancellingFollowup(null);
     } catch (err) {
-      toast.error(
-        err.response?.data?.message || err.message || 'Failed to cancel follow-up',
-        'Cancellation Error',
-      );
+      toast.error(err.response?.data?.message || err.message || 'Failed to cancel follow-up');
     }
   };
 

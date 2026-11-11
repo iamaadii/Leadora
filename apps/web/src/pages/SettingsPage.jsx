@@ -41,7 +41,7 @@ export function SettingsPage() {
   const handleSave = async (e) => {
     e.preventDefault();
     if (!companyName.trim()) {
-      toast.error('Organization name cannot be empty.');
+      toast.error('Organization name is required');
       return;
     }
 
@@ -51,7 +51,7 @@ export function SettingsPage() {
         currency,
         timezone,
       });
-      toast.success('Organization settings saved successfully.');
+      toast.success('Settings saved');
       if (updateOrganizationSettings) {
         updateOrganizationSettings({
           currency,
@@ -66,8 +66,8 @@ export function SettingsPage() {
       const msg =
         err.response?.data?.message ||
         err.response?.data?.error?.message ||
-        'Failed to save organization settings.';
-      toast.error(msg, 'Save Error');
+        'Failed to save settings';
+      toast.error(msg);
     }
   };
 

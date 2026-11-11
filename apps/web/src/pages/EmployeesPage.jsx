@@ -81,10 +81,7 @@ export function EmployeesPage() {
 
   const handleToggleActive = (emp) => {
     if (isDemo) {
-      toast.warning(
-        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
-        'Demo Mode (Read-Only)',
-      );
+      toast.warning('Changes are disabled in Demo Mode');
       return;
     }
     setConfirmToggleEmp(emp);
@@ -110,10 +107,7 @@ export function EmployeesPage() {
 
   const handleOpenCreate = () => {
     if (isDemo) {
-      toast.warning(
-        'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.',
-        'Demo Mode (Read-Only)',
-      );
+      toast.warning('Changes are disabled in Demo Mode');
       return;
     }
     setIsCreateOpen(true);

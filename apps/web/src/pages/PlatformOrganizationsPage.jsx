@@ -103,16 +103,16 @@ export function PlatformOrganizationsPage() {
         adminPassword: formAdminPassword,
       });
 
-      toast.success(`Organization "${formName.trim()}" provisioned successfully with Admin access.`);
+      toast.success(`Organization "${formName.trim()}" provisioned`);
       setIsProvisionOpen(false);
       resetProvisionForm();
     } catch (err) {
       const msg =
         err.response?.data?.message ||
         err.response?.data?.error?.message ||
-        'Failed to provision organization. Please ensure slug and email are unique.';
+        'Failed to provision organization';
       setFormError(msg);
-      toast.error(msg, 'Provisioning Error');
+      toast.error(msg);
     }
   };
 
@@ -131,18 +131,15 @@ export function PlatformOrganizationsPage() {
         status: targetNewStatus,
       });
 
-      toast.success(
-        `Organization "${targetOrg.name}" has been ${targetNewStatus.toLowerCase()}.`,
-        'Status Updated',
-      );
+      toast.success(`Organization "${targetOrg.name}" ${targetNewStatus.toLowerCase()}`);
       setTargetOrg(null);
       setTargetNewStatus(null);
     } catch (err) {
       const msg =
         err.response?.data?.message ||
         err.response?.data?.error?.message ||
-        'Failed to update organization status.';
-      toast.error(msg, 'Update Error');
+        'Failed to update organization status';
+      toast.error(msg);
     }
   };
 

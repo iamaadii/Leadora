@@ -36,7 +36,7 @@ export function useExportReport() {
       return await reportsService.exportReport(reportType, format, params);
     },
     onSuccess: (filename) => {
-      toast.success(`Report exported successfully: ${filename}`);
+      toast.success(`Report exported: ${filename}`);
     },
     onError: (err) => {
       const msg = err?.response?.data?.message || err.message || 'Failed to export report';
@@ -70,7 +70,7 @@ export function useExportPlatformReport() {
       return await reportsService.exportPlatformReport(reportType, format, params);
     },
     onSuccess: (filename) => {
-      toast.success(`Platform report exported successfully: ${filename}`);
+      toast.success(`Platform report exported: ${filename}`);
     },
     onError: (err) => {
       const msg = err?.response?.data?.message || err.message || 'Failed to export report';

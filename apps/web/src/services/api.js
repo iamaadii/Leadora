@@ -113,14 +113,13 @@ apiClient.interceptors.response.use(
       if (code === 'DEMO_READ_ONLY' || code === 'DEMO_EXPORT_DISABLED') {
         const message =
           code === 'DEMO_EXPORT_DISABLED'
-            ? 'Action disabled in Demo Mode: Exporting CRM data is disabled in the live product demo.'
-            : 'Action disabled in Demo Mode: Creating and modifying records is disabled in the live product demo.';
+            ? 'Export is disabled in Demo Mode'
+            : 'Changes are disabled in Demo Mode';
 
         window.dispatchEvent(
           new CustomEvent('app:toast', {
             detail: {
               type: 'warning',
-              title: 'Demo Mode (Read-Only)',
               message,
             },
           }),
