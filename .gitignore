@@ -23,3 +23,7 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Database seeds
+apps/api/src/database/seeds/seed.js
+seed.js
+
