@@ -109,16 +109,36 @@ export function Topbar({ onToggleMobileSidebar }) {
   const markAllReadMutation = useMarkAllNotificationsAsRead();
 
   useEffect(() => {
+    if (!isNotifOpen) return;
+
     const handleClickOutside = (event) => {
       if (notifRef.current && !notifRef.current.contains(event.target)) {
         setIsNotifOpen(false);
       }
     };
-    if (isNotifOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
+
+    const handleScroll = (event) => {
+      // If the scroll is inside the notification list itself, let it scroll
+      if (notifRef.current && notifRef.current.contains(event.target)) {
+        return;
+      }
+      setIsNotifOpen(false);
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setIsNotifOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    window.addEventListener('scroll', handleScroll, true);
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+      window.removeEventListener('scroll', handleScroll, true);
     };
   }, [isNotifOpen]);
 

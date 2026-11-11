@@ -26,28 +26,39 @@ export function Dropdown({
     const spaceBelow = window.innerHeight - rect.bottom;
     const spaceAbove = rect.top;
 
-    // Minimum space needed for a comfortable dropdown (~180px)
+    // Minimum space needed for a comfortable dropdown (~190px)
     const shouldOpenUpwards =
       direction === 'up' ||
       (direction !== 'down' && spaceBelow < 190 && spaceAbove > spaceBelow);
 
-    const isSmallScreen = window.innerWidth < 640;
+    const viewportWidth = window.innerWidth;
+    const menuWidth = 224; // standard w-56 width
+    const safeMargin = 12;
 
     let left = null;
     let right = null;
 
-    if (isSmallScreen) {
-      // On mobile screens, ensure the menu stays within 12px of viewport edges
-      if (align === 'right') {
-        right = Math.max(12, window.innerWidth - rect.right);
+    if (align === 'right') {
+      // Preferred: align menu's right edge to trigger's right edge
+      const intendedLeft = rect.right - menuWidth;
+      if (intendedLeft < safeMargin) {
+        // Menu would spill off the left edge of the screen! Clamp to left safeMargin
+        left = safeMargin;
+        right = null;
       } else {
-        left = Math.max(12, rect.left);
+        right = Math.max(safeMargin, viewportWidth - rect.right);
+        left = null;
       }
     } else {
-      if (align === 'right') {
-        right = Math.max(8, window.innerWidth - rect.right);
+      // Preferred: align menu's left edge to trigger's left edge
+      const intendedRight = rect.left + menuWidth;
+      if (intendedRight > viewportWidth - safeMargin) {
+        // Menu would spill off the right edge of the screen! Clamp to right safeMargin
+        right = safeMargin;
+        left = null;
       } else {
-        left = Math.max(8, rect.left);
+        left = Math.max(safeMargin, rect.left);
+        right = null;
       }
     }
 
@@ -75,8 +86,17 @@ export function Dropdown({
 
     calculatePosition();
 
-    const handleScrollOrResize = () => {
-      calculatePosition();
+    const handleScroll = (event) => {
+      // If the scroll is happening inside the dropdown menu itself, let it scroll
+      if (menuRef.current && menuRef.current.contains(event.target)) {
+        return;
+      }
+      // Otherwise, scrolling the page or container automatically dismisses the dropdown
+      setIsOpen(false);
+    };
+
+    const handleResize = () => {
+      setIsOpen(false);
     };
 
     const handleClickOutside = (event) => {
@@ -96,14 +116,14 @@ export function Dropdown({
       }
     };
 
-    window.addEventListener('scroll', handleScrollOrResize, true);
-    window.addEventListener('resize', handleScrollOrResize);
+    window.addEventListener('scroll', handleScroll, true);
+    window.addEventListener('resize', handleResize);
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('keydown', handleEscape);
 
     return () => {
-      window.removeEventListener('scroll', handleScrollOrResize, true);
-      window.removeEventListener('resize', handleScrollOrResize);
+      window.removeEventListener('scroll', handleScroll, true);
+      window.removeEventListener('resize', handleResize);
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleEscape);
     };

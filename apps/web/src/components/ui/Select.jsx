@@ -151,7 +151,8 @@ export const Select = forwardRef(function Select(
 
     const handleScroll = (e) => {
       if (menuRef.current && menuRef.current.contains(e.target)) return;
-      updateMenuPosition();
+      setIsOpen(false);
+      setSearchTerm('');
     };
 
     document.addEventListener('mousedown', handleClickOutside);

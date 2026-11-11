@@ -35,6 +35,28 @@ export function DateRangeFilter({
     }
   };
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleScroll = () => {
+      setIsOpen(false);
+    };
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, true);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll, true);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
+
   const handleApplyCustom = (e) => {
     e.preventDefault();
     if (!customStart || !customEnd) return;
@@ -64,7 +86,7 @@ export function DateRangeFilter({
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 mt-1 w-44 z-20 bg-white rounded-xl shadow-lg border border-slate-100 py-1 text-xs divide-y divide-slate-50">
+          <div className="absolute left-0 sm:left-auto sm:right-0 mt-1 w-44 z-20 bg-white rounded-xl shadow-lg border border-slate-100 py-1 text-xs divide-y divide-slate-50">
             {OPTIONS.map((opt) => (
               <button
                 key={opt.id}

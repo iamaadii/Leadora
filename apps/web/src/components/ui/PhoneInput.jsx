@@ -89,7 +89,7 @@ export function PhoneInput({
     }
   }, [value]);
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside, scrolling, or pressing Escape
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -97,8 +97,23 @@ export function PhoneInput({
       }
     }
 
+    function handleScroll(event) {
+      if (dropdownRef.current && dropdownRef.current.contains(event.target)) {
+        return;
+      }
+      setIsOpen(false);
+    }
+
+    function handleEscape(event) {
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+      }
+    }
+
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscape);
+      window.addEventListener('scroll', handleScroll, true);
       // Autofocus search input when dropdown opens
       setTimeout(() => {
         searchInputRef.current?.focus();
@@ -107,6 +122,8 @@ export function PhoneInput({
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+      window.removeEventListener('scroll', handleScroll, true);
     };
   }, [isOpen]);
 
@@ -208,7 +225,7 @@ export function PhoneInput({
 
           {/* Floating Searchable Country Dropdown */}
           {isOpen && (
-            <div className="absolute left-0 top-full mt-1.5 w-72 sm:w-80 max-h-80 bg-white rounded-xl shadow-xl border border-slate-200 z-50 flex flex-col overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100">
+            <div className="absolute left-0 top-full mt-1.5 w-72 sm:w-80 max-w-[calc(100vw-2rem)] max-h-80 bg-white rounded-xl shadow-xl border border-slate-200 z-50 flex flex-col overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100">
               {/* Search Header */}
               <div className="p-2 border-b border-slate-100 bg-slate-50/80 sticky top-0 z-10">
                 <div className="relative flex items-center">
