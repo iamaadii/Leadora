@@ -14,6 +14,9 @@ import {
   ChevronDown,
   Mail,
   Phone,
+  Crown,
+  KeyRound,
+  ExternalLink,
 } from 'lucide-react';
 
 const ROLE_CONFIG = {
@@ -21,16 +24,19 @@ const ROLE_CONFIG = {
     label: 'Admin',
     variant: 'danger',
     icon: ShieldCheck,
+    badgeBg: 'bg-rose-50 text-rose-700 border-rose-200/60',
   },
   MANAGER: {
     label: 'Manager',
     variant: 'primary',
     icon: Briefcase,
+    badgeBg: 'bg-indigo-50 text-indigo-700 border-indigo-200/60',
   },
   EMPLOYEE: {
     label: 'Employee',
     variant: 'neutral',
     icon: UserCheck,
+    badgeBg: 'bg-slate-100 text-slate-700 border-slate-200/60',
   },
 };
 
@@ -48,9 +54,9 @@ export function EmployeeTable({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col">
       {/* ------------------------------------------------------------- */}
-      {/* Mobile View: Concise Clickable Cards (Progressive Disclosure) */}
+      {/* Mobile View (<768px): 3-Tier Ergonomic Smart Cards            */}
       {/* ------------------------------------------------------------- */}
       <div className="sm:hidden divide-y divide-slate-100">
         {employees.map((emp) => {
@@ -61,142 +67,172 @@ export function EmployeeTable({
           const isExpanded = expandedId === emp.id;
 
           return (
-            <div key={emp.id} className="transition">
-              {/* Summary Card Header (Clickable) */}
-              <div
-                onClick={() => toggleExpand(emp.id)}
-                className="p-3.5 flex items-center justify-between gap-3 hover:bg-slate-50 cursor-pointer"
-              >
+            <div key={emp.id} className="p-4 space-y-3 transition">
+              {/* Tier 1: Identity & Status Chips */}
+              <div className="flex items-start justify-between gap-2.5">
                 <div className="flex items-center space-x-3 min-w-0 flex-1">
-                  <div className="h-9 w-9 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-xs shrink-0 shadow-xs">
+                  <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-xs shrink-0 shadow-2xs">
                     {initials}
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-1.5">
-                      <div className="flex items-center space-x-1.5 truncate">
-                        <span className="font-bold text-xs text-slate-900 truncate">
-                          {emp.first_name} {emp.last_name}
+                    <div className="flex items-center space-x-1.5 truncate">
+                      <span className="font-bold text-sm text-slate-900 truncate">
+                        {emp.first_name} {emp.last_name}
+                      </span>
+                      {isSelf && (
+                        <span className="text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200/60 px-1.5 py-0.2 rounded shrink-0">
+                          You
                         </span>
-                        {isSelf && (
-                          <span className="text-[10px] font-semibold bg-slate-100 text-slate-600 px-1 py-0.2 rounded shrink-0">
-                            You
-                          </span>
-                        )}
-                      </div>
-                      <Badge variant={emp.is_active ? 'success' : 'neutral'} size="sm">
-                        {emp.is_active ? 'Active' : 'Inactive'}
-                      </Badge>
+                      )}
                     </div>
 
-                    <div className="flex items-center space-x-2 text-[11px] text-slate-500 mt-0.5">
-                      <span className="inline-flex items-center space-x-1 text-slate-600 font-medium">
-                        <RoleIcon className="w-3 h-3 text-slate-400" />
-                        <span>{roleConf.label}</span>
-                      </span>
-                      {emp.team_name && (
-                        <>
-                          <span className="text-slate-300">&bull;</span>
-                          <span className="truncate text-slate-500">{emp.team_name}</span>
-                        </>
-                      )}
+                    <div className="flex items-center space-x-1.5 text-xs text-slate-500 mt-0.5 truncate">
+                      <Mail className="w-3 h-3 text-slate-400 shrink-0" />
+                      <span className="truncate">{emp.email}</span>
                     </div>
                   </div>
                 </div>
 
-                <ChevronDown
-                  className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 ${
-                    isExpanded ? 'rotate-180 text-blue-600' : ''
-                  }`}
-                />
+                <div className="flex flex-col items-end gap-1 shrink-0">
+                  <Badge variant={emp.is_active ? 'success' : 'neutral'} size="sm">
+                    {emp.is_active ? 'Active' : 'Inactive'}
+                  </Badge>
+                  {emp.must_change_password && (
+                    <span className="inline-flex items-center gap-0.5 text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200/60 px-1.5 py-0.2 rounded">
+                      <KeyRound className="w-2.5 h-2.5" />
+                      <span>Temp</span>
+                    </span>
+                  )}
+                </div>
               </div>
 
-              {/* Expanded Detail Panel (Progressive Disclosure) */}
-              {isExpanded && (
-                <div className="px-3.5 pb-3.5 pt-1 space-y-3 bg-slate-50/70 border-t border-slate-100/80 animate-in fade-in duration-150">
-                  <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 text-xs">
-                    <div className="bg-white p-2.5 rounded-xl border border-slate-200/70 space-y-1">
-                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
-                        Contact Info
-                      </span>
-                      <p className="text-[11px] text-slate-700 flex items-center space-x-1.5 truncate">
-                        <Mail className="w-3 h-3 text-slate-400 shrink-0" />
-                        <span className="truncate">{emp.email}</span>
-                      </p>
-                      {emp.phone && (
-                        <p className="text-[11px] text-slate-700 flex items-center space-x-1.5 truncate">
-                          <Phone className="w-3 h-3 text-slate-400 shrink-0" />
-                          <span className="truncate">{emp.phone}</span>
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="bg-white p-2.5 rounded-xl border border-slate-200/70 space-y-1">
-                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
-                        Assignment & Workload
-                      </span>
-                      <p className="text-[11px] text-slate-700 font-medium truncate">
-                        {emp.role === 'MANAGER'
-                          ? `Leads: ${emp.managed_team_name || 'No team'}`
-                          : `Team: ${emp.team_name || 'Unassigned'}`}
-                      </p>
-                      <p className="text-[11px] text-blue-600 font-bold">
-                        {emp.active_leads_count || 0} active leads
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Actions for this employee */}
-                  <div className="flex items-center space-x-2 pt-1">
-                    <Button
-                      size="xs"
-                      variant="outline"
-                      leftIcon={Edit2}
-                      onClick={() => onEdit(emp)}
-                      className="flex-1"
+              {/* Tier 2: Micro-Metric Strip (Role | Team | Leads) */}
+              <div className="grid grid-cols-3 gap-2 bg-slate-50/90 p-2.5 rounded-xl border border-slate-100 text-xs">
+                {/* Role Pill */}
+                <div className="min-w-0">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider leading-none">
+                    Role
+                  </span>
+                  <div className="mt-1 flex items-center space-x-1">
+                    <span
+                      className={`inline-flex items-center space-x-1 text-[11px] font-semibold px-2 py-0.5 rounded-md border ${roleConf.badgeBg}`}
                     >
-                      Edit
-                    </Button>
-                    <Button
-                      size="xs"
-                      variant="outline"
-                      leftIcon={UserCog}
-                      onClick={() => onChangeRole(emp)}
-                      disabled={isSelf}
-                    >
-                      Role
-                    </Button>
-                    <Button
-                      size="xs"
-                      variant={emp.is_active ? 'ghost' : 'outline'}
-                      leftIcon={emp.is_active ? UserX : UserCheck2}
-                      onClick={() => onToggleActive(emp)}
-                      disabled={isSelf}
-                      className={emp.is_active ? 'text-rose-600 hover:bg-rose-50' : 'text-emerald-600'}
-                    >
-                      {emp.is_active ? 'Deactivate' : 'Activate'}
-                    </Button>
+                      <RoleIcon className="w-3 h-3 shrink-0" />
+                      <span>{roleConf.label}</span>
+                    </span>
                   </div>
                 </div>
+
+                {/* Team Pill */}
+                <div className="min-w-0">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider leading-none">
+                    Team
+                  </span>
+                  <div className="mt-1 truncate">
+                    {emp.role === 'MANAGER' ? (
+                      <span className="inline-flex items-center space-x-1 text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200/60 px-2 py-0.5 rounded-md truncate max-w-full">
+                        <Crown className="w-3 h-3 shrink-0 text-indigo-600" />
+                        <span className="truncate">{emp.managed_team_name || 'No team'}</span>
+                      </span>
+                    ) : emp.team_name ? (
+                      <span className="inline-flex items-center space-x-1 text-[11px] font-medium text-slate-700 bg-slate-100 border border-slate-200/60 px-2 py-0.5 rounded-md truncate max-w-full">
+                        <Users2 className="w-3 h-3 shrink-0 text-slate-500" />
+                        <span className="truncate">{emp.team_name}</span>
+                      </span>
+                    ) : (
+                      <span className="text-slate-400 text-xs italic">Unassigned</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Active Leads */}
+                <div className="min-w-0 text-right">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider leading-none">
+                    Pipeline
+                  </span>
+                  <span className="font-bold font-mono text-blue-700 text-xs mt-1 block truncate">
+                    {emp.active_leads_count || 0} leads
+                  </span>
+                </div>
+              </div>
+
+              {/* Expandable Contact Details */}
+              {emp.phone && (
+                <div className="text-xs text-slate-600 flex items-center space-x-2 pt-0.5">
+                  <span className="text-slate-400 text-[11px]">Phone:</span>
+                  <a
+                    href={`tel:${emp.phone}`}
+                    className="font-semibold text-slate-800 hover:text-blue-600 transition"
+                  >
+                    {emp.phone}
+                  </a>
+                </div>
               )}
+
+              {/* Tier 3: Ergonomic 1-Tap Touch Bar */}
+              <div className="flex items-center gap-2 pt-0.5">
+                <button
+                  type="button"
+                  onClick={() => onEdit(emp)}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-semibold text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-95 transition"
+                >
+                  <Edit2 className="w-3.5 h-3.5 shrink-0" />
+                  <span>Edit Profile</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => onChangeRole(emp)}
+                  disabled={isSelf}
+                  className="inline-flex items-center justify-center gap-1.5 py-2.5 px-3.5 rounded-xl font-semibold text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition"
+                >
+                  <UserCog className="w-3.5 h-3.5 shrink-0" />
+                  <span>Role</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => onToggleActive(emp)}
+                  disabled={isSelf}
+                  className={`inline-flex items-center justify-center gap-1.5 py-2.5 px-3.5 rounded-xl font-semibold text-xs border active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition ${
+                    emp.is_active
+                      ? 'text-rose-600 bg-rose-50 border-rose-200/60 hover:bg-rose-100'
+                      : 'text-emerald-700 bg-emerald-50 border-emerald-200/60 hover:bg-emerald-100'
+                  }`}
+                >
+                  {emp.is_active ? (
+                    <>
+                      <UserX className="w-3.5 h-3.5 shrink-0" />
+                      <span>Disable</span>
+                    </>
+                  ) : (
+                    <>
+                      <UserCheck2 className="w-3.5 h-3.5 shrink-0" />
+                      <span>Activate</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           );
         })}
       </div>
 
       {/* ------------------------------------------------------------- */}
-      {/* Desktop View: Full Data Table with All Columns                */}
+      {/* Desktop / Laptop View (≥768px): Sticky Header, Paired Cols    */}
       {/* ------------------------------------------------------------- */}
-      <div className="hidden sm:block overflow-x-auto">
-        <table className="w-full text-left text-sm text-slate-600">
-          <thead className="bg-slate-50/80 border-b border-slate-200/80 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+      <div className="hidden sm:block overflow-x-auto relative">
+        <table className="w-full text-left text-sm text-slate-600 border-collapse">
+          {/* Sticky Header with Backdrop Blur */}
+          <thead className="sticky top-0 z-10 bg-slate-50/95 backdrop-blur-xs border-b border-slate-200 shadow-2xs text-xs font-semibold text-slate-500 uppercase tracking-wider">
             <tr>
-              <th className="px-6 py-3.5">Employee</th>
-              <th className="px-6 py-3.5">Role</th>
-              <th className="px-6 py-3.5">Team Assignment</th>
-              <th className="px-6 py-3.5">Active Leads</th>
-              <th className="px-6 py-3.5">Status</th>
-              <th className="px-6 py-3.5 text-right">Actions</th>
+              <th className="px-6 py-3.5 w-[30%]">Employee & Contact</th>
+              <th className="px-6 py-3.5 w-[16%]">Role</th>
+              <th className="px-6 py-3.5 w-[22%]">Team Assignment</th>
+              <th className="px-6 py-3.5 w-[14%] text-right">Active Leads</th>
+              <th className="px-6 py-3.5 w-[10%]">Status</th>
+              <th className="px-6 py-3.5 w-[8%] text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -209,83 +245,99 @@ export function EmployeeTable({
               return (
                 <tr
                   key={emp.id}
-                  className="hover:bg-slate-50/60 transition-colors duration-150"
+                  className="hover:bg-slate-50/70 border-l-2 border-transparent hover:border-blue-600 transition-all group"
                 >
-                  {/* Employee details */}
+                  {/* Col 1: Employee details */}
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-700 font-semibold flex items-center justify-center text-sm shrink-0">
+                      <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-xs shrink-0 shadow-2xs">
                         {initials}
                       </div>
-                      <div>
-                        <div className="font-medium text-slate-900 flex items-center gap-2">
-                          {emp.first_name} {emp.last_name}
+                      <div className="min-w-0">
+                        <div className="font-semibold text-slate-900 flex items-center gap-2 truncate">
+                          <span className="truncate">
+                            {emp.first_name} {emp.last_name}
+                          </span>
                           {isSelf && (
-                            <span className="text-[11px] font-medium bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
+                            <span className="text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200/60 px-1.5 py-0.2 rounded shrink-0">
                               You
                             </span>
                           )}
                           {emp.must_change_password && (
-                            <span className="text-[10px] font-semibold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">
-                              Temp Password
+                            <span className="text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200/60 px-1.5 py-0.2 rounded shrink-0">
+                              Temp Pass
                             </span>
                           )}
                         </div>
-                        <div className="text-xs text-slate-500 mt-0.5">
-                          {emp.email} {emp.phone && `• ${emp.phone}`}
+                        <div className="text-xs text-slate-500 mt-0.5 truncate flex items-center gap-1.5">
+                          <span>{emp.email}</span>
+                          {emp.phone && (
+                            <>
+                              <span className="text-slate-300">&bull;</span>
+                              <span>{emp.phone}</span>
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>
                   </td>
 
-                  {/* Role */}
+                  {/* Col 2: Role */}
                   <td className="px-6 py-4">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
-                      <RoleIcon className="w-3.5 h-3.5" />
+                    <div
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${roleConf.badgeBg}`}
+                    >
+                      <RoleIcon className="w-3.5 h-3.5 shrink-0" />
                       <span>{roleConf.label}</span>
                     </div>
                   </td>
 
-                  {/* Team */}
+                  {/* Col 3: Team with Manager Distinction */}
                   <td className="px-6 py-4">
                     {emp.role === 'MANAGER' ? (
                       emp.managed_team_name ? (
-                        <div className="flex items-center gap-1.5 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg w-fit">
-                          <Layers className="w-3.5 h-3.5 shrink-0" />
-                          <span>Leads: {emp.managed_team_name}</span>
+                        <div className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200/60 px-2.5 py-1 rounded-lg">
+                          <Crown className="w-3.5 h-3.5 shrink-0 text-indigo-600" />
+                          <span>Manager: {emp.managed_team_name}</span>
                         </div>
                       ) : (
-                        <span className="text-xs text-slate-400 italic">No team assigned</span>
+                        <span className="text-xs text-slate-400 italic">No managed team</span>
                       )
                     ) : emp.team_name ? (
-                      <div className="flex items-center gap-1.5 text-xs font-medium text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg w-fit">
+                      <div className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 bg-slate-100 border border-slate-200/60 px-2.5 py-1 rounded-lg">
                         <Users2 className="w-3.5 h-3.5 shrink-0 text-slate-500" />
                         <span>{emp.team_name}</span>
                       </div>
                     ) : (
-                      <span className="text-xs text-slate-400 italic">Unassigned</span>
+                      <span className="inline-flex items-center text-xs text-amber-700 bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded-md font-medium">
+                        Unassigned
+                      </span>
                     )}
                   </td>
 
-                  {/* Active Leads */}
-                  <td className="px-6 py-4">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                  {/* Col 4: Active Leads (Right-aligned numeric) */}
+                  <td className="px-6 py-4 text-right">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold font-mono tabular-nums bg-blue-50 text-blue-700 border border-blue-100">
                       {emp.active_leads_count || 0} leads
                     </span>
                   </td>
 
-                  {/* Status */}
+                  {/* Col 5: Status */}
                   <td className="px-6 py-4">
                     {emp.is_active ? (
-                      <Badge variant="success" size="sm">Active</Badge>
+                      <Badge variant="success" size="sm">
+                        Active
+                      </Badge>
                     ) : (
-                      <Badge variant="neutral" size="sm">Deactivated</Badge>
+                      <Badge variant="neutral" size="sm">
+                        Deactivated
+                      </Badge>
                     )}
                   </td>
 
-                  {/* Actions */}
+                  {/* Col 6: Actions */}
                   <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
+                    <div className="flex items-center justify-end gap-1">
                       <Button
                         variant="ghost"
                         size="sm"
@@ -310,7 +362,13 @@ export function EmployeeTable({
                         size="sm"
                         onClick={() => onToggleActive(emp)}
                         disabled={isSelf}
-                        title={isSelf ? 'Cannot deactivate yourself' : emp.is_active ? 'Deactivate Account' : 'Reactivate Account'}
+                        title={
+                          isSelf
+                            ? 'Cannot deactivate yourself'
+                            : emp.is_active
+                            ? 'Deactivate Account'
+                            : 'Reactivate Account'
+                        }
                       >
                         {emp.is_active ? (
                           <UserX className="w-4 h-4 text-rose-500" />
