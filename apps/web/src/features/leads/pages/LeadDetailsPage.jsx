@@ -87,13 +87,10 @@ export function LeadDetailsPage() {
   const handleCreateFollowup = async (payload) => {
     try {
       await createFollowupMutation.mutateAsync(payload);
-      toast.success('Follow-up task scheduled successfully');
+      toast.success('Follow-up scheduled');
       setIsScheduleFollowupOpen(false);
     } catch (err) {
-      toast.error(
-        err.response?.data?.message || err.message || 'Failed to schedule follow-up',
-        'Scheduling Error',
-      );
+      toast.error(err.response?.data?.message || err.message || 'Failed to schedule follow-up');
     }
   };
 
@@ -103,26 +100,20 @@ export function LeadDetailsPage() {
         id: completingFollowup.id,
         completionNotes: notes,
       });
-      toast.success('Follow-up task marked as completed');
+      toast.success('Follow-up completed');
       setCompletingFollowup(null);
     } catch (err) {
-      toast.error(
-        err.response?.data?.message || err.message || 'Failed to complete follow-up',
-        'Completion Error',
-      );
+      toast.error(err.response?.data?.message || err.message || 'Failed to complete follow-up');
     }
   };
 
   const handleCancelFollowup = async () => {
     try {
       await cancelFollowupMutation.mutateAsync(cancellingFollowup.id);
-      toast.success('Follow-up task was cancelled');
+      toast.success('Follow-up cancelled');
       setCancellingFollowup(null);
     } catch (err) {
-      toast.error(
-        err.response?.data?.message || err.message || 'Failed to cancel follow-up',
-        'Cancellation Error',
-      );
+      toast.error(err.response?.data?.message || err.message || 'Failed to cancel follow-up');
     }
   };
 
@@ -139,12 +130,9 @@ export function LeadDetailsPage() {
         id: lead.id,
         data: { status: newStatus },
       });
-      toast.success(`Lead moved to "${newStatus.replace(/_/g, ' ')}" status`);
+      toast.success(`Lead moved to ${newStatus.replace(/_/g, ' ')}`);
     } catch (err) {
-      toast.error(
-        err.response?.data?.message || err.message || 'Failed to update status',
-        'Update Failed',
-      );
+      toast.error(err.response?.data?.message || err.message || 'Failed to update status');
     }
   };
 
@@ -159,10 +147,7 @@ export function LeadDetailsPage() {
       toast.success('Lead marked as Lost');
       setIsMarkLostOpen(false);
     } catch (err) {
-      toast.error(
-        err.response?.data?.message || err.message || 'Failed to update status',
-        'Update Failed',
-      );
+      toast.error(err.response?.data?.message || err.message || 'Failed to update status');
     } finally {
       setIsSubmittingLoss(false);
     }
@@ -174,38 +159,29 @@ export function LeadDetailsPage() {
         id: lead.id,
         data: payload,
       });
-      toast.success('Lead updated successfully');
+      toast.success('Lead updated');
       setIsEditModalOpen(false);
     } catch (err) {
-      toast.error(
-        err.response?.data?.message || err.message || 'Failed to update lead',
-        'Update Error',
-      );
+      toast.error(err.response?.data?.message || err.message || 'Failed to update lead');
     }
   };
 
   const handleArchiveConfirm = async () => {
     try {
       await archiveLeadMutation.mutateAsync(lead.id);
-      toast.success('Lead archived successfully');
+      toast.success('Lead archived');
       setIsArchiveConfirmOpen(false);
     } catch (err) {
-      toast.error(
-        err.response?.data?.message || err.message || 'Failed to archive lead',
-        'Archive Error',
-      );
+      toast.error(err.response?.data?.message || err.message || 'Failed to archive lead');
     }
   };
 
   const handleRestore = async () => {
     try {
       await restoreLeadMutation.mutateAsync(lead.id);
-      toast.success('Lead restored to active pipeline');
+      toast.success('Lead restored');
     } catch (err) {
-      toast.error(
-        err.response?.data?.message || err.message || 'Failed to restore lead',
-        'Restore Error',
-      );
+      toast.error(err.response?.data?.message || err.message || 'Failed to restore lead');
     }
   };
 
@@ -264,73 +240,78 @@ export function LeadDetailsPage() {
           </div>
         }
         actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <Link to={isDemo ? '/demo/leads' : '/leads'}>
-              <Button variant="outline" size="sm" leftIcon={ArrowLeft}>
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            <Link to={isDemo ? '/demo/leads' : '/leads'} className="w-full sm:w-auto">
+              <Button variant="outline" size="sm" leftIcon={ArrowLeft} className="w-full sm:w-auto justify-center">
                 Back to Leads
               </Button>
             </Link>
 
-            {/* Quick Status Dropdown */}
-            <Dropdown
-              align="right"
-              trigger={() => (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  rightIcon={ChevronDown}
-                  isLoading={updateLeadMutation.isPending}
-                >
-                  Stage: {lead.status.replace(/_/g, ' ')}
-                </Button>
-              )}
-            >
-              <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                Change Status
-              </div>
-              {LEAD_STATUSES.map((st) => (
-                <DropdownItem
-                  key={st}
-                  onClick={() => handleStatusChange(st)}
-                  className={st === lead.status ? 'bg-blue-50 text-blue-700 font-bold' : ''}
-                >
-                  {st.replace(/_/g, ' ')}
-                </DropdownItem>
-              ))}
-            </Dropdown>
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+              {/* Quick Status Dropdown */}
+              <Dropdown
+                align="right"
+                trigger={() => (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    rightIcon={ChevronDown}
+                    isLoading={updateLeadMutation.isPending}
+                    className="flex-1 sm:flex-none justify-between"
+                  >
+                    Stage: {lead.status.replace(/_/g, ' ')}
+                  </Button>
+                )}
+              >
+                <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Change Status
+                </div>
+                {LEAD_STATUSES.map((st) => (
+                  <DropdownItem
+                    key={st}
+                    onClick={() => handleStatusChange(st)}
+                    className={st === lead.status ? 'bg-blue-50 text-blue-700 font-bold' : ''}
+                  >
+                    {st.replace(/_/g, ' ')}
+                  </DropdownItem>
+                ))}
+              </Dropdown>
 
-            <Button
-              variant="outline"
-              size="sm"
-              leftIcon={Edit2}
-              onClick={() => setIsEditModalOpen(true)}
-            >
-              Edit
-            </Button>
-
-            {canArchive && !lead.archived_at && (
               <Button
                 variant="outline"
                 size="sm"
-                leftIcon={Archive}
-                className="text-rose-600 hover:text-rose-700 hover:bg-rose-50"
-                onClick={() => setIsArchiveConfirmOpen(true)}
+                leftIcon={Edit2}
+                onClick={() => setIsEditModalOpen(true)}
+                className="flex-1 sm:flex-none justify-center"
               >
-                Archive
+                Edit
               </Button>
-            )}
 
-            {canArchive && lead.archived_at && (
-              <Button
-                variant="primary"
-                size="sm"
-                leftIcon={RotateCcw}
-                onClick={handleRestore}
-                isLoading={restoreLeadMutation.isPending}
-              >
-                Restore
-              </Button>
-            )}
+              {canArchive && !lead.archived_at && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  leftIcon={Archive}
+                  className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 flex-1 sm:flex-none justify-center"
+                  onClick={() => setIsArchiveConfirmOpen(true)}
+                >
+                  Archive
+                </Button>
+              )}
+
+              {canArchive && lead.archived_at && (
+                <Button
+                  variant="primary"
+                  size="sm"
+                  leftIcon={RotateCcw}
+                  onClick={handleRestore}
+                  isLoading={restoreLeadMutation.isPending}
+                  className="flex-1 sm:flex-none justify-center"
+                >
+                  Restore
+                </Button>
+              )}
+            </div>
           </div>
         }
       />
@@ -379,10 +360,10 @@ export function LeadDetailsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Contact & Lead Details Card */}
         <div className="space-y-6">
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-5">
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-6 shadow-xs space-y-5">
             <div className="flex items-center space-x-3 pb-4 border-b border-slate-100">
               <Avatar name={lead.name} size="lg" />
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <h3 className="text-base font-bold text-slate-900 truncate">{lead.name}</h3>
                 <p className="text-xs text-slate-500 truncate">{lead.company || 'Individual Client'}</p>
               </div>
@@ -391,12 +372,12 @@ export function LeadDetailsPage() {
             <div className="space-y-3.5 text-xs">
               <div className="flex items-start space-x-2.5">
                 <Mail className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <span className="text-slate-400 block text-[11px]">Email</span>
                   {lead.email ? (
                     <a
                       href={`mailto:${lead.email}`}
-                      className="text-blue-600 hover:underline font-medium truncate block"
+                      className="text-blue-600 hover:underline font-medium break-all block"
                     >
                       {lead.email}
                     </a>
@@ -408,12 +389,12 @@ export function LeadDetailsPage() {
 
               <div className="flex items-start space-x-2.5">
                 <Phone className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
-                <div>
+                <div className="min-w-0 flex-1">
                   <span className="text-slate-400 block text-[11px]">Phone</span>
                   {lead.phone ? (
                     <a
                       href={`tel:${lead.phone}`}
-                      className="text-slate-800 hover:underline font-medium"
+                      className="text-slate-800 hover:underline font-medium break-words"
                     >
                       {lead.phone}
                     </a>
@@ -425,7 +406,7 @@ export function LeadDetailsPage() {
 
               <div className="flex items-start space-x-2.5">
                 <DollarSign className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                <div>
+                <div className="min-w-0 flex-1">
                   <span className="text-slate-400 block text-[11px]">Estimated Deal Value</span>
                   <span className="font-extrabold text-emerald-700 text-sm">
                     {formatCurrency(lead.estimated_value, organizationCurrency)}
@@ -435,7 +416,7 @@ export function LeadDetailsPage() {
 
               <div className="flex items-start space-x-2.5">
                 <Flame className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
-                <div>
+                <div className="min-w-0 flex-1">
                   <span className="text-slate-400 block text-[11px]">Deal Priority</span>
                   <div className="mt-0.5">
                     <LeadPriorityBadge priority={lead.priority} size="sm" />
@@ -445,9 +426,9 @@ export function LeadDetailsPage() {
 
               <div className="flex items-start space-x-2.5">
                 <Building className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
-                <div>
+                <div className="min-w-0 flex-1">
                   <span className="text-slate-400 block text-[11px]">Company / Organization</span>
-                  <span className="font-medium text-slate-800">
+                  <span className="font-medium text-slate-800 break-words">
                     {lead.company || 'Not provided'}
                   </span>
                 </div>
@@ -455,15 +436,15 @@ export function LeadDetailsPage() {
 
               <div className="flex items-start space-x-2.5">
                 <User className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
-                <div>
+                <div className="min-w-0 flex-1">
                   <span className="text-slate-400 block text-[11px]">Assigned Representative</span>
-                  <span className="font-semibold text-slate-900">{assignedName}</span>
+                  <span className="font-semibold text-slate-900 break-words">{assignedName}</span>
                 </div>
               </div>
 
               <div className="flex items-start space-x-2.5">
                 <Calendar className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
-                <div>
+                <div className="min-w-0 flex-1">
                   <span className="text-slate-400 block text-[11px]">Lead Source</span>
                   <span className="font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded text-[11px] border border-slate-200/60">
                     {lead.source}
@@ -476,7 +457,7 @@ export function LeadDetailsPage() {
             {lead.description && (
               <div className="pt-4 border-t border-slate-100 space-y-1.5">
                 <h4 className="text-xs font-semibold text-slate-700">Notes & Qualification</h4>
-                <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-200/60 whitespace-pre-wrap">
+                <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-200/60 whitespace-pre-wrap break-words">
                   {lead.description}
                 </p>
               </div>
@@ -484,15 +465,15 @@ export function LeadDetailsPage() {
 
             {/* Metadata Footer */}
             <div className="pt-4 border-t border-slate-100 space-y-1 text-[11px] text-slate-400">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <span>Created by:</span>
-                <span className="font-medium text-slate-600">{creatorName}</span>
+                <span className="font-medium text-slate-600 truncate max-w-[140px] text-right">{creatorName}</span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <span>Created on:</span>
                 <span className="text-slate-600">{createdDate}</span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <span>Last updated:</span>
                 <span className="text-slate-600">{updatedDate}</span>
               </div>
@@ -503,12 +484,12 @@ export function LeadDetailsPage() {
         {/* Right Column: Activity History Timeline & Follow-ups */}
         <div className="lg:col-span-2 space-y-6">
           {/* Follow-ups Panel */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center space-x-2">
-                <CalendarClock className="w-4 h-4 text-blue-600" />
-                <h3 className="text-sm font-bold text-slate-900">Scheduled Follow-ups</h3>
-                <span className="text-[10px] font-semibold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-100">
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-6 shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+              <div className="flex items-center space-x-2 min-w-0">
+                <CalendarClock className="w-4 h-4 text-blue-600 shrink-0" />
+                <h3 className="text-sm font-bold text-slate-900 truncate">Scheduled Follow-ups</h3>
+                <span className="text-[10px] font-semibold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-100 shrink-0">
                   {leadFollowups.filter((f) => f.status === 'PENDING').length} pending
                 </span>
               </div>
@@ -517,6 +498,7 @@ export function LeadDetailsPage() {
                 variant="outline"
                 leftIcon={Plus}
                 onClick={() => setIsScheduleFollowupOpen(true)}
+                className="self-start sm:self-auto shrink-0"
               >
                 Schedule Follow-up
               </Button>
@@ -557,13 +539,13 @@ export function LeadDetailsPage() {
                           : 'bg-white border-slate-200/80 shadow-xs'
                       }`}
                     >
-                      <div className="flex items-start space-x-3">
+                      <div className="flex items-start space-x-3 min-w-0 flex-1">
                         <div className="p-2 rounded-lg bg-slate-100 shrink-0 mt-0.5">
                           <FollowupTypeIcon type={f.type} />
                         </div>
-                        <div className="space-y-1">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-xs font-semibold text-slate-900">{f.title}</span>
+                        <div className="space-y-1 min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+                            <span className="text-xs font-semibold text-slate-900 break-words">{f.title}</span>
                             <FollowupPriorityBadge priority={f.priority} />
                             <FollowupStatusBadge
                               status={f.status}
@@ -572,15 +554,15 @@ export function LeadDetailsPage() {
                             />
                           </div>
                           {f.description && (
-                            <p className="text-[11px] text-slate-500 line-clamp-1">{f.description}</p>
+                            <p className="text-[11px] text-slate-500 line-clamp-2 break-words">{f.description}</p>
                           )}
-                          <div className="flex items-center space-x-3 text-[11px] text-slate-400">
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-slate-400">
                             <span>Due: {new Date(f.due_at).toLocaleString()}</span>
                             <span>·</span>
-                            <span>Assigned: {f.assigned_to_first_name ? `${f.assigned_to_first_name} ${f.assigned_to_last_name}` : 'Unassigned'}</span>
+                            <span className="truncate max-w-[150px]">Assigned: {f.assigned_to_first_name ? `${f.assigned_to_first_name} ${f.assigned_to_last_name}` : 'Unassigned'}</span>
                           </div>
                           {f.completion_notes && (
-                            <p className="text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
+                            <p className="text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 break-words">
                               Outcome: {f.completion_notes}
                             </p>
                           )}
@@ -588,7 +570,7 @@ export function LeadDetailsPage() {
                       </div>
 
                       {isPending && (
-                        <div className="flex items-center space-x-2 self-end sm:self-center">
+                        <div className="flex items-center space-x-2 self-end sm:self-center shrink-0">
                           <Button
                             size="xs"
                             variant="outline"
@@ -616,13 +598,13 @@ export function LeadDetailsPage() {
           </div>
 
           {/* Activity History Timeline */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center space-x-2">
-                <Activity className="w-4 h-4 text-slate-500" />
-                <h3 className="text-sm font-bold text-slate-900">Activity History & Audit</h3>
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-6 shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+              <div className="flex items-center space-x-2 min-w-0">
+                <Activity className="w-4 h-4 text-slate-500 shrink-0" />
+                <h3 className="text-sm font-bold text-slate-900 truncate">Activity History & Audit</h3>
               </div>
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-slate-400 shrink-0">
                 {lead.recent_activities?.length || 0} event(s) logged
               </span>
             </div>

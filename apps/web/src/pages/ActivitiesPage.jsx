@@ -19,6 +19,7 @@ import {
   Filter,
   RotateCcw,
   AlertCircle,
+  ChevronDown,
 } from 'lucide-react';
 import { useToast } from '../components/ui/Toast.jsx';
 import { useAuth } from '../features/auth/hooks/useAuth.js';
@@ -81,7 +82,7 @@ export function ActivitiesPage() {
 
   const handleRefresh = async () => {
     await refetch();
-    toast.info('Activity stream updated.', 'Feed Refreshed');
+    toast.info('Activity stream updated');
   };
 
   const activities = data?.data || [];
@@ -222,8 +223,14 @@ export function ActivitiesPage() {
             <input
               type="date"
               value={startDate}
+              max={endDate || undefined}
               onChange={(e) => {
-                setStartDate(e.target.value);
+                const val = e.target.value;
+                setStartDate(val);
+                if (endDate && val && val > endDate) {
+                  setEndDate(val);
+                }
+                setDateError('');
                 setPage(1);
               }}
               className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700"
@@ -236,8 +243,15 @@ export function ActivitiesPage() {
             <input
               type="date"
               value={endDate}
+              min={startDate || undefined}
               onChange={(e) => {
-                setEndDate(e.target.value);
+                const val = e.target.value;
+                if (startDate && val && val < startDate) {
+                  setEndDate(startDate);
+                } else {
+                  setEndDate(val);
+                }
+                setDateError('');
                 setPage(1);
               }}
               className={`w-full px-3 py-2 text-xs bg-white border ${
@@ -277,60 +291,66 @@ export function ActivitiesPage() {
               const leadId = act.leadId || act.lead_id;
               const description = act.description || act.details || '';
               const createdAt = act.createdAt || act.created_at;
+              const isExpanded = expandedId === act.id;
 
               return (
                 <div
                   key={act.id}
-                  className="p-4 sm:p-5 hover:bg-slate-50/70 transition flex items-start space-x-3.5"
+                  onClick={() => toggleExpand(act.id)}
+                  className="p-3.5 sm:p-5 hover:bg-slate-50/70 transition flex items-start space-x-3 sm:space-x-3.5 cursor-pointer sm:cursor-default"
                 >
-                  <div className="p-2.5 rounded-xl bg-slate-100 shrink-0 mt-0.5">
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-slate-100 shrink-0 mt-0.5">
                     {getActivityIcon(act.activityType || act.activity_type || act.type)}
                   </div>
 
                   <div className="flex-1 min-w-0 space-y-1">
-                    <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-600">
-                      <span className="inline-flex items-center space-x-1 font-bold text-slate-900">
-                        <User className="w-3 h-3 text-slate-400" />
-                        <span>{actorName}</span>
-                      </span>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-600 min-w-0 flex-1">
+                        <span className="inline-flex items-center space-x-1 font-bold text-slate-900">
+                          <User className="w-3 h-3 text-slate-400" />
+                          <span>{actorName}</span>
+                        </span>
 
-                      <span>•</span>
-                      <span className="font-semibold text-slate-700 capitalize">
-                        {(act.activityType || act.activity_type || act.type || 'activity').toLowerCase().replace(/_/g, ' ')}
-                      </span>
+                        <span>•</span>
+                        <span className="font-semibold text-slate-700 capitalize">
+                          {(act.activityType || act.activity_type || act.type || 'activity').toLowerCase().replace(/_/g, ' ')}
+                        </span>
 
-                      {leadId && (
-                        <>
-                          <ArrowRight className="w-3 h-3 text-slate-400" />
-                          <Link
-                            to={isDemo ? `/demo/leads/${leadId}` : `/leads/${leadId}`}
-                            className="font-bold text-blue-600 hover:text-blue-700 hover:underline"
-                          >
-                            {leadName}
-                          </Link>
-                        </>
+                        {leadId && (
+                          <>
+                            <ArrowRight className="w-3 h-3 text-slate-400 shrink-0" />
+                            <Link
+                              to={isDemo ? `/demo/leads/${leadId}` : `/leads/${leadId}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="font-bold text-blue-600 hover:text-blue-700 hover:underline truncate max-w-[140px] sm:max-w-none"
+                            >
+                              {leadName}
+                            </Link>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Mobile Expand / Collapse Badge */}
+                      {description && (
+                        <div className="sm:hidden shrink-0 text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100 flex items-center space-x-1">
+                          <span>{isExpanded ? 'Hide' : 'Details'}</span>
+                          <ChevronDown
+                            className={`w-3 h-3 transition-transform duration-200 ${
+                              isExpanded ? 'rotate-180' : ''
+                            }`}
+                          />
+                        </div>
                       )}
                     </div>
 
+                    {/* Description: Collapsed on mobile by default, expanded on click. Always visible on desktop. */}
                     {description && (
-                      <div>
+                      <div className={`${isExpanded ? 'block animate-in fade-in duration-150' : 'hidden sm:block'} pt-1 sm:pt-0`}>
                         <div
-                          onClick={() => toggleExpand(act.id)}
-                          className={`text-xs text-slate-700 leading-relaxed font-sans bg-slate-50/80 p-2.5 rounded-xl border border-slate-100 max-w-2xl break-words cursor-pointer transition ${
-                            expandedId === act.id ? '' : 'line-clamp-2 sm:line-clamp-none'
-                          }`}
+                          className="text-xs text-slate-700 leading-relaxed font-sans bg-slate-50/80 p-2.5 rounded-xl border border-slate-100 max-w-2xl break-words"
                         >
                           {description}
                         </div>
-                        {description.length > 80 && (
-                          <button
-                            type="button"
-                            onClick={() => toggleExpand(act.id)}
-                            className="text-[11px] font-bold text-blue-600 hover:text-blue-800 sm:hidden mt-0.5"
-                          >
-                            {expandedId === act.id ? 'Show less' : 'View all details'}
-                          </button>
-                        )}
                       </div>
                     )}
 

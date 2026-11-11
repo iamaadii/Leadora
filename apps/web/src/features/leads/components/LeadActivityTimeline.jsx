@@ -72,12 +72,12 @@ export function LeadActivityTimeline({ activities = [], isLoading = false }) {
               <Icon className="w-3 h-3 stroke-[2]" />
             </div>
 
-            <div className="space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-slate-800">
+            <div className="space-y-1 min-w-0">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1">
+                <span className="font-semibold text-slate-800 break-words flex-1">
                   {act.description}
                 </span>
-                <span className="text-[11px] text-slate-400 font-medium">{dateStr}</span>
+                <span className="text-[11px] text-slate-400 font-medium shrink-0">{dateStr}</span>
               </div>
 
               <div className="flex items-center space-x-1.5 text-[11px] text-slate-500">

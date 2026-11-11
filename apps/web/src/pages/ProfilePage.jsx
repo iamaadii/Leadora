@@ -56,7 +56,7 @@ export function ProfilePage() {
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     if (!firstName.trim()) {
-      toast.error('First name is required.');
+      toast.error('First name is required');
       return;
     }
 
@@ -68,7 +68,7 @@ export function ProfilePage() {
         phone: phone.trim() || null,
       });
 
-      toast.success('Profile details updated successfully.');
+      toast.success('Profile updated');
       if (refreshUser) {
         await refreshUser();
       }
@@ -76,8 +76,8 @@ export function ProfilePage() {
       const msg =
         err.response?.data?.message ||
         err.response?.data?.error?.message ||
-        'Failed to update profile details.';
-      toast.error(msg, 'Update Failed');
+        'Failed to update profile';
+      toast.error(msg);
     } finally {
       setProfileLoading(false);
     }
@@ -105,7 +105,7 @@ export function ProfilePage() {
         newPassword,
       });
 
-      toast.success('Password updated successfully. Please sign in with your new password.', 'Security Update');
+      toast.success('Password updated. Please sign in again.');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
@@ -118,16 +118,16 @@ export function ProfilePage() {
       const msg =
         err.response?.data?.message ||
         err.response?.data?.error?.message ||
-        'Failed to change password. Please verify your current password.';
+        'Failed to change password. Please verify current password.';
       setPasswordError(msg);
-      toast.error(msg, 'Password Change Failed');
+      toast.error(msg);
     } finally {
       setPasswordLoading(false);
     }
   };
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 max-w-5xl">
       <PageHeader
         title="User Profile & Security"
         description="Manage your account profile details, role permissions, and authentication security."
@@ -144,11 +144,11 @@ export function ProfilePage() {
             <div className="w-16 h-16 rounded-full bg-blue-600 text-white font-bold text-xl flex items-center justify-center shadow-sm">
               {user?.firstName?.[0] || 'U'}
             </div>
-            <div>
-              <h3 className="text-base font-bold text-slate-900">
+            <div className="min-w-0 max-w-full">
+              <h3 className="text-base font-bold text-slate-900 break-words">
                 {user?.firstName} {user?.lastName}
               </h3>
-              <p className="text-xs text-slate-500">{user?.email}</p>
+              <p className="text-xs text-slate-500 break-all">{user?.email}</p>
             </div>
             <div className="pt-1">
               <Badge variant="primary" size="md" dot>
@@ -157,33 +157,35 @@ export function ProfilePage() {
             </div>
           </div>
 
-          <div className="border-t border-slate-100 pt-4 space-y-3 text-xs">
-            <div className="flex items-center justify-between text-slate-600">
-              <span className="flex items-center space-x-1.5 text-slate-500">
-                <Building className="w-3.5 h-3.5" />
-                <span>Organization:</span>
+          <div className="border-t border-slate-100 pt-4 space-y-3.5 text-xs">
+            <div className="space-y-1">
+              <span className="flex items-center space-x-1.5 text-slate-500 text-[11px] font-medium">
+                <Building className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span>Organization</span>
               </span>
-              <span className="font-semibold text-slate-800">
+              <p className="font-semibold text-slate-800 break-words pl-5 leading-snug">
                 {user?.organization?.name || user?.organizationName || 'Global Platform'}
-              </span>
+              </p>
             </div>
 
-            <div className="flex items-center justify-between text-slate-600">
-              <span className="flex items-center space-x-1.5 text-slate-500">
-                <Mail className="w-3.5 h-3.5" />
-                <span>Account Email:</span>
+            <div className="space-y-1">
+              <span className="flex items-center space-x-1.5 text-slate-500 text-[11px] font-medium">
+                <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span>Account Email</span>
               </span>
-              <span className="font-mono text-slate-800 truncate max-w-[140px]">
+              <p className="font-mono text-slate-800 break-all pl-5 leading-snug">
                 {user?.email}
-              </span>
+              </p>
             </div>
 
-            <div className="flex items-center justify-between text-slate-600">
-              <span className="flex items-center space-x-1.5 text-slate-500">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Account Status:</span>
+            <div className="flex items-center justify-between pt-1">
+              <span className="flex items-center space-x-1.5 text-slate-500 text-[11px] font-medium">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>Account Status</span>
               </span>
-              <span className="font-semibold text-emerald-600">Active</span>
+              <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 text-[11px]">
+                Active
+              </span>
             </div>
           </div>
         </div>
